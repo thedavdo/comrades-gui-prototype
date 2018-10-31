@@ -8,14 +8,12 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.lang.*;
 
-public class CJMenuItem extends JMenuItem
-{
-    Communicator COMM;
+public class CJMenuItem extends JMenuItem {
+	Communicator COMM;
 
-    public CJMenuItem (Communicator C)
-    {
-	COMM = C;
-	setText (C.id); // id
-    }
+	public CJMenuItem(Communicator C) {
+		COMM = C;
+		setText(C.id); // id
+	}
 
 }
