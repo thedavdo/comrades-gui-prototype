@@ -789,7 +789,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			BOARD_PANEL.Black = INSTANCES[0].name;
 			break;
 		case 3:
-			BOARD_PANEL.White = INSTANCES[0].name;
+			BOARD_PANEL.White = INSTANCES[1].name;
 			BOARD_PANEL.Black = INSTANCES[0].name;
 			break;
 		default:
