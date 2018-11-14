@@ -13,7 +13,7 @@ public class KillProcess extends Thread {
 	public void run() {
 		CI.SendTo("quit", true);
 		CI.SleepFor(100);
-		process.destroy(); // HACK
+		process.destroy();
 	}
 
 }

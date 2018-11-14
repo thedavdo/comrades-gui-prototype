@@ -1,13 +1,13 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.util.StringTokenizer;
 
 public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 	public InstanceOptionsFrameICI(CommunicatorInstance ci) {
@@ -97,12 +97,12 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 			JButton X = new JButton("Change");
 			X.setActionCommand("Change");
 			X.addActionListener(this);
-			X.setMargin(new Insets(1, 5, 1, 5)); // HACK
+			X.setMargin(new Insets(1, 5, 1, 5));
 			B.add(X);
 			JButton Y = new JButton("NULL");
 			Y.setActionCommand("NULL");
 			Y.addActionListener(this);
-			Y.setMargin(new Insets(1, 5, 1, 5)); // HACK
+			Y.setMargin(new Insets(1, 5, 1, 5));
 			B.add(Y);
 			B.setAlignmentX(0.0f);
 			return B;
@@ -141,7 +141,7 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 				return;
 			}
 			if (act_evt.getActionCommand().equals("ADD")) {
-				Box B = (Box) (BOX.getParent()); // HACK
+				Box B = (Box) (BOX.getParent());
 				B.add(new MultiButton("NULL", NAME, B.getComponentCount()).MakeBox(false));
 				B.revalidate();
 				B.repaint();
@@ -182,18 +182,18 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 			JButton X = new JButton("Change");
 			X.setActionCommand("Change");
 			X.addActionListener(this);
-			X.setMargin(new Insets(1, 5, 1, 5)); // HACK
+			X.setMargin(new Insets(1, 5, 1, 5));
 			B.add(X);
 			JButton Y = new JButton("NULL");
 			Y.setActionCommand("NULL");
 			Y.addActionListener(this);
-			Y.setMargin(new Insets(1, 5, 1, 5)); // HACK
+			Y.setMargin(new Insets(1, 5, 1, 5));
 			B.add(Y);
 			if (ADD) {
 				JButton Z = new JButton("ADD");
 				Z.setActionCommand("ADD");
 				Z.addActionListener(this);
-				Z.setMargin(new Insets(1, 5, 1, 5)); // HACK
+				Z.setMargin(new Insets(1, 5, 1, 5));
 				B.add(Z);
 			}
 			B.setAlignmentX(0.0f);
@@ -206,7 +206,7 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 		Box BY = new Box(BoxLayout.Y_AXIS);
 		String DEFAULT;
 		DEFAULT = new String("NULL"); // reset
-		StringTokenizer ST = new StringTokenizer(DEFAULT, "|"); // HACK
+		StringTokenizer ST = new StringTokenizer(DEFAULT, "|");
 		int k = 0;
 		MultiButton MB = new MultiButton(ST.nextToken(), NAME, k++);
 		BY.add(MB.MakeBox(true));
@@ -228,9 +228,9 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 			String TYPE = ST.nextToken();
 			int w = TABBED.indexOfTab(SUB_CLASS);
 			if (w == -1)
-				continue; // HACK
+				continue;
 			JScrollPane JSP = (JScrollPane) (TABBED.getComponentAt(w));
-			Box BOX = (Box) (JSP.getViewport().getView()); // HACK
+			Box BOX = (Box) (JSP.getViewport().getView());
 			if (TYPE.equals("button"))
 				ButtonBox(BOX, CI.OPT_NAME[i]);
 			if (TYPE.equals("check"))
@@ -257,7 +257,7 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 
 	public void AddOptions_ICI(JFrame OPT) {
 		JTabbedPane TABBED = new JTabbedPane();
-		AttendOptionsICI(); // HACK
+		AttendOptionsICI();
 		COPY_NAME = new String[opt_count];
 		COPY_TYPE = new String[opt_count];
 		COPY_VALUE = new String[opt_count];

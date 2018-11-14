@@ -1,13 +1,10 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.StringTokenizer;
 
 public class InstanceOptionsFrameUCI extends InstanceOptionsFrame {
 	public InstanceOptionsFrameUCI(CommunicatorInstance ci) {
@@ -36,7 +33,7 @@ public class InstanceOptionsFrameUCI extends InstanceOptionsFrame {
 	}
 
 	public void BoxFill_UCI(Box BOX) {
-		AttendOptions_UCI(); // HACK
+		AttendOptions_UCI();
 		TopOptions(BOX);
 		COPY_NAME = new String[opt_count];
 		COPY_TYPE = new String[opt_count];

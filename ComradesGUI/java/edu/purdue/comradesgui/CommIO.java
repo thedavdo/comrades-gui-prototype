@@ -1,14 +1,11 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
-import java.text.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.FieldPosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CommIO {
 	ComradesFrame CF;
@@ -19,13 +16,14 @@ public class CommIO {
 
 	public CommIO(ComradesFrame cf) {
 		CF = cf;
-		LOG_SB = new StringBuffer(""); // HACK
+		LOG_SB = new StringBuffer("");
 	}
 
 	public void SleepFor(int x) {
 		try {
 			Thread.sleep(x);
-		} catch (InterruptedException int_exc) {
+		}
+		catch (InterruptedException int_exc) {
 			CF.TellInfo("Internalized sleep failure!");
 		}
 	}
@@ -33,7 +31,8 @@ public class CommIO {
 	public boolean IsReady() {
 		try {
 			return READER.ready();
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 			CF.TellInfo("Error in reader");
 			return false;
 		}
@@ -68,7 +67,8 @@ public class CommIO {
 				RelevateSize();
 			}
 			return S;
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 			CF.TellInfo("Error in reading line (reader)");
 			return null;
 		}

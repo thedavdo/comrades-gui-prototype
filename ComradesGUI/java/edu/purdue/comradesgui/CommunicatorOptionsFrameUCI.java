@@ -1,13 +1,12 @@
 package edu.purdue.comradesgui;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.io.File;
+import java.util.StringTokenizer;
 
 public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener, ChangeListener, KeyListener {
 	JTextField PATH_AREA;
@@ -25,7 +24,7 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 	}
 
 	public void ChangePath() {
-		JFileChooser JFC = new JFileChooser(System.getProperty("user.dir")); // HACK
+		JFileChooser JFC = new JFileChooser(System.getProperty("user.dir"));
 		int Value = JFC.showOpenDialog(JFC);
 		if (Value != JFileChooser.APPROVE_OPTION)
 			return;
@@ -205,7 +204,8 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 						else
 							B.setSelected(false);
 					}
-				} else
+				}
+				else
 					B.setSelected(COMM.OPT_VALUE[i].equals("true"));
 				B.addItemListener(this);
 				B.setAlignmentX(0.0f);
@@ -238,7 +238,7 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 					if (X.startsWith("var "))
 						X = X.substring(4);
 					else {
-						s = X.indexOf("var "); // HACK
+						s = X.indexOf("var ");
 						String Y;
 						if (s == -1)
 							Y = X;
@@ -289,7 +289,8 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 						ST.nextToken();
 						DEFAULT = new String(ST.nextToken());
 					}
-				} else {
+				}
+				else {
 					if (ST.hasMoreTokens())
 						ST.nextToken();
 					if (ST.hasMoreTokens())
@@ -312,7 +313,7 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 			}
 			if (TYPE.equals("spin")) {
 				if (ST.countTokens() < 6)
-					continue; // HACK
+					continue;
 				Box B = new Box(BoxLayout.X_AXIS);
 				JLabel L = new JLabel(NAME + ":  ");
 				L.setBackground(new Color(205, 195, 235));
@@ -331,9 +332,9 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 				if (!COMM.IS_NEW)
 					def = Integer.valueOf(COMM.OPT_VALUE[i]);
 				if (def > max)
-					def = new Integer(max); // HACK
+					def = new Integer(max);
 				if (def < min)
-					def = new Integer(min); // HACK
+					def = new Integer(min);
 				SpinnerNumberModel MODEL = new SpinnerNumberModel(def, min, max, new Integer(1));
 				JSpinner J = new JSpinner(MODEL);
 				J.setName(NAME);
@@ -348,7 +349,7 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 				BOX.add(B);
 				if (COMM.IS_NEW) {
 					COMM.OPT_TYPE[i] = new String("spin");
-					COMM.OPT_VALUE[i] = new String(def.toString()); // HACK
+					COMM.OPT_VALUE[i] = new String(def.toString());
 				}
 			}
 		}
@@ -368,7 +369,7 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 			S = "";
 		else
 			S = COMM.id;
-		OPTIONS_FRAME = new JFrame("Default Options " + S); // HACK
+		OPTIONS_FRAME = new JFrame("Default Options " + S);
 		AddOptions_UCI(OPTIONS_FRAME);
 		OPTIONS_FRAME.setBackground(Color.lightGray);
 		OPTIONS_FRAME.pack();

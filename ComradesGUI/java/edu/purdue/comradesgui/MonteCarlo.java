@@ -1,15 +1,21 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import java.text.NumberFormat;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.StringTokenizer;
 
 public class MonteCarlo implements ChangeListener, ActionListener {
 	CommunicatorInstance CI;
@@ -27,7 +33,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	int LEGAL_COUNT;
 	long UP_DATE;
 	int CENTI_PAWN_PARSE;
-	ComradesFrame CF; // HACK
+	ComradesFrame CF;
 	ArrayList[] SCORES;
 
 	public MonteCarlo(CommunicatorInstance ci) {
@@ -37,7 +43,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		EVAL = new Long[256];
 		SORT = new int[256];
 		for (int i = 0; i < 256; i++)
-			EVAL[i] = new Long(0);
+			EVAL[i] = 0L;
 		for (int i = 0; i < 256; i++)
 			SORT[i] = i;
 		LEGAL_COUNT = CI.COMM.CF.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES;
@@ -114,7 +120,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		SpinnerNumberModel MODEL = new SpinnerNumberModel(def, min, max, 1);
 		JSpinner J = new JSpinner(MODEL);
 		J.setName(S);
-		J.addChangeListener(this); // HACK
+		J.addChangeListener(this);
 		J.setPreferredSize(new Dimension(80, 16));
 		J.setMaximumSize(new Dimension(80, 16));
 		B.add(J);
@@ -138,8 +144,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		}
 	}
 
-	public class RenderDouble extends DefaultTableCellRenderer // HACK
-	{
+	public class RenderDouble extends DefaultTableCellRenderer {
 		public RenderDouble() {
 			super();
 			setHorizontalAlignment(SwingConstants.RIGHT);
@@ -206,7 +211,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		if (WORKING)
 			HaltMonteCarlo();
 		for (int i = 0; i < DATA.length; i++)
-			DATA[i][0] = new Boolean(true);
+			DATA[i][0] = true;
 		ReSort();
 		TABLE.repaint();
 		UP_DATE = new Date().getTime();
@@ -216,7 +221,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		if (WORKING)
 			HaltMonteCarlo();
 		for (int i = 0; i < DATA.length; i++)
-			DATA[i][0] = new Boolean(false);
+			DATA[i][0] = false;
 		ReSort();
 		TABLE.repaint();
 		UP_DATE = new Date().getTime();
@@ -226,15 +231,15 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		if (WORKING)
 			HaltMonteCarlo();
 		for (int i = 0; i < DATA.length; i++) {
-			DATA[i][0] = new Boolean(false);
-			DATA[i][2] = new Integer(0);
-			DATA[i][3] = new Integer(0);
-			DATA[i][4] = new Integer(0);
-			DATA[i][5] = new Integer(0);
-			DATA[i][6] = new Double(0);
-			DATA[i][7] = new Float(0);
-			DATA[i][9] = new Double(0);
-			EVAL[i] = new Long(0);
+			DATA[i][0] = false;
+			DATA[i][2] = 0;
+			DATA[i][3] = 0;
+			DATA[i][4] = 0;
+			DATA[i][5] = 0;
+			DATA[i][6] = 0;
+			DATA[i][7] = 0;
+			DATA[i][9] = 0;
+			EVAL[i] = 0L;
 		}
 		ReSort();
 		TABLE.repaint();
@@ -242,7 +247,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	}
 
 	public class TableModel extends AbstractTableModel {
-		String[] NAMES = { "on", "Move", "Trials", "Wins", "Loss", "Draw", "Eval", "Perc", "Hide", "Sigma" };
+		String[] NAMES = {"on", "Move", "Trials", "Wins", "Loss", "Draw", "Eval", "Perc", "Hide", "Sigma"};
 		int row_count;
 
 		public TableModel(BoardPosition BP) {
@@ -251,16 +256,16 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 			SCORES = new ArrayList[row_count];
 			DATA = new Object[BP.COUNT_OF_LEGAL_MOVES][10];
 			for (int i = 0; i < BP.COUNT_OF_LEGAL_MOVES; i++) {
-				DATA[i][0] = new Boolean(false);
-				DATA[i][1] = new String(BP.move_list_annotated[i]);
-				DATA[i][2] = new Integer(0);
-				DATA[i][3] = new Integer(0);
-				DATA[i][4] = new Integer(0);
-				DATA[i][5] = new Integer(0);
-				DATA[i][6] = new Double(0);
-				DATA[i][7] = new Float(0);
-				DATA[i][8] = new Integer(0);
-				DATA[i][9] = new Double(0);
+				DATA[i][0] = false;
+				DATA[i][1] = BP.move_list_annotated[i];
+				DATA[i][2] = 0;
+				DATA[i][3] = 0;
+				DATA[i][4] = 0;
+				DATA[i][5] = 0;
+				DATA[i][6] = 0;
+				DATA[i][7] = 0f;
+				DATA[i][8] = 0;
+				DATA[i][9] = 0d;
 				SCORES[i] = new ArrayList(100);
 			}
 
@@ -347,7 +352,8 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 					SWIVEL[i - 1] = SWIVEL[i];
 					PRIORITY[i] = P;
 					SWIVEL[i] = S;
-				} else {
+				}
+				else {
 					PRIORITY[i - 1] = P;
 					SWIVEL[i - 1] = S;
 					break;
@@ -370,7 +376,8 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 				try {
 					Thread.sleep(1);
 					CI.ThreadInput();
-				} catch (InterruptedException io) {
+				}
+				catch (InterruptedException io) {
 				}
 			DATA[i][8] = CENTI_PAWN_PARSE;
 			SPICEING = false;
@@ -410,11 +417,13 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 			return;
 		if (VALUE > (Integer) MAX_SPINNER.getValue()) {
 			DATA[i][3] = (Integer) DATA[i][3] + 1; // Wins
-			VALUE = new Long((Integer) MAX_SPINNER.getValue());
-		} else if (VALUE < (Integer) MIN_SPINNER.getValue()) {
+			VALUE = (Long) MAX_SPINNER.getValue();
+		}
+		else if (VALUE < (Integer) MIN_SPINNER.getValue()) {
 			DATA[i][4] = (Integer) DATA[i][4] + 1; // Loss
-			VALUE = new Long((Integer) MIN_SPINNER.getValue());
-		} else
+			VALUE = ((Long) MIN_SPINNER.getValue());
+		}
+		else
 			DATA[i][5] = (Integer) DATA[i][5] + 1; // Data
 		DATA[i][2] = (Integer) DATA[i][2] + 1; // Trials
 		SCORES[i].add(VALUE);

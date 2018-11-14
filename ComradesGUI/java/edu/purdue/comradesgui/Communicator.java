@@ -1,13 +1,7 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.io.*;
 
 public class Communicator extends CommIO {
 	String name;
@@ -39,7 +33,7 @@ public class Communicator extends CommIO {
 		sub_class_count = 0;
 		IS_NEW = NEW;
 		RunTimeOptions = "NULL";
-		LOGGING = false; // HACK
+		LOGGING = false;
 	}
 
 	public void OptionLine(String S) {
@@ -114,7 +108,7 @@ public class Communicator extends CommIO {
 		}
 		SendTo("quit", true);
 		SleepFor(100);
-		process.destroy(); // HACK
+		process.destroy();
 		return true;
 	}
 
@@ -124,7 +118,8 @@ public class Communicator extends CommIO {
 		Process exterior = null;
 		try {
 			exterior = Runtime.getRuntime().exec(path);
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 			CF.TellInfo("Not found: " + path);
 			return false;
 		}
@@ -132,7 +127,7 @@ public class Communicator extends CommIO {
 		WRITER = new PrintWriter(new OutputStreamWriter(exterior.getOutputStream()));
 		SleepFor(100);
 		while (IsReady())
-			DemandLine(); // HACK
+			DemandLine();
 		SendTo("ici", true);
 		if (WaitForThroughPut("ici-echo", 1000, false)) {
 			SetUpICI();
@@ -160,7 +155,8 @@ public class Communicator extends CommIO {
 				PW.println(OPT_NAME[i] + " " + OPT_TYPE[i] + " " + OPT_VALUE[i]);
 			PW.flush(); // ensure
 			PW.close();
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 			CF.TellInfo("Bad try to write on disk, filename bad?");
 			return;
 		}
@@ -185,7 +181,7 @@ public class Communicator extends CommIO {
 		if (ICI)
 			new CommunicatorOptionsFrameICI(this);
 		else
-			new CommunicatorOptionsFrameUCI(this); // HACK
+			new CommunicatorOptionsFrameUCI(this);
 	}
 
 }

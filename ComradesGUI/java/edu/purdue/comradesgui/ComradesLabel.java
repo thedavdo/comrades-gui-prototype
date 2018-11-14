@@ -1,11 +1,9 @@
 package edu.purdue.comradesgui;
 
-import java.lang.*;
+import javax.swing.*;
+import javax.swing.tree.TreeNode;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
 
 public class ComradesLabel extends JButton // for ComradesNode.java ?
 {
@@ -22,7 +20,8 @@ public class ComradesLabel extends JButton // for ComradesNode.java ?
 				else if (mou_evt.getClickCount() == 2) {
 					MT.JumpToNode(N);
 					N.is_expanded = false;
-				} else {
+				}
+				else {
 					MT.FOCUS = true;
 					if (N.getChildCount() > 1)
 						N.is_expanded = true;
@@ -57,7 +56,7 @@ public class ComradesLabel extends JButton // for ComradesNode.java ?
 
 			public void keyReleased(KeyEvent key_evt) {
 				if (MT.NOW != N)
-					return; // HACK
+					return;
 				if (key_evt.getKeyCode() == key_evt.VK_RIGHT)
 					MT.BP.PANEL.AbruptForward();
 				if (key_evt.getKeyCode() == key_evt.VK_LEFT)

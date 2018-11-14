@@ -1,8 +1,5 @@
 package edu.purdue.comradesgui;
 
-import java.lang.*;
-import javax.swing.*;
-
 public class TypeMove {
 	int move;
 	String plain, fancy;
@@ -21,7 +18,7 @@ public class TypeMove {
 	}
 
 	public String toString() {
-		return fancy; // HACK
+		return fancy;
 	}
 
 	public String GetDirect(int MOVE) {

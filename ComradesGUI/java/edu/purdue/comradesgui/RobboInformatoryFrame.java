@@ -1,14 +1,9 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.util.StringTokenizer;
 
 public class RobboInformatoryFrame extends JFrame {
 	CommunicatorInstance CI;
@@ -36,10 +31,10 @@ public class RobboInformatoryFrame extends JFrame {
 		String S = CI.DemandLine();
 		if (!S.equals("RobboInformatory"))
 			return null;
-		String[] STR = new String[3000]; // HACK
+		String[] STR = new String[3000];
 		int i = 0;
 		while (true) {
-			STR[i] = new String(CI.DemandLine());
+			STR[i] = (CI.DemandLine());
 			if (STR[i].equals("DesistRobboInformatory"))
 				break;
 			i++;
@@ -52,12 +47,12 @@ public class RobboInformatoryFrame extends JFrame {
 			TABLE.getRowSorter().toggleSortOrder(2);
 			TABLE.getRowSorter().toggleSortOrder(2); // in twice (2)
 		}
-		CI.WaitForThroughPut("readyok", -1, false); // HACK
+		CI.WaitForThroughPut("readyok", -1, false);
 		return TABLE;
 	}
 
 	public class TableModel extends AbstractTableModel {
-		String[] NAMES = { "Direct", "Name", "Weak", "Hit" };
+		String[] NAMES = {"Direct", "Name", "Weak", "Hit"};
 		int row_count;
 
 		public TableModel(String[] S, int n) {
@@ -65,11 +60,11 @@ public class RobboInformatoryFrame extends JFrame {
 			DATA = new Object[n][5];
 			for (int i = 0; i < n; i++) {
 				StringTokenizer ST = new StringTokenizer(S[i]);
-				DATA[i][1] = new String(ST.nextToken());
-				DATA[i][0] = new Boolean(ST.nextToken());
-				DATA[i][2] = new Long(ST.nextToken()); // Long
-				DATA[i][3] = new Long(ST.nextToken());
-				DATA[i][4] = new Boolean(ST.nextToken()); // HACK
+				DATA[i][1] = (ST.nextToken());
+				DATA[i][0] = Boolean.parseBoolean(ST.nextToken());
+				DATA[i][2] = Long.parseLong(ST.nextToken()); // Long
+				DATA[i][3] = Long.parseLong(ST.nextToken());
+				DATA[i][4] = Long.parseLong(ST.nextToken());
 			}
 		}
 
@@ -91,7 +86,8 @@ public class RobboInformatoryFrame extends JFrame {
 
 		public Class getColumnClass(int c) {
 			if (row_count == 0)
-				return new String("").getClass(); // HACK
+				return null;
+
 			return getValueAt(0, c).getClass();
 		}
 

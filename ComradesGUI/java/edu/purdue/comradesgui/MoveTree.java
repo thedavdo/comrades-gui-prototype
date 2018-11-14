@@ -1,12 +1,9 @@
 package edu.purdue.comradesgui;
 
-import java.lang.*;
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
-import java.util.*;
+import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
+import java.util.StringTokenizer;
 
 public class MoveTree extends JTree // JPanel ?
 {
@@ -61,7 +58,7 @@ public class MoveTree extends JTree // JPanel ?
 		}
 		RESET = false;
 		BP.SetFEN(new StringTokenizer(START_FEN));
-		RESET = true; // HACK
+		RESET = true;
 		NOW = ROOT;
 		while (N != NOW) // attend
 			BP.MakeMove32(NOW.mainline.move, NOW.mainline.fancy);
@@ -117,7 +114,7 @@ public class MoveTree extends JTree // JPanel ?
 			ComradesNode F = N.MainLineNode;
 			if (!N.is_expanded || N.getChildCount() <= 1) {
 				C = new ComradesLabel(F, this, false, (ht % 2 == 0 || N == ROOT) ? ht : 0);
-				if (F == NOW) // HACK // valid ?
+				if (F == NOW)  // valid ?
 					C.setBackground(Color.orange); // partial ?
 				D = C.getPreferredSize();
 				if (h + D.width > 360) {
@@ -127,7 +124,8 @@ public class MoveTree extends JTree // JPanel ?
 				C.setBounds(h, v, D.width, D.height);
 				h += D.width + SPACE;
 				PANEL.add(C);
-			} else {
+			}
+			else {
 				C = new ComradesLabel(N, this, true, 0);
 				D = C.getPreferredSize();
 				C.setBounds(h, v, D.width, D.height);
@@ -139,7 +137,7 @@ public class MoveTree extends JTree // JPanel ?
 				}
 				break;
 			}
-			N = F.transpose; // HACK
+			N = F.transpose;
 			ht++;
 		}
 	}
@@ -147,7 +145,7 @@ public class MoveTree extends JTree // JPanel ?
 	public void PaintPanel() // manual
 	{
 		v = 0; // attend
-		PANEL.removeAll(); // HACK
+		PANEL.removeAll();
 		JLabel L = new JLabel(BP.PANEL.Name);
 		Dimension D = L.getPreferredSize();
 		L.setBounds(2, 0, D.width, D.height);

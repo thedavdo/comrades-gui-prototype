@@ -1,13 +1,9 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
 public class DataPGN {
 	BoardPosition BP;
@@ -18,7 +14,7 @@ public class DataPGN {
 
 	public DataPGN(ComradesFrame cf) {
 		CF = cf;
-		BP = new BoardPosition(CF.BOARD_PANEL.POS); // HACK
+		BP = new BoardPosition(CF.BOARD_PANEL.POS);
 		BP.NewGame();
 		BOARD_PANEL = new BoardPanel(BP);
 		MOVE_PANE = new MovePane(new JPanel());
@@ -86,11 +82,12 @@ public class DataPGN {
 
 		BP.MakeNormal(); // ensure
 		BP.MOVE_TREE.ReSet();
-		BP.MOVE_TREE.JUMP = true; // HACK
+		BP.MOVE_TREE.JUMP = true;
 		while (GAME_IS_ON) {
 			try {
 				STR = BR.readLine();
-			} catch (IOException io_exc) {
+			}
+			catch (IOException io_exc) {
 			}
 			if (STR == null) {
 				if (White != null)
@@ -122,7 +119,7 @@ public class DataPGN {
 					GAME_IS_ON = false;
 				if (S.equals("1/2-1/2"))
 					GAME_IS_ON = false;
-				if (S.equals("*")) // HACK
+				if (S.equals("*"))
 					GAME_IS_ON = false;
 				if (!GAME_IS_ON)
 					break;

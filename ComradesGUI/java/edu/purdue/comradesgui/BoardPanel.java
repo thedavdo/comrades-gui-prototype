@@ -1,13 +1,10 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 public class BoardPanel extends JPanel implements MouseListener {
 	ComradesFrame CF;
@@ -64,7 +61,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	public void StartSetUp() {
 		if (SET_UP)
-			return; // HACK
+			return;
 		POS.NewMoveTree();
 		POS.MOVE_TREE.PaintPanel();
 		REVERSE = false; // in simple
@@ -78,7 +75,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 	public void BoardPositionChanged() {
 		for (int i = 0; i < CF.instances; i++)
 			CF.INSTANCES[i].ClearInformatory();
-		CF.FEN_AREA.setText(POS.GetFEN()); // HACK
+		CF.FEN_AREA.setText(POS.GetFEN());
 	}
 
 	public void BoardPanelSetUp(int x, int y, int b, int c) {
@@ -138,7 +135,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 			if (cy == 0)
 				POS.AT[x][y] = cx - 1;
 			if (cy == 9)
-				POS.AT[x][y] = 1 - cx; // HACK
+				POS.AT[x][y] = 1 - cx;
 			if (cx >= 1 && cx <= 8 && cy >= 1 && cy <= 8) {
 				POS.AT[x][y] = POS.AT[cx][cy];
 				POS.AT[cx][cy] = 0;
@@ -152,7 +149,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	public void BoardPanelPushed(MouseEvent mou_evt) {
 		int x = mou_evt.getX() / SIZE;
-		int y = 9 - (mou_evt.getY() / SIZE); // HACK
+		int y = 9 - (mou_evt.getY() / SIZE);
 		int b = mou_evt.getButton();
 		int c = mou_evt.getClickCount();
 		if (SET_UP) {
@@ -192,7 +189,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 			CLICKED = false;
 			TryMove(CLICKED_x, CLICKED_y, CLICKED_b, x, y, b);
 			repaint();
-		} else {
+		}
+		else {
 			int p = POS.AT[x][y];
 			if ((POS.WTM && p > 0) || (!POS.WTM && p < 0)) {
 				CLICKED_x = x;
@@ -221,7 +219,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 			BoardPanelPushed(mou_evt);
 	}
 
-////////////////////////////////
+	////////////////////////////////
 	public void AttendMove(int w, boolean advance, boolean ReDraw) {
 		if (w > POS.COUNT_OF_LEGAL_MOVES || w < 0)
 			return;
@@ -240,7 +238,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 			if (count >= 3) {
 				threeRepeats = true;
 			}
-		} else {
+		}
+		else {
 			threeRepeatList.add(currentFEN);
 			threeRepeatCount.add(1);
 		}
@@ -262,7 +261,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		if (cx > 8 || cx < 1 || cy > 8 || cy < 1 || x < 1 || x > 8 || y < 1 || y > 8)
 			return;
 		if (cx == x && cy == y)
-			return; // HACK
+			return;
 		cx--;
 		cy--;
 		x--; // morph
@@ -297,20 +296,20 @@ public class BoardPanel extends JPanel implements MouseListener {
 		MoveTree MT = POS.MOVE_TREE;
 		if (MT.NOW == MT.ROOT)
 			return;
-		if (true) {
-			CF.HaltInstances();
-			POS.DisAttendMove32(MT.NOW.mv.move);
-			/*
-			 * POS.UnMakeMove32 (MT.NOW.mv.move); POS.MakeNormal (); MT.NOW =
-			 * MT.NOW.MainLineParent;
-			 */
-			MT.FOCUS = true;
-			MT.PaintPanel();
-			repaint();
-			BoardPositionChanged();
-			CF.EquipInstances();
-		} else
-			MT.JumpToNode(MT.NOW.MainLineParent); // value for Instances
+//		if (true) {
+		CF.HaltInstances();
+		POS.DisAttendMove32(MT.NOW.mv.move);
+		/*
+		 * POS.UnMakeMove32 (MT.NOW.mv.move); POS.MakeNormal (); MT.NOW =
+		 * MT.NOW.MainLineParent;
+		 */
+		MT.FOCUS = true;
+		MT.PaintPanel();
+		repaint();
+		BoardPositionChanged();
+		CF.EquipInstances();
+//		} else
+//			MT.JumpToNode(MT.NOW.MainLineParent); // value for Instances
 	}
 
 	public void AbruptForward() {
@@ -324,7 +323,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		CF.EquipInstances();
 	}
 
-////////////////////////////////
+	////////////////////////////////
 	public Dimension getPreferredSize() {
 		return new Dimension(400, 400);
 	}
@@ -458,7 +457,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 					G.fillArc(u * SIZE + 8, 6 * SIZE + 8, SIZE - 17, SIZE - 17, 0, 360);
 				else
 					G.fillArc(u * SIZE + 8, 3 * SIZE + 8, SIZE - 17, SIZE - 17, 0, 360);
-			} else {
+			}
+			else {
 				if (POS.WTM)
 					G.fillArc(POS.EnPassant * SIZE + 8, 3 * SIZE + 8, SIZE - 17, SIZE - 17, 0, 360);
 				else
@@ -475,14 +475,16 @@ public class BoardPanel extends JPanel implements MouseListener {
 					G.fillArc(3, 8 * SIZE + 3, SIZE - 7, SIZE - 7, 0, 360);
 				else
 					G.fillArc(3, SIZE + 3, SIZE - 7, SIZE - 7, 0, 360);
-			} else {
+			}
+			else {
 				G.setColor(BLACK_MOVE_INDICATOR);
 				if (!REVERSE)
 					G.fillArc(3, SIZE + 3, SIZE - 7, SIZE - 7, 0, 360);
 				else
 					G.fillArc(3, 8 * SIZE + 3, SIZE - 7, SIZE - 7, 0, 360);
 			}
-		} else {
+		}
+		else {
 			if (POS.WTM)
 				G.setColor(Color.white);
 			else
@@ -499,8 +501,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	public void DrawMaterialImbalance(Graphics G, BoardPosition BP) {
 		char buffer[] = new char[1];
-		int PIECES[] = { 0, 0, 0, 0, 0, 0, 0 };
-		char TABLE[] = { 0, 79, 77, 86, 84, 87, 76, 80, 78, 66, 82, 81, 75 };
+		int PIECES[] = {0, 0, 0, 0, 0, 0, 0};
+		char TABLE[] = {0, 79, 77, 86, 84, 87, 76, 80, 78, 66, 82, 81, 75};
 		G.setFont(CF.chess_font_small);
 		for (int i = 1; i <= 8; i++)
 			for (int j = 1; j <= 8; j++) {
@@ -557,14 +559,15 @@ public class BoardPanel extends JPanel implements MouseListener {
 				BP.AT[i][9] = 1 - i;
 			G.setColor(YELLOW_BUTTON);
 			G.fillArc(9 * SIZE + 3, 3, SIZE - 7, SIZE - 7, 0, 360);
-		} else
+		}
+		else
 			DrawMaterialImbalance(G, BP);
 		G.setFont(CF.chess_font);
 		for (int i = ilo; i <= ihi; i++)
 			for (int j = jlo; j <= jhi; j++) {
 				int s = BP.AT[i][j];
 				if (s > 0)
-					s = -s; // HACK
+					s = -s;
 				if (BLACK_ALL_OUTLINE && BP.AT[i][j] < 0)
 					s = -s;
 				if (WHITE_ALL_OUTLINE && BP.AT[i][j] > 0)
@@ -574,52 +577,53 @@ public class BoardPanel extends JPanel implements MouseListener {
 				if (WHITE_HALF_OUTLINE && BP.AT[i][j] > 0 && ((i + j) % 2) != 0)
 					s = -s;
 				switch (s) {
-				case 1:
-					buffer[0] = 80 + 32;
-					break;
-				case 2:
-					buffer[0] = 78 + 32;
-					break;
-				case 3:
-					buffer[0] = 66 + 32;
-					break;
-				case 4:
-					buffer[0] = 82 + 32;
-					break;
-				case 5:
-					buffer[0] = 81 + 32;
-					break;
-				case 6:
-					buffer[0] = 75 + 32;
-					break;
-				case -1:
-					buffer[0] = 79 + 32;
-					break;
-				case -2:
-					buffer[0] = 77 + 32;
-					break;
-				case -3:
-					buffer[0] = 86 + 32;
-					break;
-				case -4:
-					buffer[0] = 84 + 32;
-					break;
-				case -5:
-					buffer[0] = 87 + 32;
-					break;
-				case -6:
-					buffer[0] = 76 + 32;
-					break;
-				case 0:
-				default:
-					continue;
+					case 1:
+						buffer[0] = 80 + 32;
+						break;
+					case 2:
+						buffer[0] = 78 + 32;
+						break;
+					case 3:
+						buffer[0] = 66 + 32;
+						break;
+					case 4:
+						buffer[0] = 82 + 32;
+						break;
+					case 5:
+						buffer[0] = 81 + 32;
+						break;
+					case 6:
+						buffer[0] = 75 + 32;
+						break;
+					case -1:
+						buffer[0] = 79 + 32;
+						break;
+					case -2:
+						buffer[0] = 77 + 32;
+						break;
+					case -3:
+						buffer[0] = 86 + 32;
+						break;
+					case -4:
+						buffer[0] = 84 + 32;
+						break;
+					case -5:
+						buffer[0] = 87 + 32;
+						break;
+					case -6:
+						buffer[0] = 76 + 32;
+						break;
+					case 0:
+					default:
+						continue;
 				}
 				int horz, vert;
 				if (!REVERSE) // attend ?
 				{
 					horz = SIZE * i;
 					vert = SIZE * (9 - j);
-				} else {
+				}
+				else {
 					horz = SIZE * (9 - i);
 					vert = SIZE * j;
 				}
@@ -641,11 +645,11 @@ public class BoardPanel extends JPanel implements MouseListener {
 		if (CLICKED) {
 			G.setColor(CLICKED_COLOR);
 			int x, y;
-			if (REVERSE) // HACK
-			{
+			if (REVERSE) {
 				x = OFF_SET + SIZE * (9 - CLICKED_x) - 1;
 				y = OFF_SET + SIZE * CLICKED_y - 1;
-			} else {
+			}
+			else {
 				x = OFF_SET + SIZE * CLICKED_x - 1;
 				y = OFF_SET + SIZE * (9 - CLICKED_y) - 1;
 			}
@@ -657,11 +661,11 @@ public class BoardPanel extends JPanel implements MouseListener {
 		if (LAST_MOVE_COLOR != null && POS.LAST_FROM_x != 0) {
 			G.setColor(LAST_MOVE_COLOR);
 			int x, y;
-			if (REVERSE) // HACK
-			{
+			if (REVERSE) {
 				x = OFF_SET + SIZE * (9 - POS.LAST_FROM_x) - 1;
 				y = OFF_SET + SIZE * POS.LAST_FROM_y - 1;
-			} else {
+			}
+			else {
 				x = OFF_SET + SIZE * POS.LAST_FROM_x - 1;
 				y = OFF_SET + SIZE * (9 - POS.LAST_FROM_y) - 1;
 			}
@@ -669,11 +673,11 @@ public class BoardPanel extends JPanel implements MouseListener {
 			G.drawLine(x, y, x, y - SIZE + 1);
 			G.drawLine(x - SIZE + 1, y - SIZE + 1, x - SIZE + 1, y);
 			G.drawLine(x - SIZE + 1, y - SIZE + 1, x, y - SIZE + 1);
-			if (REVERSE) // HACK
-			{
+			if (REVERSE) {
 				x = OFF_SET + SIZE * (9 - POS.LAST_TO_x) - 1;
 				y = OFF_SET + SIZE * POS.LAST_TO_y - 1;
-			} else {
+			}
+			else {
 				x = OFF_SET + SIZE * POS.LAST_TO_x - 1;
 				y = OFF_SET + SIZE * (9 - POS.LAST_TO_y) - 1;
 			}
@@ -687,7 +691,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 	public void paintComponent(Graphics G) {
 		G.setColor(BACK_GROUND);
 		G.fillRect(0, 0, 1000, 1000);
-		DrawSquares(G, POS); // HACK ep
+		DrawSquares(G, POS);
 		DrawWhiteBlackIndicator(G, POS);
 
 		char buffer[] = new char[4];

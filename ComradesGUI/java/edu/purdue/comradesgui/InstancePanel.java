@@ -1,10 +1,11 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
-import java.math.BigInteger;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.StringTokenizer;
 
 public class InstancePanel extends JPanel implements ActionListener {
 	CommunicatorInstance CI;
@@ -19,7 +20,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 	boolean IS_PAINTING = false;
 	boolean PERIODIC = true; // demand
 	int HORIZONTAL = 345;
-	int VERT_ORIG = 1200; // HACK
+	int VERT_ORIG = 1200;
 	int VERTICAL = VERT_ORIG;
 
 	int SIZE = 16;
@@ -42,7 +43,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 		CI = ci;
 		SetColors();
 		TEXT_COLOR = new Color(30, 30, 30);
-		setLayout(null); // HACK
+		setLayout(null);
 		LAST_DRAW = new Date().getTime() - 1000;
 		NameLabel();
 		if (CI.MultiPV != 0)
@@ -120,7 +121,8 @@ public class InstancePanel extends JPanel implements ActionListener {
 			if (!CI.ICI) {
 				if (CI.IOF_UCI == null)
 					CI.IOF_UCI = new InstanceOptionsFrameUCI(CI);
-			} else {
+			}
+			else {
 				if (CI.IOF_ICI == null)
 					CI.IOF_ICI = new InstanceOptionsFrameICI(CI);
 			}
@@ -210,7 +212,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 		}
 		int c = (int) (n / 100);
 		int t = (int) ((n / 10) % 10);
-		int o = (int) (n % 10); // HACK
+		int o = (int) (n % 10);
 		String S;
 		if (b < 10)
 			S = "" + b + "." + c + "" + t + "" + SUFFIX[D];
@@ -275,7 +277,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 	public void PaintPV(Graphics G) {
 		if (CI.DEPTH < 10 && CI.NODES < 100000 && CI.TIME < 100 && CI.on && CI.DEPTH > 0 && !PERIODIC
 				&& THIS_DRAW - LAST_DRAW < 100)
-			return; // HACK, elude overage for X
+			return;
 		G.setColor(TEXT_COLOR);
 		Font FT11 = new Font("SansSerif", 0, 11);
 		FontMetrics FM11 = G.getFontMetrics(FT11);
@@ -302,7 +304,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 			if (s > 0)
 				S += "+";
 			if (s == 0)
-				h += FM11.stringWidth("+"); // HACK
+				h += FM11.stringWidth("+");
 			if (s < 0)
 				s = -s; // reverse
 			if (CI.MATE[i])
@@ -336,15 +338,15 @@ public class InstancePanel extends JPanel implements ActionListener {
 		if (v < VERT_ORIG)
 			v = VERT_ORIG;
 		if (v > VERTICAL) {
-			VERTICAL += VERTICAL / 4; // HACK
+			VERTICAL += VERTICAL / 4;
 			revalidate();
 		}
 	}
 
 	public void DoMaterialImbalance(BoardPosition BP, Graphics G) {
 		char buffer[] = new char[1];
-		int PIECES[] = { 0, 0, 0, 0, 0, 0, 0 };
-		char TABLE[] = { 0, 79, 77, 86, 84, 87, 76, 80, 78, 66, 82, 81, 75 };
+		int PIECES[] = {0, 0, 0, 0, 0, 0, 0};
+		char TABLE[] = {0, 79, 77, 86, 84, 87, 76, 80, 78, 66, 82, 81, 75};
 		G.setFont(CI.CF.chess_font_small);
 		for (int i = 1; i <= 8; i++)
 			for (int j = 1; j <= 8; j++) {
@@ -384,7 +386,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 			for (int j = 1; j <= 8; j++) {
 				int s = BP.AT[i][j];
 				if (s > 0)
-					s = -s; // HACK
+					s = -s;
 				if (BLACK_ALL_OUTLINE && BP.AT[i][j] < 0)
 					s = -s;
 				if (WHITE_ALL_OUTLINE && BP.AT[i][j] > 0)
@@ -394,51 +396,52 @@ public class InstancePanel extends JPanel implements ActionListener {
 				if (WHITE_HALF_OUTLINE && BP.AT[i][j] > 0 && ((i + j) % 2) != 0)
 					s = -s;
 				switch (s) {
-				case 1:
-					buffer[0] = 80 + 32;
-					break;
-				case 2:
-					buffer[0] = 78 + 32;
-					break;
-				case 3:
-					buffer[0] = 66 + 32;
-					break;
-				case 4:
-					buffer[0] = 82 + 32;
-					break;
-				case 5:
-					buffer[0] = 81 + 32;
-					break;
-				case 6:
-					buffer[0] = 75 + 32;
-					break;
-				case -1:
-					buffer[0] = 79 + 32;
-					break;
-				case -2:
-					buffer[0] = 77 + 32;
-					break;
-				case -3:
-					buffer[0] = 86 + 32;
-					break;
-				case -4:
-					buffer[0] = 84 + 32;
-					break;
-				case -5:
-					buffer[0] = 87 + 32;
-					break;
-				case -6:
-					buffer[0] = 76 + 32;
-					break;
-				case 0:
-				default:
-					continue;
+					case 1:
+						buffer[0] = 80 + 32;
+						break;
+					case 2:
+						buffer[0] = 78 + 32;
+						break;
+					case 3:
+						buffer[0] = 66 + 32;
+						break;
+					case 4:
+						buffer[0] = 82 + 32;
+						break;
+					case 5:
+						buffer[0] = 81 + 32;
+						break;
+					case 6:
+						buffer[0] = 75 + 32;
+						break;
+					case -1:
+						buffer[0] = 79 + 32;
+						break;
+					case -2:
+						buffer[0] = 77 + 32;
+						break;
+					case -3:
+						buffer[0] = 86 + 32;
+						break;
+					case -4:
+						buffer[0] = 84 + 32;
+						break;
+					case -5:
+						buffer[0] = 87 + 32;
+						break;
+					case -6:
+						buffer[0] = 76 + 32;
+						break;
+					case 0:
+					default:
+						continue;
 				}
 				int horz, vert;
 				if (!CI.REVERSE) {
 					horz = SIZE * i;
 					vert = SIZE * (9 - j);
-				} else // reverse
+				}
+				else // reverse
 				{
 					horz = SIZE * (9 - i);
 					vert = SIZE * j;
@@ -491,7 +494,8 @@ public class InstancePanel extends JPanel implements ActionListener {
 				G.fillArc(3, 8 * SIZE + 3 + VERT_OFF_SET - SIZE, SIZE - 7, SIZE - 7, 0, 360);
 			else
 				G.fillArc(3, SIZE + 3 + VERT_OFF_SET - SIZE, SIZE - 7, SIZE - 7, 0, 360);
-		} else {
+		}
+		else {
 			G.setColor(Color.black);
 			if (!CI.REVERSE)
 				G.fillArc(3, SIZE + 3 + VERT_OFF_SET - SIZE, SIZE - 7, SIZE - 7, 0, 360);
@@ -538,11 +542,11 @@ public class InstancePanel extends JPanel implements ActionListener {
 		G.drawLine(HORZ_OFF_SET - 1, VERT_OFF_SET - 1, HORZ_OFF_SET + SIZE * 8, VERT_OFF_SET - 1);
 		G.drawLine(HORZ_OFF_SET + SIZE * 8, VERT_OFF_SET + SIZE * 8, HORZ_OFF_SET + SIZE * 8, VERT_OFF_SET - 1);
 		G.drawLine(HORZ_OFF_SET + SIZE * 8, VERT_OFF_SET + SIZE * 8, HORZ_OFF_SET - 1, VERT_OFF_SET + SIZE * 8);
-		// VERT_OFF_SET -= SIZE; // HACK ?
+		// VERT_OFF_SET -= SIZE;  ?
 		DoInstanceBoard(G);
 		PaintPV(G);
 		IS_PAINTING = false;
-		PERIODIC = false; // HACK
+		PERIODIC = false;
 		LAST_DRAW = THIS_DRAW;
 	}
 }

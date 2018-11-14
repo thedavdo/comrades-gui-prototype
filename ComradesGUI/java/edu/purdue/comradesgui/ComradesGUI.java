@@ -1,21 +1,22 @@
 package edu.purdue.comradesgui;
 
-import java.applet.Applet;
-import java.io.*;
-import java.util.StringTokenizer;
-import java.lang.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
-public class ComradesGUI extends Applet {
+public class ComradesGUI extends JFrame {
 	String PATH;
 	static ComradesFrame RF;
 	int POLL_DELAY = 1; // 1 ms
 
 	public void ProcessConfig(String STRING) {
 		StringTokenizer ST = new StringTokenizer(STRING);
-		if (!ST.hasMoreTokens()) // HACK
+		if (!ST.hasMoreTokens())
 			return;
 		String S = ST.nextToken();
 	}
@@ -30,7 +31,8 @@ public class ComradesGUI extends Applet {
 				ProcessConfig(BR.readLine());
 			}
 			BR.close();
-		} catch (IOException io_e) {
+		}
+		catch (IOException io_e) {
 
 		}
 	}
@@ -45,11 +47,10 @@ public class ComradesGUI extends Applet {
 	}
 
 	public void RunLoop() {
-		Timer SECOND = new Timer(250, new ActionListener() // HACK 0.25s
-		{
+		Timer SECOND = new Timer(250, new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				for (int i = 0; i < RF.instances; i++) {
-					RF.INSTANCES[i].IP.PERIODIC = true; // HACK
+					RF.INSTANCES[i].IP.PERIODIC = true;
 					RF.INSTANCES[i].IP.repaint(); // queue
 				}
 			}
@@ -78,7 +79,8 @@ public class ComradesGUI extends Applet {
 	public static void LookAndFeel() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); // uniformed
-		} catch (Exception exc) {
+		}
+		catch (Exception exc) {
 		}
 	}
 

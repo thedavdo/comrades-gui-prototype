@@ -1,19 +1,15 @@
 package edu.purdue.comradesgui;
 
+import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
-import java.lang.*;
 import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
 
 public class ComradesOptioner implements ActionListener {
 	ComradesFrame CF;
@@ -47,107 +43,110 @@ public class ComradesOptioner implements ActionListener {
 	}
 
 	public ActionListener ColorMainActionListener() {
+
 		ActionListener AL = new ActionListener() {
 			public void actionPerformed(ActionEvent act_evt) {
-				String S = act_evt.getActionCommand();
-				if (S.equals("PieceFullOutline")) {
-					JComboBox B = (JComboBox) (act_evt.getSource());
-					String T = (String) (B.getSelectedItem());
-					if (T.equals("None")) {
+
+				String actionString = act_evt.getActionCommand();
+
+				if (actionString.equals("PieceFullOutline")) {
+					JComboBox comboBox = (JComboBox) (act_evt.getSource());
+					String comboBoxSelectedString = (String) (comboBox.getSelectedItem());
+					if (comboBoxSelectedString.equals("None")) {
 						CF.WHITE_ALL_OUTLINE = false;
 						CF.BLACK_ALL_OUTLINE = false;
 					}
-					if (T.equals("White")) {
+					if (comboBoxSelectedString.equals("White")) {
 						CF.WHITE_ALL_OUTLINE = true;
 						CF.BLACK_ALL_OUTLINE = false;
 					}
-					if (T.equals("Black")) {
+					if (comboBoxSelectedString.equals("Black")) {
 						CF.WHITE_ALL_OUTLINE = false;
 						CF.BLACK_ALL_OUTLINE = true;
 					}
-					if (T.equals("Both")) {
+					if (comboBoxSelectedString.equals("Both")) {
 						CF.WHITE_ALL_OUTLINE = true;
 						CF.BLACK_ALL_OUTLINE = true;
 					}
 					ReDrawMainBoard();
 					return;
 				}
-				if (S.equals("PieceHalfOutline")) {
-					JComboBox B = (JComboBox) (act_evt.getSource());
-					String T = (String) (B.getSelectedItem());
-					if (T.equals("None")) {
+				if (actionString.equals("PieceHalfOutline")) {
+					JComboBox comboBox = (JComboBox) (act_evt.getSource());
+					String comboBoxSelectedString = (String) (comboBox.getSelectedItem());
+					if (comboBoxSelectedString.equals("None")) {
 						CF.WHITE_HALF_OUTLINE = false;
 						CF.BLACK_HALF_OUTLINE = false;
 					}
-					if (T.equals("White")) {
+					if (comboBoxSelectedString.equals("White")) {
 						CF.WHITE_HALF_OUTLINE = true;
 						CF.BLACK_HALF_OUTLINE = false;
 					}
-					if (T.equals("Black")) {
+					if (comboBoxSelectedString.equals("Black")) {
 						CF.WHITE_HALF_OUTLINE = false;
 						CF.BLACK_HALF_OUTLINE = true;
 					}
-					if (T.equals("Both")) {
+					if (comboBoxSelectedString.equals("Both")) {
 						CF.WHITE_HALF_OUTLINE = true;
 						CF.BLACK_HALF_OUTLINE = true;
 					}
 					ReDrawMainBoard();
 					return;
 				}
-				if (S.equals("MaterialOutline")) {
-					JComboBox B = (JComboBox) (act_evt.getSource());
-					String T = (String) (B.getSelectedItem());
-					if (T.equals("None")) {
+				if (actionString.equals("MaterialOutline")) {
+					JComboBox comboBox = (JComboBox) (act_evt.getSource());
+					String comboBoxSelectedString = (String) (comboBox.getSelectedItem());
+					if (comboBoxSelectedString.equals("None")) {
 						CF.WHITE_MATERIAL_OUTLINE = false;
 						CF.BLACK_MATERIAL_OUTLINE = false;
 					}
-					if (T.equals("White")) {
+					if (comboBoxSelectedString.equals("White")) {
 						CF.WHITE_MATERIAL_OUTLINE = true;
 						CF.BLACK_MATERIAL_OUTLINE = false;
 					}
-					if (T.equals("Black")) {
+					if (comboBoxSelectedString.equals("Black")) {
 						CF.WHITE_MATERIAL_OUTLINE = false;
 						CF.BLACK_MATERIAL_OUTLINE = true;
 					}
-					if (T.equals("Both")) {
+					if (comboBoxSelectedString.equals("Both")) {
 						CF.WHITE_MATERIAL_OUTLINE = true;
 						CF.BLACK_MATERIAL_OUTLINE = true;
 					}
 					ReDrawMainBoard();
 					return;
 				}
-				JButton J = (JButton) (act_evt.getSource());
-				Color C = JColorChooser.showDialog(DIALOG, "Choose Color", J.getBackground());
-				if (C == null)
+				JButton buttonColorChooser = (JButton) (act_evt.getSource());
+				Color colorChosen = JColorChooser.showDialog(DIALOG, "Choose Color", buttonColorChooser.getBackground());
+				if (colorChosen == null)
 					return;
-				J.setBackground(C);
-				J.repaint();
-				if (S.equals("WhitePieces"))
-					CF.WHITE_PIECES = C;
-				if (S.equals("WhiteMoveIndicator"))
-					CF.WHITE_MOVE_INDICATOR = C;
-				if (S.equals("BlackPieces"))
-					CF.BLACK_PIECES = C;
-				if (S.equals("BlackMoveIndicator"))
-					CF.BLACK_MOVE_INDICATOR = C;
-				if (S.equals("LightSquares"))
-					CF.LIGHT_SQUARES = C;
-				if (S.equals("BackGround"))
-					CF.BACK_GROUND = C;
-				if (S.equals("DarkSquares"))
-					CF.DARK_SQUARES = C;
-				if (S.equals("EnPassantColor"))
-					CF.EN_PASSANT_COLOR = C;
-				if (S.equals("YellowButton"))
-					CF.YELLOW_BUTTON = C;
-				if (S.equals("CastlingColor"))
-					CF.CASTLING_COLOR = C;
-				if (S.equals("MoveArrows"))
-					CF.MOVE_ARROWS = C;
-				if (S.equals("ClickedColor"))
-					CF.CLICKED_COLOR = C;
-				if (S.equals("LastMoveColor"))
-					CF.LAST_MOVE_COLOR = C;
+				buttonColorChooser.setBackground(colorChosen);
+				buttonColorChooser.repaint();
+				if (actionString.equals("WhitePieces"))
+					CF.WHITE_PIECES = colorChosen;
+				if (actionString.equals("WhiteMoveIndicator"))
+					CF.WHITE_MOVE_INDICATOR = colorChosen;
+				if (actionString.equals("BlackPieces"))
+					CF.BLACK_PIECES = colorChosen;
+				if (actionString.equals("BlackMoveIndicator"))
+					CF.BLACK_MOVE_INDICATOR = colorChosen;
+				if (actionString.equals("LightSquares"))
+					CF.LIGHT_SQUARES = colorChosen;
+				if (actionString.equals("BackGround"))
+					CF.BACK_GROUND = colorChosen;
+				if (actionString.equals("DarkSquares"))
+					CF.DARK_SQUARES = colorChosen;
+				if (actionString.equals("EnPassantColor"))
+					CF.EN_PASSANT_COLOR = colorChosen;
+				if (actionString.equals("YellowButton"))
+					CF.YELLOW_BUTTON = colorChosen;
+				if (actionString.equals("CastlingColor"))
+					CF.CASTLING_COLOR = colorChosen;
+				if (actionString.equals("MoveArrows"))
+					CF.MOVE_ARROWS = colorChosen;
+				if (actionString.equals("ClickedColor"))
+					CF.CLICKED_COLOR = colorChosen;
+				if (actionString.equals("LastMoveColor"))
+					CF.LAST_MOVE_COLOR = colorChosen;
 				ReDrawMainBoard();
 			}
 		};
@@ -157,93 +156,93 @@ public class ComradesOptioner implements ActionListener {
 	public ActionListener ColorSmallActionListener() {
 		ActionListener AL = new ActionListener() {
 			public void actionPerformed(ActionEvent act_evt) {
-				String S = act_evt.getActionCommand();
-				if (S.equals("PieceFullOutline")) {
-					JComboBox B = (JComboBox) (act_evt.getSource());
-					String T = (String) (B.getSelectedItem());
-					if (T.equals("None")) {
+				String actionString = act_evt.getActionCommand();
+				if (actionString.equals("PieceFullOutline")) {
+					JComboBox comboBox = (JComboBox) (act_evt.getSource());
+					String comboBoxSelectedString = (String) (comboBox.getSelectedItem());
+					if (comboBoxSelectedString.equals("None")) {
 						CF.SMALL_WHITE_ALL_OUTLINE = false;
 						CF.SMALL_BLACK_ALL_OUTLINE = false;
 					}
-					if (T.equals("White")) {
+					if (comboBoxSelectedString.equals("White")) {
 						CF.SMALL_WHITE_ALL_OUTLINE = true;
 						CF.SMALL_BLACK_ALL_OUTLINE = false;
 					}
-					if (T.equals("Black")) {
+					if (comboBoxSelectedString.equals("Black")) {
 						CF.SMALL_WHITE_ALL_OUTLINE = false;
 						CF.SMALL_BLACK_ALL_OUTLINE = true;
 					}
-					if (T.equals("Both")) {
+					if (comboBoxSelectedString.equals("Both")) {
 						CF.SMALL_WHITE_ALL_OUTLINE = true;
 						CF.SMALL_BLACK_ALL_OUTLINE = true;
 					}
 					ReDrawInstances();
 					return;
 				}
-				if (S.equals("PieceHalfOutline")) {
-					JComboBox B = (JComboBox) (act_evt.getSource());
-					String T = (String) (B.getSelectedItem());
-					if (T.equals("None")) {
+				if (actionString.equals("PieceHalfOutline")) {
+					JComboBox comboBox = (JComboBox) (act_evt.getSource());
+					String comboBoxSelectedString = (String) (comboBox.getSelectedItem());
+					if (comboBoxSelectedString.equals("None")) {
 						CF.SMALL_WHITE_HALF_OUTLINE = false;
 						CF.SMALL_BLACK_HALF_OUTLINE = false;
 					}
-					if (T.equals("White")) {
+					if (comboBoxSelectedString.equals("White")) {
 						CF.SMALL_WHITE_HALF_OUTLINE = true;
 						CF.SMALL_BLACK_HALF_OUTLINE = false;
 					}
-					if (T.equals("Black")) {
+					if (comboBoxSelectedString.equals("Black")) {
 						CF.SMALL_WHITE_HALF_OUTLINE = false;
 						CF.SMALL_BLACK_HALF_OUTLINE = true;
 					}
-					if (T.equals("Both")) {
+					if (comboBoxSelectedString.equals("Both")) {
 						CF.SMALL_WHITE_HALF_OUTLINE = true;
 						CF.SMALL_BLACK_HALF_OUTLINE = true;
 					}
 					ReDrawInstances();
 					return;
 				}
-				if (S.equals("MaterialOutline")) {
-					JComboBox B = (JComboBox) (act_evt.getSource());
-					String T = (String) (B.getSelectedItem());
-					if (T.equals("None")) {
+				if (actionString.equals("MaterialOutline")) {
+					JComboBox comboBox = (JComboBox) (act_evt.getSource());
+					String comboBoxSelectedString = (String) (comboBox.getSelectedItem());
+					if (comboBoxSelectedString.equals("None")) {
 						CF.SMALL_WHITE_MATERIAL_OUTLINE = false;
 						CF.SMALL_BLACK_MATERIAL_OUTLINE = false;
 					}
-					if (T.equals("White")) {
+					if (comboBoxSelectedString.equals("White")) {
 						CF.SMALL_WHITE_MATERIAL_OUTLINE = true;
 						CF.SMALL_BLACK_MATERIAL_OUTLINE = false;
 					}
-					if (T.equals("Black")) {
+					if (comboBoxSelectedString.equals("Black")) {
 						CF.SMALL_WHITE_MATERIAL_OUTLINE = false;
 						CF.SMALL_BLACK_MATERIAL_OUTLINE = true;
 					}
-					if (T.equals("Both")) {
+					if (comboBoxSelectedString.equals("Both")) {
 						CF.SMALL_WHITE_MATERIAL_OUTLINE = true;
 						CF.SMALL_BLACK_MATERIAL_OUTLINE = true;
 					}
 					ReDrawInstances();
 					return;
 				}
-				JButton J = (JButton) (act_evt.getSource());
-				Color C = JColorChooser.showDialog(DIALOG, "Choose Color", J.getBackground());
-				if (C == null)
+				JButton chooseColorButton = (JButton) (act_evt.getSource());
+				Color chosenColor = JColorChooser.showDialog(DIALOG, "Choose Color", chooseColorButton.getBackground());
+				if (chosenColor == null)
 					return;
-				J.setBackground(C);
-				J.repaint();
-				if (S.equals("WhitePieces"))
-					CF.SMALL_WHITE_PIECES = C;
-				if (S.equals("WhiteMoveIndicator"))
-					CF.SMALL_WHITE_MOVE_INDICATOR = C;
-				if (S.equals("BlackPieces"))
-					CF.SMALL_BLACK_PIECES = C;
-				if (S.equals("BlackMoveIndicator"))
-					CF.SMALL_BLACK_MOVE_INDICATOR = C;
-				if (S.equals("LightSquares"))
-					CF.SMALL_LIGHT_SQUARES = C;
-				if (S.equals("BackGround"))
-					CF.SMALL_BACK_GROUND = C;
-				if (S.equals("DarkSquares"))
-					CF.SMALL_DARK_SQUARES = C;
+				chooseColorButton.setBackground(chosenColor);
+				chooseColorButton.repaint();
+				if (actionString.equals("WhitePieces"))
+					CF.SMALL_WHITE_PIECES = chosenColor;
+				if (actionString.equals("WhiteMoveIndicator"))
+					CF.SMALL_WHITE_MOVE_INDICATOR = chosenColor;
+				if (actionString.equals("BlackPieces"))
+					CF.SMALL_BLACK_PIECES = chosenColor;
+				if (actionString.equals("BlackMoveIndicator"))
+					CF.SMALL_BLACK_MOVE_INDICATOR = chosenColor;
+				if (actionString.equals("LightSquares"))
+					CF.SMALL_LIGHT_SQUARES = chosenColor;
+				if (actionString.equals("BackGround"))
+					CF.SMALL_BACK_GROUND = chosenColor;
+				if (actionString.equals("DarkSquares"))
+					CF.SMALL_DARK_SQUARES = chosenColor;
 				ReDrawInstances();
 			}
 		};
@@ -339,7 +338,7 @@ public class ComradesOptioner implements ActionListener {
 		CF.FONT_FILE_NAME = new String(COPY_FONT_FILE_NAME);
 		CF.PIECE_STRING = new String(COPY_PIECE_STRING);
 		CF.chess_font = COPY_FONT;
-		CF.chess_font_small = COPY_FONT.deriveFont(16.0f); // HACK
+		CF.chess_font_small = COPY_FONT.deriveFont(16.0f);
 		CF.INITIAL_TIMER = new String(COPY_INITIAL_TIMER);
 	}
 
@@ -396,43 +395,39 @@ public class ComradesOptioner implements ActionListener {
 			PW.println("InitialTimer " + CF.INITIAL_TIMER);
 			PW.close();
 			CF.TellInfo("Applied to Comrades.Default.Options");
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 			CF.TellInfo("Error for Comrades.Default.Options");
 		}
 
 	}
 
 	public void actionPerformed(ActionEvent act_evt) {
-		String S = act_evt.getActionCommand();
-		if (S.equals("OK")) // HACK
-		{
+		String actionString = act_evt.getActionCommand();
+		if (actionString.equals("OK")) {
 			DIALOG.setVisible(false);
 			DIALOG.dispose();
 			DIALOG = null;
-			return;
 		}
-		if (S.equals("Save as Default")) // HACK
-		{
+		else if (actionString.equals("Save as Default")) {
 			DIALOG.setVisible(false);
 			DIALOG.dispose();
 			SaveAsDefault();
 			DIALOG = null;
-			return;
 		}
-		if (S.equals("Cancel")) {
+		else if (actionString.equals("Cancel")) {
 			DIALOG.setVisible(false);
 			DIALOG.dispose();
 			UnDoChanges();
 			ReDrawMainBoard();
 			ReDrawInstances();
 			DIALOG = null;
-			return;
 		}
 	}
 
 	public JPanel ColorMe(String S, Color C, String T) {
 		JPanel P = new JPanel();
-		P.setLayout(null); // HACK
+		P.setLayout(null);
 		JLabel L = new JLabel(S + " ");
 		L.setBounds(2, 3, 300, 20);
 		L.setFont(new Font("SansSerif", 0, 15));
@@ -475,8 +470,7 @@ public class ComradesOptioner implements ActionListener {
 		return B;
 	}
 
-	public JPanel MainColorBox() // HACK
-	{
+	public JPanel MainColorBox() {
 		JPanel P = new JPanel();
 		P.setLayout(new GridLayout(0, 2));
 		P.add(ColorMe("WhitePieces", CF.WHITE_PIECES, "Main"));
@@ -503,7 +497,7 @@ public class ComradesOptioner implements ActionListener {
 
 	public JPanel SmallColorBox() {
 		JPanel P = new JPanel();
-		P.setLayout(new GridLayout(0, 1)); // HACK
+		P.setLayout(new GridLayout(0, 1));
 		P.add(ColorMe("WhitePieces", CF.SMALL_WHITE_PIECES, "Small"));
 		P.add(ColorMe("BlackPieces", CF.SMALL_BLACK_PIECES, "Small"));
 		P.add(ColorMe("LightSquares", CF.SMALL_LIGHT_SQUARES, "Small"));
@@ -549,7 +543,7 @@ public class ComradesOptioner implements ActionListener {
 
 	/**
 	 * This method creates a Panel component to hold the timer options components
-	 * 
+	 *
 	 * @return A Panel component containing the timer options
 	 */
 	public Box DoTimerBox() {
@@ -573,7 +567,8 @@ public class ComradesOptioner implements ActionListener {
 		JFormattedTextField T = new JFormattedTextField(df);
 		try {
 			T.setValue(df.parse(CF.INITIAL_TIMER));
-		} catch (ParseException e) {
+		}
+		catch (ParseException e) {
 			// TODO Auto-generated catch block
 			T.setValue(5000);
 		}
@@ -629,7 +624,6 @@ public class ComradesOptioner implements ActionListener {
 
 	public void OptionDialog() {
 		DIALOG = new JDialog(CF.j_frame, "Comrades Options", true); // modal
-		DIALOG.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		CopyOnEntry();
 		MakeDialog();
 		DIALOG.setBackground(Color.lightGray);
