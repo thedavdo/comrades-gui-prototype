@@ -375,8 +375,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		}
 		catch (IOException io_exc) {
 		}
-		catch (InterruptedException int_exc)
-		{
+		catch (InterruptedException int_exc) {
 		}
 	}
 
@@ -610,8 +609,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		EquipInstances();
 	}
 
-	public void TidyCards()
-	{
+	public void TidyCards() {
 		for (int i = 0; i < BOARD_PANEL_COLLECTIVE.getComponentCount(); i++)
 			if (BOARD_PANEL_COLLECTIVE.getComponent(i).isVisible())
 				BOARD_PANEL = (BoardPanel) (BOARD_PANEL_COLLECTIVE.getComponent(i));
@@ -747,8 +745,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		else if (actionString.equals("LOAD"))
 			LoadCommunicatorInstance(((CJMenuItem) (act_evt.getSource())).COMM);
 		else if (actionString.equals("DEFAULTS")) {
-			if ((act_evt.getModifiers() & ActionEvent.CTRL_MASK) != 0 && (act_evt.getModifiers() & ActionEvent.ALT_MASK) != 0)
-			{
+			if ((act_evt.getModifiers() & ActionEvent.CTRL_MASK) != 0 && (act_evt.getModifiers() & ActionEvent.ALT_MASK) != 0) {
 				DeleteUnNeededCommunicator(((CJMenuItem) (act_evt.getSource())).COMM);
 				SaveApplyStartUp();
 			}
@@ -1084,8 +1081,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		j_frame.add(LARGE_BOX);
 	}
 
-	public class EmptyPanel extends JPanel
-	{
+	public class EmptyPanel extends JPanel {
 		public EmptyPanel() {
 		}
 

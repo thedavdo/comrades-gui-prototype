@@ -1,21 +1,18 @@
 /**
- * 
+ *
  */
 package edu.purdue.comradesgui;
 
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.JLabel;
-import javax.swing.Timer;
-
 /**
  * This class creates a move timer
- * 
- * @author Rick Perry
  *
+ * @author Rick Perry
  */
 public class MoveTimer implements ActionListener {
 
@@ -35,7 +32,6 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Default class constructor
-	 * 
 	 */
 	public MoveTimer() {
 		// Default constructor
@@ -45,7 +41,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Class constructor
-	 * 
+	 *
 	 * @param start       Time in seconds to use as start time
 	 * @param textLabel   Label to write time to
 	 * @param labelPrefix Text to use as label prefix
@@ -61,7 +57,7 @@ public class MoveTimer implements ActionListener {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
@@ -85,7 +81,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Sets the time start time
-	 * 
+	 *
 	 * @param time The new start time
 	 */
 	public void setStartTime(int time) {
@@ -94,7 +90,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Gets the current start time
-	 * 
+	 *
 	 * @return The current start time for the timer
 	 */
 	public long getStartTime() {
@@ -103,7 +99,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Gets the current time left on this timer
-	 * 
+	 *
 	 * @return The current time
 	 */
 	public long getTime() {
@@ -112,7 +108,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Gets the current time left on this timer as a string
-	 * 
+	 *
 	 * @return The current time formatted as a string
 	 */
 	public String toString() {
@@ -121,7 +117,6 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Starts the timer
-	 * 
 	 */
 	public void start() {
 		setTimerColor(ACTIVE_COLOR);
@@ -134,7 +129,6 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Resumes the timer if it is paused
-	 * 
 	 */
 	public void resume() {
 		setTimerColor(ACTIVE_COLOR);
@@ -144,7 +138,6 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Stops the timer
-	 * 
 	 */
 	public void stop() {
 		setTimerColor(EXPIRED_COLOR);
@@ -155,7 +148,6 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Pauses the timer
-	 * 
 	 */
 	public void pause() {
 		setTimerColor(PAUSE_COLOR);
@@ -164,7 +156,6 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Resets the timer
-	 * 
 	 */
 	public void reset() {
 		tmr.stop();
@@ -177,7 +168,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Determines if timer has been started
-	 * 
+	 *
 	 * @return True if timer has already started or false otherwise
 	 */
 	public boolean isStarted() {
@@ -186,7 +177,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Determines if time has expired
-	 * 
+	 *
 	 * @return True if timer has expired or false otherwise
 	 */
 	public boolean isExpired() {
@@ -195,7 +186,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Determines if timer is active
-	 * 
+	 *
 	 * @return True is timer is running or false otherwise
 	 */
 	public boolean isActive() {
@@ -204,7 +195,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Set the timer text color
-	 * 
+	 *
 	 * @param sColor Color to use for timer text
 	 */
 	private void setTimerColor(Color sColor) {
@@ -213,7 +204,7 @@ public class MoveTimer implements ActionListener {
 
 	/**
 	 * Converts time count to hh:mm:ss format
-	 * 
+	 *
 	 * @param count Time to convert
 	 * @return String containing converted time in hh:mm:ss format
 	 */

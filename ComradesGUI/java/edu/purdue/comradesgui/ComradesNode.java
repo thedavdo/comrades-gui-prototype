@@ -1,6 +1,6 @@
 package edu.purdue.comradesgui;
 
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class ComradesNode extends DefaultMutableTreeNode {
 	ComradesNode PARENT; // proper

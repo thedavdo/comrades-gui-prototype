@@ -1,13 +1,11 @@
 package edu.purdue.comradesgui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class DemandPGN implements ActionListener, MouseListener {
 	ComradesFrame CF;

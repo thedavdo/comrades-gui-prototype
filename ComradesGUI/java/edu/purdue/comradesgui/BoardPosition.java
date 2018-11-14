@@ -1,6 +1,7 @@
 package edu.purdue.comradesgui;
 
-import java.util.*;
+import java.util.Random;
+import java.util.StringTokenizer;
 
 public class BoardPosition {
 	int AT[][];
@@ -255,7 +256,8 @@ public class BoardPosition {
 			if (c == '/') {
 				rank--;
 				file = 1;
-			} else if (file > 8) {
+			}
+			else if (file > 8) {
 				CF.TellInfo("Bad FEN? Too many files in rank " + rank);
 				return;
 			}
@@ -468,42 +470,42 @@ public class BoardPosition {
 			if (c != 0)
 				R = R + c;
 			switch (AT[file][rank]) {
-			case 1:
-				R = R + "P";
-				break;
-			case 2:
-				R = R + "N";
-				break;
-			case 3:
-				R = R + "B";
-				break;
-			case 4:
-				R = R + "R";
-				break;
-			case 5:
-				R = R + "Q";
-				break;
-			case 6:
-				R = R + "K";
-				break;
-			case -1:
-				R = R + "p";
-				break;
-			case -2:
-				R = R + "n";
-				break;
-			case -3:
-				R = R + "b";
-				break;
-			case -4:
-				R = R + "r";
-				break;
-			case -5:
-				R = R + "q";
-				break;
-			case -6:
-				R = R + "k";
-				break;
+				case 1:
+					R = R + "P";
+					break;
+				case 2:
+					R = R + "N";
+					break;
+				case 3:
+					R = R + "B";
+					break;
+				case 4:
+					R = R + "R";
+					break;
+				case 5:
+					R = R + "Q";
+					break;
+				case 6:
+					R = R + "K";
+					break;
+				case -1:
+					R = R + "p";
+					break;
+				case -2:
+					R = R + "n";
+					break;
+				case -3:
+					R = R + "b";
+					break;
+				case -4:
+					R = R + "r";
+					break;
+				case -5:
+					R = R + "q";
+					break;
+				case -6:
+					R = R + "k";
+					break;
 			}
 			file++;
 			c = 0;
@@ -536,13 +538,14 @@ public class BoardPosition {
 				R += "k";
 			if (BlackOOO)
 				R += "q";
-		} else {
-			String S[] = { "", "A", "B", "C", "D", "E", "F", "G", "H" };
+		}
+		else {
+			String S[] = {"", "A", "B", "C", "D", "E", "F", "G", "H"};
 			if (WhiteOO)
 				R += S[White_KR_file];
 			if (WhiteOOO)
 				R += S[White_QR_file];
-			String T[] = { "", "a", "b", "c", "d", "e", "f", "g", "h" };
+			String T[] = {"", "a", "b", "c", "d", "e", "f", "g", "h"};
 			if (BlackOO)
 				R += T[Black_KR_file];
 			if (BlackOOO)
@@ -991,7 +994,8 @@ public class BoardPosition {
 		if (AT[to_file][to_rank] == 6) {
 			if (!AttacksBlack(to_file, to_rank))
 				AddMove(from_file, from_rank, to_file, to_rank, type);
-		} else {
+		}
+		else {
 			if (!AttacksBlack(WHITE_KingFile, WHITE_KingRank))
 				AddMove(from_file, from_rank, to_file, to_rank, type);
 		}
@@ -1072,7 +1076,8 @@ public class BoardPosition {
 		if (AT[to_file][to_rank] == -6) {
 			if (!AttacksWhite(to_file, to_rank))
 				AddMove(from_file, from_rank, to_file, to_rank, type);
-		} else {
+		}
+		else {
 			if (!AttacksWhite(BLACK_KingFile, BLACK_KingRank))
 				AddMove(from_file, from_rank, to_file, to_rank, type);
 		}
@@ -1091,7 +1096,8 @@ public class BoardPosition {
 			if (AT[to_file][to_rank] < 0 && AT[to_file][to_rank] != -6)
 				LegalWhite(from_file, from_rank, to_file, to_rank, -AT[to_file][to_rank]);
 			return true;
-		} else {
+		}
+		else {
 			if (AT[to_file][to_rank] == 0) {
 				LegalBlack(from_file, from_rank, to_file, to_rank, 0);
 				return false;
@@ -1186,7 +1192,8 @@ public class BoardPosition {
 					LegalWhite(file, rank, file, rank + 1, 0);
 				if (rank == 2 && AT[file][3] == 0 && AT[file][4] == 0)
 					LegalWhite(file, 2, file, 4, 0);
-			} else {
+			}
+			else {
 				if (file < 8 && AT[file + 1][rank - 1] > 0 && AT[file + 1][rank - 1] != 6)
 					LegalBlack(file, rank, file + 1, rank - 1, AT[file + 1][rank - 1]);
 				if (file > 1 && AT[file - 1][rank - 1] > 0 && AT[file - 1][rank - 1] != 6)
@@ -1317,7 +1324,8 @@ public class BoardPosition {
 					LegalWhite(EnPassant + 1, 5, EnPassant, 6, 8);
 				if (EnPassant > 1 && AT[EnPassant - 1][5] == 1)
 					LegalWhite(EnPassant - 1, 5, EnPassant, 6, 8);
-			} else {
+			}
+			else {
 				if (EnPassant < 8 && AT[EnPassant + 1][4] == -1)
 					LegalBlack(EnPassant + 1, 4, EnPassant, 3, 8);
 				if (EnPassant > 1 && AT[EnPassant - 1][4] == -1)
@@ -1334,7 +1342,8 @@ public class BoardPosition {
 					LegalWhite(5, 1, 3, 1, 7);
 				if (WhiteOO && AT[5][1] == 6 && AT[6][1] == 0 && AT[7][1] == 0 && AT[8][1] == 4)
 					LegalWhite(5, 1, 7, 1, 6);
-			} else {
+			}
+			else {
 				if (BlackOOO && AT[1][8] == -4 && AT[5][8] == -6 && AT[2][8] == 0 && AT[3][8] == 0 && AT[4][8] == 0)
 					LegalBlack(5, 8, 3, 8, 7);
 				if (BlackOO && AT[5][8] == -6 && AT[6][8] == 0 && AT[7][8] == 0 && AT[8][8] == -4)
@@ -1346,7 +1355,8 @@ public class BoardPosition {
 				for (file = 1; file <= 8; file++)
 					if (AT[file][rank] > 0)
 						GenerateMoves(file, rank);
-		} else {
+		}
+		else {
 			for (rank = 1; rank <= 8; rank++)
 				for (file = 1; file <= 8; file++)
 					if (AT[file][rank] < 0)
@@ -1384,7 +1394,8 @@ public class BoardPosition {
 				BlackOO = false;
 			if (AT[Black_QR_file][8] != -4)
 				BlackOOO = false;
-		} else {
+		}
+		else {
 			if (AT[5][1] != 6)
 				WhiteOOO = WhiteOO = false;
 			if (AT[1][1] != 4)
@@ -1440,12 +1451,14 @@ public class BoardPosition {
 					S += "" + (char) (to_file + 'a' - 1) + "" + to_rank;
 					if (prom >= 2)
 						S += "=" + CF.PIECE_STRING.substring(6 - prom, 7 - prom);
-				} else if (piece == 6 || piece == -6) {
+				}
+				else if (piece == 6 || piece == -6) {
 					S = CF.PIECE_STRING.substring(0, 1);
 					if (cap)
 						S += "x";
 					S += (char) (to_file + 'a' - 1) + "" + to_rank;
-				} else {
+				}
+				else {
 					if (piece == 5 || piece == -5)
 						S = CF.PIECE_STRING.substring(1, 2);
 					if (piece == 4 || piece == -4)
@@ -1535,7 +1548,8 @@ public class BoardPosition {
 			AT[7][1] = 6;
 			WHITE_KingFile = 7;
 			EnPassant = 0;
-		} else {
+		}
+		else {
 			BlackOO = BlackOOO = false;
 			AT[BLACK_KingFile][8] = AT[Black_KR_file][8] = 0;
 			AT[6][8] = -4;
@@ -1551,7 +1565,8 @@ public class BoardPosition {
 			AT[6][1] = AT[7][1] = 0;
 			AT[Chess960_WK_File][1] = 6;
 			AT[White_KR_file][1] = 4;
-		} else {
+		}
+		else {
 			BLACK_KingFile = Chess960_BK_File;
 			AT[6][8] = AT[7][8] = 0;
 			AT[Chess960_BK_File][8] = -6;
@@ -1572,7 +1587,8 @@ public class BoardPosition {
 			AT[7][1] = 6;
 			AT[8][1] = 0;
 			EnPassant = 0;
-		} else {
+		}
+		else {
 			BlackOO = BlackOOO = false;
 			BLACK_KingFile = 7;
 			AT[5][8] = 0;
@@ -1594,7 +1610,8 @@ public class BoardPosition {
 			AT[6][1] = 0;
 			AT[7][1] = 0;
 			AT[8][1] = 4;
-		} else {
+		}
+		else {
 			BLACK_KingFile = 5;
 			AT[5][8] = -6;
 			AT[6][8] = 0;
@@ -1611,7 +1628,8 @@ public class BoardPosition {
 			AT[3][1] = 6;
 			WHITE_KingFile = 3;
 			EnPassant = 0;
-		} else {
+		}
+		else {
 			BlackOO = BlackOOO = false;
 			AT[BLACK_KingFile][8] = AT[Black_QR_file][8] = 0;
 			AT[4][8] = -4;
@@ -1627,7 +1645,8 @@ public class BoardPosition {
 			AT[3][1] = AT[4][1] = 0;
 			AT[Chess960_WK_File][1] = 6;
 			AT[White_QR_file][1] = 4;
-		} else {
+		}
+		else {
 			BLACK_KingFile = Chess960_BK_File;
 			AT[3][8] = AT[4][8] = 0;
 			AT[Chess960_BK_File][8] = -6;
@@ -1648,7 +1667,8 @@ public class BoardPosition {
 			AT[3][1] = 6;
 			AT[1][1] = 0;
 			EnPassant = 0;
-		} else {
+		}
+		else {
 			BlackOO = BlackOOO = false;
 			BLACK_KingFile = 3;
 			AT[5][8] = 0;
@@ -1670,7 +1690,8 @@ public class BoardPosition {
 			AT[4][1] = 0;
 			AT[3][1] = 0;
 			AT[1][1] = 4;
-		} else {
+		}
+		else {
 			BLACK_KingFile = 5;
 			AT[5][8] = -6;
 			AT[4][8] = 0;
@@ -1684,7 +1705,8 @@ public class BoardPosition {
 			AT[from_file][5] = 0;
 			AT[to_file][6] = 1;
 			AT[to_file][5] = 0;
-		} else {
+		}
+		else {
 			AT[from_file][4] = 0;
 			AT[to_file][3] = -1;
 			AT[to_file][4] = 0;
@@ -1731,7 +1753,8 @@ public class BoardPosition {
 			LAST_FROM_y = 1 + ((c >> 3) & 07);
 			LAST_TO_x = 1 + ((c >> 6) & 07);
 			LAST_TO_y = 1 + ((c >> 9) & 07);
-		} else
+		}
+		else
 			LAST_FROM_x = LAST_FROM_y = LAST_TO_x = LAST_TO_y = 0;
 	}
 
@@ -1774,7 +1797,8 @@ public class BoardPosition {
 		if (ct >= 110) {
 			EnPassant = ct - 110;
 			ReversibleCount = 0;
-		} else {
+		}
+		else {
 			EnPassant = 0;
 			ReversibleCount = ct;
 		}
@@ -1811,7 +1835,8 @@ public class BoardPosition {
 			if (ep) {
 				MakeEP(from_file, to_file);
 				piece = WTM ? 1 : -1;
-			} else {
+			}
+			else {
 				piece = AT[from_file][from_rank];
 				AT[to_file][to_rank] = AT[from_file][from_rank];
 				AT[from_file][from_rank] = 0;
@@ -1846,7 +1871,8 @@ public class BoardPosition {
 					BlackOOO = false;
 				if (to_file == 8 && to_rank == 8)
 					BlackOO = false;
-			} else {
+			}
+			else {
 				if (from_file == White_QR_file && from_rank == 1)
 					WhiteOOO = false;
 				if (from_file == White_KR_file && from_rank == 1)
@@ -1914,13 +1940,14 @@ public class BoardPosition {
 				R += "k";
 			if (BlackOOO)
 				R += "q";
-		} else {
-			String S[] = { "", "A", "B", "C", "D", "E", "F", "G", "H" };
+		}
+		else {
+			String S[] = {"", "A", "B", "C", "D", "E", "F", "G", "H"};
 			if (WhiteOO)
 				R += S[White_KR_file];
 			if (WhiteOOO)
 				R += S[White_QR_file];
-			String T[] = { "", "a", "b", "c", "d", "e", "f", "g", "h" };
+			String T[] = {"", "a", "b", "c", "d", "e", "f", "g", "h"};
 			if (BlackOO)
 				R += T[Black_KR_file];
 			if (BlackOOO)
