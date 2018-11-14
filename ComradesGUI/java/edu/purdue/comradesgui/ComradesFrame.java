@@ -1,19 +1,14 @@
 package edu.purdue.comradesgui;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.*;
 import java.io.*;
-import java.lang.*;
-import java.text.DateFormat;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
-import java.awt.datatransfer.*; // clip board
-
-import javax.swing.Timer;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.StringTokenizer;
 
 public class ComradesFrame implements MouseListener, ActionListener, FocusListener {
 
@@ -47,6 +42,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 	boolean READY_OK = false;
 	boolean CHANGING_INSTANCES;
 	JButton LOAD_BUTTON, DEFAULTS_BUTTON;
+	private JButton infiniteAnalysis_Button;
 	Box INSTANCE_BOX;
 	Color WHITE_PIECES, BLACK_PIECES, LIGHT_SQUARES, DARK_SQUARES;
 	Color BACK_GROUND;
@@ -79,6 +75,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		OnLoadComradesOptions();
 		SIZE = 40;
 		MOVE_PANE = new MovePane(new JPanel());
+		//MOVE_PANE.setSize(1200,800);
 		BOARD_PANEL = new BoardPanel(new BoardPosition(this, MOVE_PANE));
 		String FEN_STRING = BOARD_PANEL.POS.GetFEN();
 		BOARD_PANEL.setSize(10 * SIZE, 10 * SIZE);
@@ -126,7 +123,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		SMALL_BLACK_HALF_OUTLINE = false;
 		SMALL_WHITE_MATERIAL_OUTLINE = true;
 		SMALL_BLACK_MATERIAL_OUTLINE = false;
-		FONT_FILE_NAME = new String("MERIFONT.TTF"); // HACK
+		FONT_FILE_NAME = new String("MERIFONT.TTF");
 		PIECE_STRING = new String("KQRBNP");
 	}
 
@@ -136,7 +133,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		BOARD_PANEL.repaint();
 		TEXT_INFO.repaint();
 		JScrollBar JSB = TEXT_INFO_JSP.getVerticalScrollBar();
-		JSB.setValue(JSB.getMaximum() - 12); // HACK
+		JSB.setValue(JSB.getMaximum() - 12);
 		JSB.repaint();
 	}
 
@@ -223,7 +220,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			NAME = S.substring(0, u);
 			TYPE = new String("directory-multi-reset");
 			VALUE = S.substring(u + 23);
-		} else {
+		}
+		else {
 			u = S.indexOf(" directory");
 			if (u != -1) {
 				NAME = S.substring(0, u);
@@ -254,12 +252,13 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			TellInfo("Reading " + S);
 			Communicator COMM = new Communicator(S, this, false);
 			while (!BR.ready())
-				COMM.SleepFor(10); // HACK
+				COMM.SleepFor(10);
 			while (BR.ready())
 				CommunicatorLineStartUp(COMM, BR.readLine());
 			BR.close();
 			AdditionalCommunicator(COMM);
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 			TellInfo("No dispensation unto file: " + S);
 		}
 	}
@@ -277,7 +276,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			while (BR.ready())
 				CommunicatorDataLoad(BR.readLine());
 			BR.close();
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 			TellInfo("No dispensation unto Comrades.StartUp file");
 		}
 	}
@@ -372,8 +372,10 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			while (BR.ready())
 				DoComradesOption(BR.readLine());
 			BR.close();
-		} catch (IOException io_exc) {
-		} catch (InterruptedException int_exc) // HACK
+		}
+		catch (IOException io_exc) {
+		}
+		catch (InterruptedException int_exc)
 		{
 		}
 	}
@@ -387,7 +389,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 				PW.println(COMMUNICATOR_LIST[i].id);
 			PW.close();
 			TellInfo("Applied to Comrades.StartUp");
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 			TellInfo("Error for Comrades.StartUp");
 		}
 	}
@@ -397,7 +400,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 	public void HaltInstances() {
 		for (int i = 0; i < instances; i++)
 			if (INSTANCES[i].MONTE_CARLO != null)
-				INSTANCES[i].MONTE_CARLO.EndMonteCarlo(); // HACK
+				INSTANCES[i].MONTE_CARLO.EndMonteCarlo();
 		for (int i = 0; i < instances; i++)
 			INSTANCES_ON_COPY[i] = INSTANCES[i].on;
 		for (int i = 0; i < instances; i++)
@@ -441,7 +444,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 	public void BoardPositionChanged() {
 		for (int i = 0; i < instances; i++)
 			INSTANCES[i].ClearInformatory();
-		FEN_AREA.setText(BOARD_PANEL.POS.GetFEN()); // HACK
+		FEN_AREA.setText(BOARD_PANEL.POS.GetFEN());
 	}
 
 	public void ParseFEN(String FEN_STRING) // for the BOARD_POSITION ?
@@ -466,7 +469,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	public void SetupNewCommunicator(File FILE) {
 		Communicator COMM = new Communicator(FILE.getAbsolutePath(), this, true);
-		COMM.path = new String(COMM.name); // HACK
+		COMM.path = new String(COMM.name);
 		if (!COMM.LoadCommunicator())
 			return;
 		COMM.ModifyDefaults();
@@ -480,7 +483,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	public void RegisterNew() {
 		JFileChooser JFC;
-		JFC = new JFileChooser(System.getProperty("user.dir")); // HACK
+		JFC = new JFileChooser(System.getProperty("user.dir"));
 		int Value = JFC.showOpenDialog(JFC);
 		if (Value != JFileChooser.APPROVE_OPTION)
 			return;
@@ -520,7 +523,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 				{
 					DataPGN D = new DataPGN(this);
 					if (!D.ParsePGN(BR))
-						value = false; // HACk
+						value = false;
 					if (!value && D.White == null)
 						break;
 					String S = "#" + (BOARD_PANEL_COLLECTIVE.getComponentCount()) + ": " + D.White + " " + D.Black + " "
@@ -529,8 +532,10 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 					BOARD_PANEL_COLLECTIVE.add(D.BOARD_PANEL, S);
 					MOVE_PANE_COLLECTIVE.add(D.MOVE_PANE, S);
 				}
-			} catch (UnsupportedFlavorException ex) {
-			} catch (IOException ex) {
+			}
+			catch (UnsupportedFlavorException ex) {
+			}
+			catch (IOException ex) {
 			}
 			DealCards(((BoardPanel) (BOARD_PANEL_COLLECTIVE
 					.getComponent(BOARD_PANEL_COLLECTIVE.getComponentCount() - 1))).Name);
@@ -543,7 +548,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		if (PGN_FILE != null)
 			JFC = new JFileChooser(PGN_FILE);
 		else
-			JFC = new JFileChooser(System.getProperty("user.dir")); // HACK
+			JFC = new JFileChooser(System.getProperty("user.dir"));
 		int Value = JFC.showOpenDialog(JFC);
 		if (Value != JFileChooser.APPROVE_OPTION)
 			return;
@@ -562,7 +567,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			}
 			BR.close(); // ensure
 			redraw();
-		} catch (IOException io_exc) {
+		}
+		catch (IOException io_exc) {
 		}
 	}
 
@@ -595,7 +601,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	public void DealCards(String S) {
 		HaltInstances();
-		CardLayout CL; // HACK
+		CardLayout CL;
 		CL = (CardLayout) (BOARD_PANEL_COLLECTIVE.getLayout());
 		CL.show(BOARD_PANEL_COLLECTIVE, S);
 		CL = (CardLayout) (MOVE_PANE_COLLECTIVE.getLayout());
@@ -604,7 +610,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		EquipInstances();
 	}
 
-	public void TidyCards() // HACK
+	public void TidyCards()
 	{
 		for (int i = 0; i < BOARD_PANEL_COLLECTIVE.getComponentCount(); i++)
 			if (BOARD_PANEL_COLLECTIVE.getComponent(i).isVisible())
@@ -614,13 +620,13 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 				MOVE_PANE = (MovePane) (MOVE_PANE_COLLECTIVE.getComponent(i));
 		BoardPositionChanged();
 		BOARD_PANEL.POS.MOVE_TREE.FOCUS = true;
-		BOARD_PANEL.POS.MOVE_TREE.PaintPanel(); // HACK
+		BOARD_PANEL.POS.MOVE_TREE.PaintPanel();
 		redraw();
 	}
 
 	public void ForWardCards() {
 		HaltInstances();
-		CardLayout CL; // HACK
+		CardLayout CL;
 		CL = (CardLayout) (BOARD_PANEL_COLLECTIVE.getLayout());
 		CL.next(BOARD_PANEL_COLLECTIVE);
 		CL = (CardLayout) (MOVE_PANE_COLLECTIVE.getLayout());
@@ -631,7 +637,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	public void BackWardCards() {
 		HaltInstances();
-		CardLayout CL; // HACK
+		CardLayout CL;
 		CL = (CardLayout) (BOARD_PANEL_COLLECTIVE.getLayout());
 		CL.previous(BOARD_PANEL_COLLECTIVE);
 		CL = (CardLayout) (MOVE_PANE_COLLECTIVE.getLayout());
@@ -652,7 +658,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				JTA.repaint();
 			}
-		}); // HACK // HACK
+		});
 		String STRING = new String("");
 		for (int i = 0; i < BOARD_PANEL_COLLECTIVE.getComponentCount(); i++)
 			STRING += ((BoardPanel) (BOARD_PANEL_COLLECTIVE.getComponent(i))).POS.MOVE_TREE.EmitPGN(DoTree);
@@ -676,7 +682,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 		if (result == chooser.APPROVE_OPTION) {
 			return chooser.getSelectedFile();
-		} else {
+		}
+		else {
 			return null;
 		}
 	}
@@ -692,58 +699,67 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 	}
 
 	public void actionPerformed(ActionEvent act_evt) {
-		String S = act_evt.getActionCommand();
-		if (S.equals("OPTIONS"))
+
+		String actionString = act_evt.getActionCommand();
+
+		if (actionString.equals("OPTIONS"))
 			new ComradesOptioner(this); // modal
-		if (S.equals("SetUpPosition"))
+		else if (actionString.equals("SetUpPosition"))
 			BOARD_PANEL.StartSetUp();
-		if (S.equals("FEN")) {
+		else if (actionString.equals("FEN")) {
 			if ((act_evt.getModifiers() & ActionEvent.SHIFT_MASK) != 0)
 				FEN_AREA.setText("");
 			else
 				ParseFEN(FEN_AREA.getText());
 		}
-		if (S.equals("Switch")) // old namingery: PGN
+		else if (actionString.equals("Switch")) // old namingery: PGN
 		{
 			if ((act_evt.getModifiers() & ActionEvent.SHIFT_MASK) != 0)
 				NewPGN();
 			else
 				DoButtonPGN();
 		}
-		if (S.equals("Emit")) {
+		else if (actionString.equals("infinite")) {
+
+			for (int i = 0; i < instances; i++) {
+				if (INSTANCES_ON_COPY[i])
+					INSTANCES[i].SendGoInfinite();
+			}
+		}
+		else if (actionString.equals("Emit")) {
 			if ((act_evt.getModifiers() & ActionEvent.SHIFT_MASK) != 0)
 				try {
 					DoEmitPGN(false);
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
+				}
+				catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
 			else
 				try {
 					DoEmitPGN(true);
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
+				}
+				catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
 		}
-		if (S.equals("RegisterNew"))
+		else if (actionString.equals("RegisterNew"))
 			RegisterNew();
-		if (S.equals("LOAD"))
+		else if (actionString.equals("LOAD"))
 			LoadCommunicatorInstance(((CJMenuItem) (act_evt.getSource())).COMM);
-		if (S.equals("DEFAULTS")) {
-			if ((act_evt.getModifiers() & ActionEvent.CTRL_MASK) != 0
-					&& (act_evt.getModifiers() & ActionEvent.ALT_MASK) != 0) // HACK
+		else if (actionString.equals("DEFAULTS")) {
+			if ((act_evt.getModifiers() & ActionEvent.CTRL_MASK) != 0 && (act_evt.getModifiers() & ActionEvent.ALT_MASK) != 0)
 			{
 				DeleteUnNeededCommunicator(((CJMenuItem) (act_evt.getSource())).COMM);
 				SaveApplyStartUp();
-			} else
+			}
+			else
 				EnsueDefaults(((CJMenuItem) (act_evt.getSource())).COMM);
 		}
-		if (S.equals("ModifyDefaults"))
+		else if (actionString.equals("ModifyDefaults"))
 			MakePopUp("DEFAULTS");
-		if (S.equals("LoadCommunicator"))
+		else if (actionString.equals("LoadCommunicator"))
 			MakePopUp("LOAD");
-		if (S.equals("PLAY")) {
+		else if (actionString.equals("PLAY")) {
 			if (PLAY_BUTTON.getText().compareTo("STOP") == 0) {
 				endGame("", "*");
 				PLAY_BUTTON.setText("PLAY");
@@ -780,22 +796,22 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	public void startGame() {
 		switch (gameMode) {
-		case 1:
-			BOARD_PANEL.White = "Human Player";
-			BOARD_PANEL.Black = INSTANCES[0].name;
-			break;
-		case 2:
-			BOARD_PANEL.White = INSTANCES[0].name;
-			BOARD_PANEL.Black = INSTANCES[0].name;
-			break;
-		case 3:
-			BOARD_PANEL.White = INSTANCES[1].name;
-			BOARD_PANEL.Black = INSTANCES[0].name;
-			break;
-		default:
-			BOARD_PANEL.White = "Human Player";
-			BOARD_PANEL.Black = INSTANCES[0].name;
-			break;
+			case 1:
+				BOARD_PANEL.White = "Human Player";
+				BOARD_PANEL.Black = INSTANCES[0].name;
+				break;
+			case 2:
+				BOARD_PANEL.White = INSTANCES[0].name;
+				BOARD_PANEL.Black = INSTANCES[0].name;
+				break;
+			case 3:
+				BOARD_PANEL.White = INSTANCES[1].name;
+				BOARD_PANEL.Black = INSTANCES[0].name;
+				break;
+			default:
+				BOARD_PANEL.White = "Human Player";
+				BOARD_PANEL.Black = INSTANCES[0].name;
+				break;
 		}
 
 		labelInfo.setText("");
@@ -807,7 +823,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 			if (gameMode == 2 || gameMode == 3)
 				INSTANCES[0].SendGo();
-		} else {
+		}
+		else {
 			blackTime.start();
 
 			if (gameMode == 1 || gameMode == 2)
@@ -827,19 +844,23 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		Font FONT = null;
 		try {
 			FIS = new FileInputStream(S);
-		} catch (IOException io_e) {
+		}
+		catch (IOException io_e) {
 			ERROR("Cannot find font file " + S);
 		}
 		try {
 			FONT = Font.createFont(Font.TRUETYPE_FONT, FIS);
-		} catch (IOException io_e) {
+		}
+		catch (IOException io_e) {
 			ERROR("IOException in font creation");
-		} catch (FontFormatException io_e) {
+		}
+		catch (FontFormatException io_e) {
 			ERROR("Font format exception");
 		}
 		try {
 			FIS.close();
-		} catch (IOException io_e) {
+		}
+		catch (IOException io_e) {
 			ERROR("Failure to close fonts");
 		}
 		FONT_FILE_NAME = new String(S);
@@ -859,7 +880,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	public void focusGained(FocusEvent foc_evt) {
 		if (BOARD_PANEL.POS.MOVE_TREE.FOCUS)
-			BOARD_PANEL.POS.MOVE_TREE.NOW.LABEL.requestFocus(); // HACK
+			BOARD_PANEL.POS.MOVE_TREE.NOW.LABEL.requestFocus();
 	}
 
 	public void focusLost(FocusEvent foc_evt) // empty (null)
@@ -871,8 +892,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		FEN_AREA = new JTextField(50);
 		FEN_AREA.setFont(new Font("Monospaced", 0, 9));
 		FEN_AREA.setEditable(true);
-		FEN_AREA.addFocusListener(this); // HACK
-		FEN_AREA.addMouseListener(this); // HACK
+		FEN_AREA.addFocusListener(this);
+		FEN_AREA.addMouseListener(this);
 		FEN_AREA.setPreferredSize(new Dimension(410, 20));
 		FEN_AREA.setMinimumSize(new Dimension(400, 20));
 		FEN_BOX.add(FEN_AREA);
@@ -890,7 +911,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	public JToolBar MakeToolBar() {
 		JToolBar TOOL_BAR = new JToolBar();
-		TOOL_BAR.setAlignmentX(0.0f); // HACK ?
+		TOOL_BAR.setAlignmentX(0.0f);
 		TOOL_BAR.addSeparator(); // fancy
 		JButton OPTIONS_BUTTON = new JButton("OPTIONS");
 		Font NEWBUY_FONT = new Font("SansSerif", Font.BOLD, 11);
@@ -929,13 +950,20 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		EMIT_BUTTON.addActionListener(this);
 		TOOL_BAR.add(EMIT_BUTTON);
 		TOOL_BAR.setFloatable(false);
+
+		infiniteAnalysis_Button = new JButton("Infinite Analysis");
+		infiniteAnalysis_Button.setFont(NEWBUY_FONT);
+		infiniteAnalysis_Button.setActionCommand("infinite");
+		infiniteAnalysis_Button.addActionListener(this);
+		TOOL_BAR.add(infiniteAnalysis_Button);
+		//infiniteAnalysis_Button.setFloatable(false);
 		// TOOL_BAR.addSeparator ();
 		return TOOL_BAR;
 	}
 
 	/**
 	 * Creates a box with a play mode selection and play button
-	 * 
+	 *
 	 * @return Box container with mode selection and play button
 	 */
 	public Box Make_Play_Box() {
@@ -981,7 +1009,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	/**
 	 * Creates a box with White and Black Player timers
-	 * 
+	 *
 	 * @return Box container with two player move timers
 	 */
 
@@ -1047,16 +1075,16 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		INSTANCE_BOX.add(new EmptyPanel());
 		JScrollPane INSTANCE_BOX_PANE = new JScrollPane(INSTANCE_BOX);
 		INSTANCE_BOX_PANE.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		INSTANCE_BOX_PANE.setPreferredSize(new Dimension(450, 700));
+		INSTANCE_BOX_PANE.setPreferredSize(new Dimension(650, 700));
 		INSTANCE_BOX_PANE.setAlignmentX(0.0f);
 		RIGHT_BOX.add(INSTANCE_BOX_PANE);
-		RIGHT_BOX.setPreferredSize(new Dimension(450, 700));
+		RIGHT_BOX.setPreferredSize(new Dimension(650, 700));
 		LARGE_BOX.add(LEFT_BOX);
 		LARGE_BOX.add(RIGHT_BOX);
 		j_frame.add(LARGE_BOX);
 	}
 
-	public class EmptyPanel extends JPanel // HACK
+	public class EmptyPanel extends JPanel
 	{
 		public EmptyPanel() {
 		}
@@ -1100,7 +1128,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		DoGraphics();
 		j_frame.setBackground(Color.lightGray);
 		j_frame.pack();
-		j_frame.setSize(850, 675);
+		j_frame.setSize(1050, 675);
 		j_frame.setResizable(false);
 		j_frame.setVisible(true);
 		READY_OK = true;
@@ -1121,7 +1149,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		blackTime.pause();
 		if (!BOARD_PANEL.POS.WTM) {
 			blackTime.resume();
-		} else {
+		}
+		else {
 			whiteTime.resume();
 		}
 
@@ -1129,7 +1158,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	/**
 	 * Checks current game to determine if game is over
-	 * 
+	 *
 	 * @return True if game is over or false otherwise
 	 */
 	public boolean checkGameOver() {
@@ -1142,7 +1171,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			isGameOver = true;
 			winner += "Black<BR>Time Expired</HTML>";
 			result = "0-1";
-		} else if (blackTime != null && blackTime.isExpired()) {
+		}
+		else if (blackTime != null && blackTime.isExpired()) {
 			isGameOver = true;
 			winner += "White<BR>Time Expired</HTML>";
 			result = "1-0";
@@ -1157,11 +1187,13 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 				if (BOARD_PANEL.POS.WTM) {
 					winner += "Black<BR>Checkmate</HTML>";
 					result = "0-1";
-				} else {
+				}
+				else {
 					winner += "White<BR>Checkmate</HTML>";
 					result = "1-0";
 				}
-			} else {
+			}
+			else {
 				winner += "Draw<BR>Stalemate</HTML>";
 				result = "1/2-1/2";
 			}
@@ -1192,7 +1224,6 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	/**
 	 * Ends current game and displays winner
-	 * 
 	 */
 	public void endGame(String winner, String result) {
 		// Pause timers
@@ -1221,7 +1252,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 	/**
 	 * Converts string time into integer time
-	 * 
+	 *
 	 * @param timeString Time to be converted
 	 * @return Time in seconds as an integer
 	 */
@@ -1232,7 +1263,8 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 			int minutes = Integer.parseInt(units[1]);
 			int seconds = Integer.parseInt(units[2]);
 			return (hours * 3600) + (minutes * 60) + seconds;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			return 0;
 		}
 	}
