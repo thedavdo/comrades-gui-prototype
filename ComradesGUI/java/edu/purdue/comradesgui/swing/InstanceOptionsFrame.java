@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -66,7 +66,7 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 			if (CI.OPT_NAME[i].equals("MultiCentiPawnPV") || CI.OPT_NAME[i].equals("MultiPV_cp"))
 				CI.MultiPV_Centi_Pawn = Integer.valueOf(CI.OPT_VALUE[i]).intValue();
 		}
-		CI.IP.RenewInstancePanel();
+		CI.instancePanel.RenewInstancePanel();
 		CI.SendTo("isready", true);
 		CI.WaitForThroughPut("readyok", -1, true);
 		OPTIONS_FRAME.setVisible(false);
@@ -84,11 +84,11 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 		CI.SleepFor(100);
 		CI.process.destroy();
 		CI.process = null; // ensure
-		for (i = 0; i < CI.CF.instances; i++)
-			if (CI == CI.CF.INSTANCES[i])
+		for (i = 0; i < CI.frame.instances; i++)
+			if (CI == CI.frame.INSTANCES[i])
 				break;
-		for (int j = i; j < CI.CF.instances - 1; j++)
-			CI.CF.INSTANCES[j] = CI.CF.INSTANCES[j + 1];
+		for (int j = i; j < CI.frame.instances - 1; j++)
+			CI.frame.INSTANCES[j] = CI.frame.INSTANCES[j + 1];
 		CI.DisMissInstance();
 	}
 

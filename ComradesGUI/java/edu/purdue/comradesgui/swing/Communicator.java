@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import java.io.*;
@@ -22,7 +22,7 @@ public class Communicator extends CommIO {
 
 	public Communicator(String NAME, ComradesFrame cf, boolean NEW) {
 		super(cf);
-		CF = cf;
+		frame = cf;
 		name = new String(NAME); // copy
 		options = new String[1024]; // limit
 		OPT_NAME = new String[1024];
@@ -62,7 +62,7 @@ public class Communicator extends CommIO {
 			if (!IsReady()) {
 				SleepFor(100);
 				if (!IsReady()) {
-					CF.TellInfo("Communicator decayed?");
+					frame.TellInfo("Communicator decayed?");
 					return;
 				}
 			}
@@ -83,7 +83,7 @@ public class Communicator extends CommIO {
 			if (IsReady())
 				break;
 			if (x == 10) {
-				CF.TellInfo("No communications for " + path);
+				frame.TellInfo("No communications for " + path);
 				return false;
 			}
 		}
@@ -98,7 +98,7 @@ public class Communicator extends CommIO {
 			if (!IsReady()) {
 				SleepFor(100);
 				if (!IsReady()) {
-					CF.TellInfo("Communicator decayed?");
+					frame.TellInfo("Communicator decayed?");
 					SendTo("quit", true);
 					SleepFor(100);
 					process.destroy();
@@ -120,7 +120,7 @@ public class Communicator extends CommIO {
 			exterior = Runtime.getRuntime().exec(path);
 		}
 		catch (IOException io_exc) {
-			CF.TellInfo("Not found: " + path);
+			frame.TellInfo("Not found: " + path);
 			return false;
 		}
 		READER = new BufferedReader(new InputStreamReader(exterior.getInputStream()));
@@ -157,14 +157,14 @@ public class Communicator extends CommIO {
 			PW.close();
 		}
 		catch (IOException io_exc) {
-			CF.TellInfo("Bad try to write on disk, filename bad?");
+			frame.TellInfo("Bad try to write on disk, filename bad?");
 			return;
 		}
 		OPTIONS_FRAME.setVisible(false);
 		OPTIONS_FRAME.dispose(); // null
 		if (IS_NEW)
-			CF.AdditionalCommunicator(this);
-		CF.SaveApplyStartUp();
+			frame.AdditionalCommunicator(this);
+		frame.SaveApplyStartUp();
 		IS_NEW = false;
 	}
 
@@ -172,9 +172,9 @@ public class Communicator extends CommIO {
 		OPTIONS_FRAME.setVisible(false);
 		OPTIONS_FRAME.dispose(); // null
 		if (IS_NEW)
-			CF.AdditionalCommunicator(this);
-		CF.DeleteUnNeededCommunicator(this);
-		CF.SaveApplyStartUp();
+			frame.AdditionalCommunicator(this);
+		frame.DeleteUnNeededCommunicator(this);
+		frame.SaveApplyStartUp();
 	}
 
 	public void ModifyDefaults() {

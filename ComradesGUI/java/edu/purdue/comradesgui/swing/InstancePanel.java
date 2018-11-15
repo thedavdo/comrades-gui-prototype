@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,20 +54,20 @@ public class InstancePanel extends JPanel implements ActionListener {
 	}
 
 	public void SetColors() {
-		WHITE_PIECES = CI.CF.SMALL_WHITE_PIECES;
-		BLACK_PIECES = CI.CF.SMALL_BLACK_PIECES;
-		LIGHT_SQUARES = CI.CF.SMALL_LIGHT_SQUARES;
-		DARK_SQUARES = CI.CF.SMALL_DARK_SQUARES;
-		BACK_GROUND = CI.CF.SMALL_BACK_GROUND;
-		WHITE_MOVE_INDICATOR = CI.CF.SMALL_WHITE_MOVE_INDICATOR;
-		BLACK_MOVE_INDICATOR = CI.CF.SMALL_BLACK_MOVE_INDICATOR;
-		EN_PASSANT_COLOR = CI.CF.SMALL_EN_PASSANT_COLOR;
-		WHITE_ALL_OUTLINE = CI.CF.SMALL_WHITE_ALL_OUTLINE;
-		BLACK_ALL_OUTLINE = CI.CF.SMALL_BLACK_ALL_OUTLINE;
-		WHITE_HALF_OUTLINE = CI.CF.SMALL_WHITE_HALF_OUTLINE;
-		BLACK_HALF_OUTLINE = CI.CF.SMALL_BLACK_HALF_OUTLINE;
-		WHITE_MATERIAL_OUTLINE = CI.CF.SMALL_WHITE_MATERIAL_OUTLINE;
-		BLACK_MATERIAL_OUTLINE = CI.CF.SMALL_BLACK_MATERIAL_OUTLINE;
+		WHITE_PIECES = CI.frame.SMALL_WHITE_PIECES;
+		BLACK_PIECES = CI.frame.SMALL_BLACK_PIECES;
+		LIGHT_SQUARES = CI.frame.SMALL_LIGHT_SQUARES;
+		DARK_SQUARES = CI.frame.SMALL_DARK_SQUARES;
+		BACK_GROUND = CI.frame.SMALL_BACK_GROUND;
+		WHITE_MOVE_INDICATOR = CI.frame.SMALL_WHITE_MOVE_INDICATOR;
+		BLACK_MOVE_INDICATOR = CI.frame.SMALL_BLACK_MOVE_INDICATOR;
+		EN_PASSANT_COLOR = CI.frame.SMALL_EN_PASSANT_COLOR;
+		WHITE_ALL_OUTLINE = CI.frame.SMALL_WHITE_ALL_OUTLINE;
+		BLACK_ALL_OUTLINE = CI.frame.SMALL_BLACK_ALL_OUTLINE;
+		WHITE_HALF_OUTLINE = CI.frame.SMALL_WHITE_HALF_OUTLINE;
+		BLACK_HALF_OUTLINE = CI.frame.SMALL_BLACK_HALF_OUTLINE;
+		WHITE_MATERIAL_OUTLINE = CI.frame.SMALL_WHITE_MATERIAL_OUTLINE;
+		BLACK_MATERIAL_OUTLINE = CI.frame.SMALL_BLACK_MATERIAL_OUTLINE;
 	}
 
 	public Dimension getPreferredSize() {
@@ -108,11 +108,11 @@ public class InstancePanel extends JPanel implements ActionListener {
 			CI.SleepFor(100);
 			CI.process.destroy();
 			CI.process = null; // ensure
-			for (i = 0; i < CI.CF.instances; i++)
-				if (CI == CI.CF.INSTANCES[i])
+			for (i = 0; i < CI.frame.instances; i++)
+				if (CI == CI.frame.INSTANCES[i])
 					break;
-			for (int j = i; j < CI.CF.instances - 1; j++)
-				CI.CF.INSTANCES[j] = CI.CF.INSTANCES[j + 1];
+			for (int j = i; j < CI.frame.instances - 1; j++)
+				CI.frame.INSTANCES[j] = CI.frame.INSTANCES[j + 1];
 			CI.DisMissInstance();
 		}
 		if (S.equals("OPT")) {
@@ -347,7 +347,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 		char buffer[] = new char[1];
 		int PIECES[] = {0, 0, 0, 0, 0, 0, 0};
 		char TABLE[] = {0, 79, 77, 86, 84, 87, 76, 80, 78, 66, 82, 81, 75};
-		G.setFont(CI.CF.chess_font_small);
+		G.setFont(CI.frame.chess_font_small);
 		for (int i = 1; i <= 8; i++)
 			for (int j = 1; j <= 8; j++) {
 				if (BP.AT[i][j] > 0)
@@ -380,7 +380,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 	}
 
 	public void DoBoardDraw(BoardPosition BP, Graphics G) {
-		G.setFont(CI.CF.chess_font_small);
+		G.setFont(CI.frame.chess_font_small);
 		char buffer[] = new char[1];
 		for (int i = 1; i <= 8; i++)
 			for (int j = 1; j <= 8; j++) {
@@ -467,7 +467,7 @@ public class InstancePanel extends JPanel implements ActionListener {
 				&& THIS_DRAW - LAST_DRAW < 100)
 			return; // much
 		String S = new String("");
-		G.setFont(CI.CF.chess_font_small);
+		G.setFont(CI.frame.chess_font_small);
 		BoardPosition TEMP = new BoardPosition(CI.CI_BOARD_POSITION);
 		int pv_num = CI.DISPLAY_PV;
 		int k = 0;

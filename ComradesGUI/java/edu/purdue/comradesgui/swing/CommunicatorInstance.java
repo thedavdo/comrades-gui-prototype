@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -17,30 +17,30 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 	String[] OPT_VALUE;
 	String[] OPT_TYPE;
 	boolean IS_NEW;
-	boolean HALTING = false;
-	boolean PRE_SENT = false;
-	boolean THREAD_INPUT = false;
+	private boolean HALTING = false;
+	private boolean PRE_SENT = false;
+	private boolean THREAD_INPUT = false;
 	boolean on = false;
-	boolean COMRADES_MONTE_CARLO = false;
-	boolean PARSE_LINE = false;
-	long START_TIME = 0;
-	long LAST_INPUT = 0;
-	InstancePanel IP = null;
-	JScrollPane JSP = null;
+	private boolean COMRADES_MONTE_CARLO = false;
+	private boolean PARSE_LINE = false;
+	private long START_TIME = 0;
+	private long LAST_INPUT = 0;
+	InstancePanel instancePanel = null;
+	JScrollPane scrollPane = null;
 	BoardPosition CI_BOARD_POSITION;
 	MonteCarlo MONTE_CARLO = null;
 	InstanceOptionsFrameUCI IOF_UCI = null;
 	InstanceOptionsFrameICI IOF_ICI = null;
 	int MultiPV = 0;
 	int MultiPV_Centi_Pawn = 987652;
-	int num_MPV = -1;
-	int num_CP = -1;
-	String CP_str;
-	JFrame POP_UP = null;
+	private int num_MPV = -1;
+	private int num_CP = -1;
+	private String CP_str;
+	private JFrame POP_UP = null;
 
 	boolean ICI;
 	boolean REVERSE;
-	int MULTI_PV = 0;
+	private int MULTI_PV = 0;
 	int DEPTH = 0;
 	int SELDEPTH = 0;
 	long TIME = 0;
@@ -50,21 +50,21 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 	boolean[] UPPER;
 	boolean[] MATE;
 	int[] SCORE;
-	String CURR_MOVE;
+	private String CURR_MOVE;
 	String CURR_MOVE_STR = null;
-	int CURR_MOVE_NUMBER = 0;
+	private int CURR_MOVE_NUMBER = 0;
 	int HASH_FULL = 0;
-	int NPS = 0;
+	private int NPS = 0;
 	long TB_HITS;
 	int CPU_LOAD = 0;
 	String[] PV_STRING;
 	String[][] PV;
 	boolean PV_CHANGE = false;
-	boolean MAKE_NEXT_MOVE = false;
+	private boolean MAKE_NEXT_MOVE = false;
 
 	public CommunicatorInstance(Communicator comm, ComradesFrame cf) {
 		super(cf);
-		CF = cf;
+		frame = cf;
 		COMM = comm;
 		ICI = COMM.ICI;
 		COMRADES_MONTE_CARLO = COMM.COMRADES_MONTE_CARLO;
@@ -113,7 +113,7 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 	 * public void mouseClicked (MouseEvent evt) { if (MONTE_CARLO != null &&
 	 * MONTE_CARLO.WORKING) return;  int x = evt.getX (); int y = evt.getY
 	 * (); int b = evt.getButton (); int n = evt.getClickCount (); if (x < 35 && y <
-	 * 35 && !CF.BOARD_PANEL.SET_UP) { if (b != 1 && COMRADES_MONTE_CARLO) { if (on)
+	 * 35 && !frame.BOARD_PANEL.SET_UP) { if (b != 1 && COMRADES_MONTE_CARLO) { if (on)
 	 * SendHalt (); if (MONTE_CARLO == null) AttendMonteCarlo (); return; } if (on)
 	 * SendHalt (); else SendGo(); return; } if (y < 20 && x > 50 && ((!ICI &&
 	 * IOF_UCI == null) || (ICI && IOF_ICI == null))) { if (on) SendHalt (); if (b
@@ -129,7 +129,7 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		int y = evt.getY();
 		int b = evt.getButton();
 		int n = evt.getClickCount();
-		if (x < 35 && y < 35 && !CF.BOARD_PANEL.SET_UP) {
+		if (x < 35 && y < 35 && !frame.BOARD_PANEL.SET_UP) {
 			if (b != 1 && COMRADES_MONTE_CARLO) {
 				if (on)
 					SendHalt();
@@ -186,10 +186,10 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 	public void DisMissInstance() {
 		if (on)
 			DoHalt();
-		if (IP != null)
-			CF.INSTANCE_BOX.remove(JSP); // upon so JSP
-		if (CF.instances == 0)
-			CF.INSTANCE_BOX.add(new EmptyPanel());
+		if (instancePanel != null)
+			frame.INSTANCE_BOX.remove(scrollPane); // upon so scrollPane
+		if (frame.instances == 0)
+			frame.INSTANCE_BOX.add(new EmptyPanel());
 		if (IOF_ICI != null) {
 			IOF_ICI.OPTIONS_FRAME.setVisible(false);
 			IOF_ICI.OPTIONS_FRAME.dispose(); // null
@@ -203,9 +203,9 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 			IOF_UCI = null;
 		}
 		RemovePopUp();
-		CF.INSTANCE_BOX.revalidate(); // "re"
-		CF.INSTANCE_BOX.repaint(); // and too ?
-		CF.TellInfo("Forbid instance: " + COMM.id);
+		frame.INSTANCE_BOX.revalidate(); // "re"
+		frame.INSTANCE_BOX.repaint(); // and too ?
+		frame.TellInfo("Forbid instance: " + COMM.id);
 	}
 
 	public void RemovePopUp() {
@@ -225,7 +225,7 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 			return;
 		}
 		on = false;
-		IP.repaint();
+		instancePanel.repaint();
 		HALTING = false;
 	}
 
@@ -245,22 +245,22 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 	}
 
 	public String GetFenMoves() {
-		MoveTree MT = CF.BOARD_PANEL.POS.MOVE_TREE;
-		int R = CI_BOARD_POSITION.ReversibleCount;
-		ComradesNode T = MT.NOW;
-		for (int i = 0; i < R && T.getParent() != null; i++)
-			T = T.MainLineParent;
-		BoardPosition BP = new BoardPosition(MT.START); // copy
-		ComradesNode N = MT.ROOT;
-		while (N != T) {
-			BP.MakeMove32(N.mainline.move, N.mainline.fancy);
-			N = N.MainLineNode;
+		MoveTree moveTree = frame.BOARD_PANEL.POS.MOVE_TREE;
+		int revCount = CI_BOARD_POSITION.ReversibleCount;
+		ComradesNode nowNode = moveTree.NOW;
+		for (int i = 0; i < revCount && nowNode.getParent() != null; i++)
+			nowNode = nowNode.MainLineParent;
+		BoardPosition BP = new BoardPosition(moveTree.START); // copy
+		ComradesNode rootNode = moveTree.ROOT;
+		while (rootNode != nowNode) {
+			BP.MakeMove32(rootNode.mainline.move, rootNode.mainline.fancy);
+			rootNode = rootNode.MainLineNode;
 		}
 		String S = "position fen " + BP.GetFEN() + " moves";
-		while (N != MT.NOW) {
-			BP.MakeMove32(N.mainline.move, N.mainline.fancy);
-			S += " " + BP.GetDirect(N.mainline.move);
-			N = N.MainLineNode;
+		while (rootNode != moveTree.NOW) {
+			BP.MakeMove32(rootNode.mainline.move, rootNode.mainline.fancy);
+			S += " " + BP.GetDirect(rootNode.mainline.move);
+			rootNode = rootNode.MainLineNode;
 		}
 		return S;
 	}
@@ -276,10 +276,10 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		TB_HITS = 0;
 		for (int i = 1; i < 256; i++)
 			PV[i][0] = null;
-		REVERSE = CF.BOARD_PANEL.REVERSE;
-		CI_BOARD_POSITION = new BoardPosition(CF.BOARD_PANEL.POS);
+		REVERSE = frame.BOARD_PANEL.REVERSE;
+		CI_BOARD_POSITION = new BoardPosition(frame.BOARD_PANEL.POS);
 		PV_CHANGE = true;
-		IP.repaint();
+		instancePanel.repaint();
 	}
 
 	public void GoInfinite() {
@@ -290,11 +290,11 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		ClearInformatory();
 		CI_BOARD_POSITION.MakeNormal(); // ensure
 		if (CI_BOARD_POSITION.COUNT_OF_LEGAL_MOVES == 0) {
-			CF.TellInfo("No Legal moves.");
+			frame.TellInfo("No Legal moves.");
 			return;
 		}
 		if (!CI_BOARD_POSITION.IsOK()) {
-			CF.TellInfo("BoardPosition is not OK!");
+			frame.TellInfo("BoardPosition is not OK!");
 			return;
 		}
 		START_TIME = new Date().getTime();
@@ -303,7 +303,7 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 					(2 * CI_BOARD_POSITION.MOVE_NUMBER +
 							(CI_BOARD_POSITION.WTM ? 0 : 1)), false);
 		if (CI_BOARD_POSITION.Chess960 && !COMM.Has_Chess_960) {
-			CF.TellInfo("Communicator buys not the Chess960!");
+			frame.TellInfo("Communicator buys not the Chess960!");
 			return;
 		}
 		if (COMM.Has_Chess_960)
@@ -311,7 +311,7 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		SendTo(GetFenMoves(), false);
 		SendTo("go infinite", true);
 		on = true;
-		IP.repaint();
+		instancePanel.repaint();
 		PRE_SENT = false;
 		// oblige
 	}
@@ -324,31 +324,31 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		ClearInformatory();
 		CI_BOARD_POSITION.MakeNormal(); // ensure
 		if (CI_BOARD_POSITION.COUNT_OF_LEGAL_MOVES == 0) {
-			CF.TellInfo("No Legal moves.");
+			frame.TellInfo("No Legal moves.");
 			return;
 		}
 		if (!CI_BOARD_POSITION.IsOK()) {
-			CF.TellInfo("BoardPosition is not OK!");
+			frame.TellInfo("BoardPosition is not OK!");
 			return;
 		}
 		START_TIME = new Date().getTime();
 		if (ICI)
 			SendTo("ici-age " + (2 * CI_BOARD_POSITION.MOVE_NUMBER + (CI_BOARD_POSITION.WTM ? 0 : 1)), false);
 		if (CI_BOARD_POSITION.Chess960 && !COMM.Has_Chess_960) {
-			CF.TellInfo("Communicator buys not the Chess960!");
+			frame.TellInfo("Communicator buys not the Chess960!");
 			return;
 		}
 		if (COMM.Has_Chess_960)
 			SendTo("setoption name UCI_Chess960 value " + CI_BOARD_POSITION.Chess960, false);
 		SendTo(GetFenMoves(), false);
 
-		if (CF.gameMode == 1)
-			CF.blackTime.resume();
+		if (frame.gameMode == 1)
+			frame.blackTime.resume();
 
-		SendTo("go wtime " + (CF.whiteTime.getTime()) + " btime " + (CF.blackTime.getTime()), true);
+		SendTo("go wtime " + (frame.whiteTime.getTime()) + " btime " + (frame.blackTime.getTime()), true);
 
 		on = true;
-		IP.repaint();
+		instancePanel.repaint();
 		PRE_SENT = false;
 		// oblige
 	}
@@ -379,7 +379,7 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 				process = Runtime.getRuntime().exec(COMM.path + " " + COMM.RunTimeOptions);
 		}
 		catch (IOException io_exc) {
-			CF.TellInfo("Not found: " + COMM.path);
+			frame.TellInfo("Not found: " + COMM.path);
 			return false;
 		}
 		READER = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -388,7 +388,7 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		SleepFor(100); // 1/10 second delay
 		while (IsReady()) {
 			String S = DemandLine();
-			CF.TellInfo("On StartUp: " + S);
+			frame.TellInfo("On StartUp: " + S);
 		}
 		SendTo("ici", true);
 		if (WaitForThroughPut("ici-echo", 1000, false))
@@ -421,22 +421,22 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 	}
 
 	public void BelongInstance() {
-		CF.INSTANCES[CF.instances++] = this;
+		frame.INSTANCES[frame.instances++] = this;
 	}
 
 	public void DisplayInstance() {
-		if (CF.instances == 0)
-			CF.INSTANCE_BOX.removeAll();
-		IP = new InstancePanel(this);
-		// IP.addMouseListener (this);
-		JSP = new JScrollPane(IP);
-		JSP.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		JSP.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		JSP.setMinimumSize(new Dimension(360, 200));
-		JSP.setPreferredSize(new Dimension(360, 200));
-		CF.INSTANCE_BOX.add(JSP);
-		CF.INSTANCE_BOX.revalidate(); // attend // For the necessary: "re"
-		CF.INSTANCE_BOX.repaint(); // and too ?
+		if (frame.instances == 0)
+			frame.INSTANCE_BOX.removeAll();
+		instancePanel = new InstancePanel(this);
+		// instancePanel.addMouseListener (this);
+		scrollPane = new JScrollPane(instancePanel);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setMinimumSize(new Dimension(360, 200));
+		scrollPane.setPreferredSize(new Dimension(360, 200));
+		frame.INSTANCE_BOX.add(scrollPane);
+		frame.INSTANCE_BOX.revalidate(); // attend // For the necessary: "re"
+		frame.INSTANCE_BOX.repaint(); // and too ?
 	}
 
 ////////////////////////////////      ////////////////////////////////
@@ -454,55 +454,56 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		engineMove(S);
 
 
-		IP.repaint();
+		instancePanel.repaint();
 	}
 
 	public void engineMove(String S) {
-		if (CF.gameMode == 1 && CF.BOARD_PANEL.POS.WTM) {
+		if (frame.gameMode == 1 && frame.BOARD_PANEL.POS.WTM) {
 			return;
 		}
 
-		if (CF.gameMode == 3 && CF.INSTANCES[0] == this && !CF.BOARD_PANEL.POS.WTM) {
+		if (frame.gameMode == 3 && frame.INSTANCES[0] == this && !frame.BOARD_PANEL.POS.WTM) {
 			return;
 		}
 
-		if (CF.gameMode == 3 && CF.INSTANCES[1] == this && CF.BOARD_PANEL.POS.WTM) {
+		if (frame.gameMode == 3 && frame.INSTANCES[1] == this && frame.BOARD_PANEL.POS.WTM) {
 			return;
 		}
 
 		SendHalt();
-		int moveNum = CF.BOARD_PANEL.POS.FindMove(S);
-		CF.BOARD_PANEL.AttendMove(moveNum, true, true);
-		// CF.BOARD_PANEL.BoardPositionChanged ();
-		CF.BOARD_PANEL.repaint();
+		int moveNum = frame.BOARD_PANEL.POS.FindMove(S);
+		frame.BOARD_PANEL.AttendMove(moveNum, true, true);
+		// frame.BOARD_PANEL.BoardPositionChanged ();
+		frame.BOARD_PANEL.repaint();
 
-		if (CF.gameMode != 0) {
-			CF.switchTurn();
+		if (frame.gameMode != 0) {
+			frame.switchTurn();
 			MAKE_NEXT_MOVE = true;
 		}
 	}
 
-	public String AttendForm(String S, BoardPosition BP, int i) {
-		String R = new String("");
-		if ((i == 0) && !BP.WTM)
-			R += BP.MOVE_NUMBER + "...";
-		if (BP.WTM)
-			R += "" + BP.MOVE_NUMBER + ".";
-		int w = BP.FindMove(S);
+	public String AttendForm(String strIn, BoardPosition boardPos, int i) {
+
+		String newStr = new String("");
+		if ((i == 0) && !boardPos.WTM)
+			newStr += boardPos.MOVE_NUMBER + "...";
+		if (boardPos.WTM)
+			newStr += "" + boardPos.MOVE_NUMBER + ".";
+		int w = boardPos.FindMove(strIn);
 		if (w == -1) // do err ?
-			return R;
-		boolean IS_CHECK = (BP.move_list_annotated[w].indexOf("+") != -1);
-		R += BP.move_list_annotated[w];
-		BP.MakeMove(w);
-		BP.MakeNormal();
-		if (BP.COUNT_OF_LEGAL_MOVES == 0)
-			R += (IS_CHECK) ? "#" : "=";
-		return R;
+			return newStr;
+		boolean IS_CHECK = (boardPos.move_list_annotated[w].indexOf("+") != -1);
+		newStr += boardPos.move_list_annotated[w];
+		boardPos.MakeMove(w);
+		boardPos.MakeNormal();
+		if (boardPos.COUNT_OF_LEGAL_MOVES == 0)
+			newStr += (IS_CHECK) ? "#" : "=";
+		return newStr;
 	}
 
 	public void PV_do_string(int w) {
 		int i = 0;
-		PV_STRING[w] = new String("");
+		PV_STRING[w] = "";
 		BoardPosition TEMP = new BoardPosition(CI_BOARD_POSITION); // defer !
 		while (PV[w][i] != null) {
 			PV_STRING[w] += AttendForm(PV[w][i], TEMP, i) + " ";
@@ -524,104 +525,104 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		StringTokenizer ST = new StringTokenizer(S);
 		if (!ST.hasMoreTokens())
 			return;
-		String x = ST.nextToken();
-		if (x.equals("bestmove")) {
+		String nextToken = ST.nextToken();
+		if (nextToken.equals("bestmove")) {
 			DoBestMove(ST.nextToken());
 			return;
 		}
-		if (!x.equals("info")) // not info (UCI)
+		if (!nextToken.equals("info")) // not info (UCI)
 		{
-			CF.TellInfo("From " + COMM.name + ": " + S);
+			frame.TellInfo("From " + COMM.name + ": " + S);
 			return;
 		}
 		MULTI_PV = 1; // ensure
 		int Score = -123456;
-		boolean Lower = false, Upper = false, Mate = false;
+		boolean lower = false, upper = false, mate = false;
 		while (ST.hasMoreTokens()) {
-			x = ST.nextToken();
-			if (x.equals("string")) {
-				CF.TellInfo("From " + COMM.name + ": " + S);
+			nextToken = ST.nextToken();
+			if (nextToken.equals("string")) {
+				frame.TellInfo("From " + COMM.name + ": " + S);
 				return;
 			}
-			if (x.equals("depth")) {
+			if (nextToken.equals("depth")) {
 				int u = NextInt(ST);
 				if (u > DEPTH)
 					DEPTH = u;
 			}
-			if (x.equals("seldepth")) {
+			if (nextToken.equals("seldepth")) {
 				int u = NextInt(ST);
 				if (u > SELDEPTH)
 					SELDEPTH = u;
 			}
-			if (x.equals("time")) {
+			if (nextToken.equals("time")) {
 				int u = NextInt(ST);
 				if (u > TIME)
 					TIME = u;
 			}
-			if (x.equals("nodes")) {
+			if (nextToken.equals("nodes")) {
 				long u = NextLong(ST);
 				if (u > NODES)
 					NODES = u;
 			}
-			if (x.equals("multipv")) {
+			if (nextToken.equals("multipv")) {
 				MULTI_PV = NextInt(ST);
 				PV[MULTI_PV + 1][0] = null;
 			}
-			if (x.equals("pv"))
+			if (nextToken.equals("pv"))
 				DoPV(ST);
 			// fails valid, upon MULTI_PV delaying (StockFish)
-			if (x.equals("lowerbound"))
-				Lower = true;
-			if (x.equals("upperbound"))
-				Upper = true;
-			if (x.equals("score")) {
-				x = ST.nextToken();
+			if (nextToken.equals("lowerbound"))
+				lower = true;
+			if (nextToken.equals("upperbound"))
+				upper = true;
+			if (nextToken.equals("score")) {
+				nextToken = ST.nextToken();
 
-				Mate = x.equals("mate"); // cp
-				Lower = Upper = false;
-				x = ST.nextToken();
-				if (x.equals("lowerbound")) {
-					Lower = true;
-					x = ST.nextToken();
+				mate = nextToken.equals("mate"); // cp
+				lower = upper = false;
+				nextToken = ST.nextToken();
+				if (nextToken.equals("lowerbound")) {
+					lower = true;
+					nextToken = ST.nextToken();
 				}
-				if (x.equals("upperbound")) {
-					Upper = true;
-					x = ST.nextToken();
+				if (nextToken.equals("upperbound")) {
+					upper = true;
+					nextToken = ST.nextToken();
 				}
-				int score = Integer.valueOf(x);
+				int score = Integer.valueOf(nextToken);
 				if (!CI_BOARD_POSITION.WTM)
 					score = -score; // invert score upon black
 				Score = score;
 			}
-			if (x.equals("currmove"))
+			if (nextToken.equals("currmove"))
 				CURR_MOVE = ST.nextToken();
-			if (x.equals("currmovenumber")) {
+			if (nextToken.equals("currmovenumber")) {
 				CURR_MOVE_NUMBER = Integer.valueOf(ST.nextToken());
 				CURR_MOVE_STR = "" + CURR_MOVE_NUMBER + "/" + CI_BOARD_POSITION.COUNT_OF_LEGAL_MOVES;
 				int w = CI_BOARD_POSITION.FindMove(CURR_MOVE);  // order
 				if (w != -1)
 					CURR_MOVE_STR += " " + CI_BOARD_POSITION.move_list_annotated[w];
 			}
-			if (x.equals("hashfull"))
+			if (nextToken.equals("hashfull"))
 				HASH_FULL = NextInt(ST);
-			if (x.equals("nps"))
+			if (nextToken.equals("nps"))
 				NPS = NextInt(ST);
-			if (x.equals("tbhits"))
+			if (nextToken.equals("tbhits"))
 				TB_HITS = NextLong(ST);
-			if (x.equals("cpuload"))
+			if (nextToken.equals("cpuload"))
 				CPU_LOAD = NextInt(ST);
 		}
 		if (Score != -123456) {
 			SCORE[MULTI_PV] = Score;
-			MATE[MULTI_PV] = Mate;
-			LOWER[MULTI_PV] = Lower;
-			UPPER[MULTI_PV] = Upper;
+			MATE[MULTI_PV] = mate;
+			LOWER[MULTI_PV] = lower;
+			UPPER[MULTI_PV] = upper;
 		}
-		IP.repaint();
+		instancePanel.repaint();
 	}
 
 	public void ParseLine(String S) {
-		// while CF repaints attend SleepFor ?
+		// while frame repaints attend SleepFor ?
 		PARSE_LINE = true;
 		if (MONTE_CARLO != null && MONTE_CARLO.WORKING)
 			MONTE_CARLO.ParseLineMC(S);
@@ -642,18 +643,18 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		if (MAKE_NEXT_MOVE) {
 			MAKE_NEXT_MOVE = false;
 
-			if (CF.checkGameOver())
+			if (frame.checkGameOver())
 				return;
 
-			if (CF.gameMode == 2) {
-				CF.INSTANCES[0].SendGo();
+			if (frame.gameMode == 2) {
+				frame.INSTANCES[0].SendGo();
 			}
-			else if (CF.gameMode == 3) {
-				if (CF.INSTANCES[0] == this) {
-					CF.INSTANCES[1].SendGo();
+			else if (frame.gameMode == 3) {
+				if (frame.INSTANCES[0] == this) {
+					frame.INSTANCES[1].SendGo();
 				}
-				if (CF.INSTANCES[1] == this) {
-					CF.INSTANCES[0].SendGo();
+				if (frame.INSTANCES[1] == this) {
+					frame.INSTANCES[0].SendGo();
 				}
 			}
 		}
@@ -672,9 +673,9 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		AttendMyDefaults();
 		DisplayInstance();
 		BelongInstance();
-		CF.TellInfo("Has loaded " + COMM.id);
-		CF.LOAD_INSTANCE = false;
-		CI_BOARD_POSITION = new BoardPosition(CF.BOARD_PANEL.POS);
+		frame.TellInfo("Has loaded " + COMM.id);
+		frame.LOAD_INSTANCE = false;
+		CI_BOARD_POSITION = new BoardPosition(frame.BOARD_PANEL.POS);
 	}
 
 	public void OldMultiPV_values() {
@@ -696,7 +697,7 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 			MultiPV_Centi_Pawn = Integer.valueOf(OPT_VALUE[num_CP]);
 			SendTo("setoption name " + CP_str + " value " + MultiPV_Centi_Pawn, true);
 		}
-		IP.RenewInstancePanel();
+		instancePanel.RenewInstancePanel();
 	}
 
 	public void stateChanged(ChangeEvent chg_evt) {
@@ -713,51 +714,51 @@ public class CommunicatorInstance extends CommIO implements MouseListener, Chang
 		if (on)
 			SendHalt();
 		POP_UP = new JFrame("MultiPV: " + COMM.id);
-		Box B = new Box(BoxLayout.Y_AXIS);
+		Box boxLayoutMain = new Box(BoxLayout.Y_AXIS);
 		Dimension D = new Dimension(5, 7);
-		B.add(new Box.Filler(D, D, D));
-		B.add(new Box.Filler(D, D, D));
-		Box B1 = new Box(BoxLayout.X_AXIS);
+		boxLayoutMain.add(new Box.Filler(D, D, D));
+		boxLayoutMain.add(new Box.Filler(D, D, D));
+		Box boxLayout_MultiPV = new Box(BoxLayout.X_AXIS);
 		SpinnerNumberModel MODEL = new SpinnerNumberModel(MultiPV, 1, 250, 1);
 		JLabel L = new JLabel("MultiPV:  ");
-		B1.add(L);
-		JSpinner J = new JSpinner(MODEL);
-		J.setName("MultiPV");
-		J.addChangeListener(this);
-		J.setPreferredSize(new Dimension(60, 16));
-		J.setMaximumSize(new Dimension(60, 16));
-		B1.add(J);
-		B.add(B1);
+		boxLayout_MultiPV.add(L);
+		JSpinner spiinerMultiPV = new JSpinner(MODEL);
+		spiinerMultiPV.setName("MultiPV");
+		spiinerMultiPV.addChangeListener(this);
+		spiinerMultiPV.setPreferredSize(new Dimension(60, 16));
+		spiinerMultiPV.setMaximumSize(new Dimension(60, 16));
+		boxLayout_MultiPV.add(spiinerMultiPV);
+		boxLayoutMain.add(boxLayout_MultiPV);
 		Dimension minSize = new Dimension(5, 100);
 		Dimension prefSize = new Dimension(5, 100);
 		Dimension maxSize = new Dimension(Short.MAX_VALUE, 100);
-		B.add(new Box.Filler(D, D, D));
+		boxLayoutMain.add(new Box.Filler(D, D, D));
 		if (MultiPV_Centi_Pawn != 987652) {
-			Box B2 = new Box(BoxLayout.X_AXIS);
-			SpinnerNumberModel M2 = new SpinnerNumberModel(MultiPV_Centi_Pawn, 0, 65535, 1);
-			JLabel L2 = new JLabel("CentiPawn: ");
-			B2.add(L2);
-			JSpinner J2 = new JSpinner(M2);
-			J2.setName("MultiPV_Centi_Pawn");
-			J2.addChangeListener(this);
-			J2.setPreferredSize(new Dimension(65, 16));
-			J2.setMaximumSize(new Dimension(65, 16));
-			B2.add(J2);
-			B.add(B2);
-			B.add(new Box.Filler(D, D, D));
+			Box boxLayout_centiPawn = new Box(BoxLayout.X_AXIS);
+			SpinnerNumberModel centiPawnFactory = new SpinnerNumberModel(MultiPV_Centi_Pawn, 0, 65535, 1);
+			JLabel centiPawnLabel = new JLabel("CentiPawn: ");
+			boxLayout_centiPawn.add(centiPawnLabel);
+			JSpinner spinnerCentiPawn = new JSpinner(centiPawnFactory);
+			spinnerCentiPawn.setName("MultiPV_Centi_Pawn");
+			spinnerCentiPawn.addChangeListener(this);
+			spinnerCentiPawn.setPreferredSize(new Dimension(65, 16));
+			spinnerCentiPawn.setMaximumSize(new Dimension(65, 16));
+			boxLayout_centiPawn.add(spinnerCentiPawn);
+			boxLayoutMain.add(boxLayout_centiPawn);
+			boxLayoutMain.add(new Box.Filler(D, D, D));
 		}
-		POP_UP.add(B);
-		Box BX = new Box(BoxLayout.X_AXIS);
-		JButton OK = new JButton("OK");
-		OK.setActionCommand("OK");
-		OK.addActionListener(this);
-		BX.add(OK);
-		BX.add(new Box.Filler(D, D, D));
-		JButton CANCEL = new JButton("Cancel");
-		CANCEL.setActionCommand("Cancel");
-		CANCEL.addActionListener(this);
-		BX.add(CANCEL);
-		B.add(BX);
+		POP_UP.add(boxLayoutMain);
+		Box boxLayout_Buttons = new Box(BoxLayout.X_AXIS);
+		JButton buttonOK = new JButton("OK");
+		buttonOK.setActionCommand("OK");
+		buttonOK.addActionListener(this);
+		boxLayout_Buttons.add(buttonOK);
+		boxLayout_Buttons.add(new Box.Filler(D, D, D));
+		JButton buttonCancel = new JButton("Cancel");
+		buttonCancel.setActionCommand("Cancel");
+		buttonCancel.addActionListener(this);
+		boxLayout_Buttons.add(buttonCancel);
+		boxLayoutMain.add(boxLayout_Buttons);
 		POP_UP.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent win_evt) {
 				OldMultiPV_values();

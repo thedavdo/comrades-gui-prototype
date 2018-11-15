@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 public class KillProcess extends Thread {
 	Process process;

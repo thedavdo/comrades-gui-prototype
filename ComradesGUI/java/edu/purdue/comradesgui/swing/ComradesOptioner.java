@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import java.awt.*;
@@ -256,9 +256,9 @@ public class ComradesOptioner implements ActionListener {
 
 	public void ReDrawInstances() {
 		for (int i = 0; i < CF.instances; i++)
-			CF.INSTANCES[i].IP.SetColors();
+			CF.INSTANCES[i].instancePanel.SetColors();
 		for (int i = 0; i < CF.instances; i++)
-			CF.INSTANCES[i].IP.repaint();
+			CF.INSTANCES[i].instancePanel.repaint();
 	}
 
 	public void CopyOnEntry() {

@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -39,14 +39,14 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	public MonteCarlo(CommunicatorInstance ci) {
 		super();
 		CI = ci;
-		CF = CI.CF;
+		CF = CI.frame;
 		EVAL = new Long[256];
 		SORT = new int[256];
 		for (int i = 0; i < 256; i++)
 			EVAL[i] = 0L;
 		for (int i = 0; i < 256; i++)
 			SORT[i] = i;
-		LEGAL_COUNT = CI.COMM.CF.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES;
+		LEGAL_COUNT = CI.COMM.frame.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES;
 		UP_DATE = new Date().getTime();
 		StartMonteCarlo();
 	}
@@ -71,7 +71,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		CF.MC_MAXV = (Integer) MAX_SPINNER.getValue();
 		CF.MC_MINV = (Integer) MIN_SPINNER.getValue();
 		CF.MC_LENGTH = (Integer) LENGTH_SPINNER.getValue();
-		BoardPosition BP = CI.COMM.CF.BOARD_PANEL.POS;
+		BoardPosition BP = CI.COMM.frame.BOARD_PANEL.POS;
 		for (int i = 0; i < BP.COUNT_OF_LEGAL_MOVES; i++)
 			if ((Boolean) (DATA[i][0]))
 				S += " " + BP.GetDirect(BP.move_list[i]);
@@ -196,7 +196,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		MAX_SPINNER = GetSpinner("MaxValue", CF.MC_MAXV, -9000, 10000, BOX);
 		MIN_SPINNER = GetSpinner("MinValue", CF.MC_MINV, -10000, 9000, BOX);
 		// BOX.add (new JSeparator (SwingConstants.VERTICAL)); // value ?
-		TABLE = new JTable(new TableModel(CI.COMM.CF.BOARD_PANEL.POS));
+		TABLE = new JTable(new TableModel(CI.COMM.frame.BOARD_PANEL.POS));
 		TABLE.setDefaultRenderer(Float.class, new RenderFloat());
 		TABLE.setDefaultRenderer(Double.class, new RenderDouble());
 		JScrollPane JSP = new JScrollPane(TABLE);
@@ -324,7 +324,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		});
 		MC_FRAME.setBackground(Color.lightGray);
 		MC_FRAME.pack();
-		MC_FRAME.setSize(420, 300 + 10 * CI.COMM.CF.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES); // demand
+		MC_FRAME.setSize(420, 300 + 10 * CI.COMM.frame.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES); // demand
 		MC_FRAME.setResizable(false);
 		MC_FRAME.setVisible(true);
 	}
@@ -365,7 +365,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	}
 
 	public void SpiceMC() {
-		BoardPosition BP = CI.COMM.CF.BOARD_PANEL.POS;
+		BoardPosition BP = CI.COMM.frame.BOARD_PANEL.POS;
 		for (int i = 0; i < BP.COUNT_OF_LEGAL_MOVES; i++) {
 			WORKING = true;
 			SPICEING = true;
@@ -405,7 +405,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	}
 
 	public void ResultMC(String S) {
-		BoardPosition BP = CI.COMM.CF.BOARD_PANEL.POS;
+		BoardPosition BP = CI.COMM.frame.BOARD_PANEL.POS;
 		StringTokenizer ST = new StringTokenizer(S);
 		String MOVE = ST.nextToken();
 		Long VALUE = Long.valueOf(ST.nextToken());

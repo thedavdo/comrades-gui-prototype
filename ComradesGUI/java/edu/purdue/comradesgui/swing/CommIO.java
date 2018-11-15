@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,14 +8,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CommIO {
-	ComradesFrame CF;
+	ComradesFrame frame;
 	BufferedReader READER;
 	PrintWriter WRITER;
 	StringBuffer LOG_SB;
 	boolean LOGGING = true;
 
 	public CommIO(ComradesFrame cf) {
-		CF = cf;
+		frame = cf;
 		LOG_SB = new StringBuffer("");
 	}
 
@@ -24,7 +24,7 @@ public class CommIO {
 			Thread.sleep(x);
 		}
 		catch (InterruptedException int_exc) {
-			CF.TellInfo("Internalized sleep failure!");
+			frame.TellInfo("Internalized sleep failure!");
 		}
 	}
 
@@ -33,7 +33,7 @@ public class CommIO {
 			return READER.ready();
 		}
 		catch (IOException io_exc) {
-			CF.TellInfo("Error in reader");
+			frame.TellInfo("Error in reader");
 			return false;
 		}
 	}
@@ -69,7 +69,7 @@ public class CommIO {
 			return S;
 		}
 		catch (IOException io_exc) {
-			CF.TellInfo("Error in reading line (reader)");
+			frame.TellInfo("Error in reading line (reader)");
 			return null;
 		}
 	}
@@ -103,13 +103,13 @@ public class CommIO {
 				SleepFor(10); // milli
 				x += 10;
 				if (time_out > 0 && x > time_out) {
-					CF.TellInfo("Time out " + time_out + " seconds waiting  for " + S);
+					frame.TellInfo("Time out " + time_out + " seconds waiting  for " + S);
 					return false;
 				}
 			}
 			String L = DemandLine();
 			if (show)
-				CF.TellInfo(L);
+				frame.TellInfo(L);
 			if (L.equals(S))
 				return true;
 		}

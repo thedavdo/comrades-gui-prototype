@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -276,7 +276,7 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 				return;
 			File FILE = JFC.getSelectedFile();
 			if (!FILE.exists()) {
-				COMM.CF.TellInfo("File does not exist");
+				COMM.frame.TellInfo("File does not exist");
 				return;
 			}
 			ChangeValue(NAME, FILE.getAbsolutePath());
@@ -372,7 +372,7 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 				return;
 			File FILE = JFC.getSelectedFile();
 			if (!FILE.exists()) {
-				COMM.CF.TellInfo("File does not exist");
+				COMM.frame.TellInfo("File does not exist");
 				return;
 			}
 			ChangeMultiValue(NAME, FILE.getAbsolutePath(), LOC);

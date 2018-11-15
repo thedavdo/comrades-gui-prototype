@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import java.awt.*;
@@ -73,7 +73,7 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 				return;
 			File FILE = JFC.getSelectedFile();
 			if (!FILE.exists()) {
-				CI.CF.TellInfo("File does not exist");
+				CI.frame.TellInfo("File does not exist");
 				return;
 			}
 			ChangeValue(NAME, FILE.getAbsolutePath());
@@ -158,7 +158,7 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 				return;
 			File FILE = JFC.getSelectedFile();
 			if (!FILE.exists()) {
-				CI.CF.TellInfo("File does not exist");
+				CI.frame.TellInfo("File does not exist");
 				return;
 			}
 			ChangeMultiValue(NAME, FILE.getAbsolutePath(), LOC);

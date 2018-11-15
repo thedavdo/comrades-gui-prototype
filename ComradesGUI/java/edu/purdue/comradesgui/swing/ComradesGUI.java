@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.swing;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -33,7 +33,7 @@ public class ComradesGUI extends JFrame {
 			BR.close();
 		}
 		catch (IOException io_e) {
-
+			io_e.printStackTrace();
 		}
 	}
 
@@ -50,8 +50,8 @@ public class ComradesGUI extends JFrame {
 		Timer SECOND = new Timer(250, new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				for (int i = 0; i < RF.instances; i++) {
-					RF.INSTANCES[i].IP.PERIODIC = true;
-					RF.INSTANCES[i].IP.repaint(); // queue
+					RF.INSTANCES[i].instancePanel.PERIODIC = true;
+					RF.INSTANCES[i].instancePanel.repaint(); // queue
 				}
 			}
 		});
@@ -75,12 +75,12 @@ public class ComradesGUI extends JFrame {
 	 * Copyright (c) Igor Igorovich Igoronov (Muleteer) plus Ivan Skavinsky Skavar
 	 * (Brave Musketeer) plus Decembrists (all), PUBLICDOMAIN (workers)
 	 */
-
 	public static void LookAndFeel() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); // uniformed
 		}
 		catch (Exception exc) {
+			exc.printStackTrace();
 		}
 	}
 
@@ -91,5 +91,4 @@ public class ComradesGUI extends JFrame {
 		// RE.LoadStartup (); // for the off
 		RE.RunLoop();
 	}
-
 }
