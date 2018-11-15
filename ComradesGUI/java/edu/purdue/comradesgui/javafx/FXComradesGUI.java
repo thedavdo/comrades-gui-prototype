@@ -4,9 +4,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+
+import java.io.File;
 
 public class FXComradesGUI extends Application {
 
@@ -40,7 +44,23 @@ public class FXComradesGUI extends Application {
 
 		//----- Start: Add UI elements here
 
+		Button loadEngineButton = new Button("Load Engine");
+
+//		loadEngine
+
+		loadEngineButton.setOnAction((actionEvent) -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select engine executable...");
+			File file = fileChooser.showOpenDialog(primaryStage);
+
+			ChessEngine ce = new ChessEngine();
+			ce.loadFromPath(file.getAbsolutePath());
+		});
+
+
 		//----- End: Add UI elements here
+
+		grid.add(loadEngineButton, 0, 1);
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
