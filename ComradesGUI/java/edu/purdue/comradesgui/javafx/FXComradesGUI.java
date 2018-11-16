@@ -2,9 +2,14 @@ package edu.purdue.comradesgui.javafx;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -32,6 +37,13 @@ public class FXComradesGUI extends Application {
 //		}
 //	}
 
+	private ObservableList<ChessEngine> chessEngines;
+
+	public FXComradesGUI() {
+
+		chessEngines = FXCollections.observableArrayList();
+	}
+
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
@@ -46,28 +58,40 @@ public class FXComradesGUI extends Application {
 
 		Button loadEngineButton = new Button("Load Engine");
 
+		ComboBox<ChessEngine> engineComboBox = new ComboBox<>();
+
+		engineComboBox.setItems(chessEngines);
+
 //		loadEngine
+
 
 		loadEngineButton.setOnAction((actionEvent) -> {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select engine executable...");
 			File file = fileChooser.showOpenDialog(primaryStage);
 
-			ChessEngine ce = new ChessEngine();
-			ce.loadFromPath(file.getAbsolutePath());
-		});
+			if(file != null) {
+				ChessEngine engine = new ChessEngine();
+				engine.loadFromPath(file.getAbsolutePath());
 
+				if(engine.hasLoaded()) {
+
+					chessEngines.add(engine);
+				}
+			}
+		});
 
 		//----- End: Add UI elements here
 
-		grid.add(loadEngineButton, 0, 1);
+		grid.add(loadEngineButton, 0, 0);
+		grid.add(engineComboBox, 1, 0);
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
 		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			public void handle(WindowEvent we) {
-				Platform.exit();
+				System.exit(1);
 			}
 		});
 	}
