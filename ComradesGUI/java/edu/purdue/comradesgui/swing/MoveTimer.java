@@ -29,6 +29,7 @@ public class MoveTimer implements ActionListener {
 	private JLabel timeLabel;
 	private String labelPrefix;
 	private ComradesFrame CF;
+	private long incrementTime;
 
 	/**
 	 * Default class constructor
@@ -46,10 +47,11 @@ public class MoveTimer implements ActionListener {
 	 * @param textLabel   Label to write time to
 	 * @param labelPrefix Text to use as label prefix
 	 */
-	public MoveTimer(ComradesFrame cf, int start, JLabel textLabel, String textPrefix) {
+	public MoveTimer(ComradesFrame cf, int start, int increment, JLabel textLabel, String textPrefix) {
 		CF = cf;
 		count = TimeUnit.SECONDS.toMillis(start);
 		startTime = start * 1000;
+		incrementTime = increment * 1000;
 		timeLabel = textLabel;
 		labelPrefix = textPrefix;
 		updateLabel();
@@ -219,6 +221,11 @@ public class MoveTimer implements ActionListener {
 
 	public void updateLabel() {
 		timeLabel.setText(labelPrefix + TimeFormat(count));
+	}
+	
+	// increments the timer by the increment in options
+	public void incrementCount () {
+		count += incrementTime;
 	}
 
 }

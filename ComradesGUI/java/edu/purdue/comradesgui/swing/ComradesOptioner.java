@@ -33,6 +33,7 @@ public class ComradesOptioner implements ActionListener {
 	Font COPY_FONT;
 	String COPY_FONT_FILE_NAME, COPY_PIECE_STRING;
 	String COPY_INITIAL_TIMER;
+	String COPY_INITIAL_INCREMENT;
 
 	public ComradesOptioner(ComradesFrame cf) {
 		super();
@@ -299,6 +300,8 @@ public class ComradesOptioner implements ActionListener {
 		COPY_SMALL_BLACK_MATERIAL_OUTLINE = CF.SMALL_BLACK_MATERIAL_OUTLINE;
 		COPY_PIECE_STRING = new String(CF.PIECE_STRING);
 		COPY_INITIAL_TIMER = new String(CF.INITIAL_TIMER);
+		COPY_INITIAL_INCREMENT = new String(CF.INITIAL_INCREMENT);
+		
 	}
 
 	public void UnDoChanges() {
@@ -340,6 +343,7 @@ public class ComradesOptioner implements ActionListener {
 		CF.chess_font = COPY_FONT;
 		CF.chess_font_small = COPY_FONT.deriveFont(16.0f);
 		CF.INITIAL_TIMER = new String(COPY_INITIAL_TIMER);
+		CF.INITIAL_INCREMENT = new String(COPY_INITIAL_INCREMENT);
 	}
 
 	public void ColorPair(String S, Color C, PrintWriter PW) // utile
@@ -393,6 +397,7 @@ public class ComradesOptioner implements ActionListener {
 			PW.println("FontFile " + CF.FONT_FILE_NAME);
 			PW.println("PieceString " + CF.PIECE_STRING);
 			PW.println("InitialTimer " + CF.INITIAL_TIMER);
+			PW.println("InitialIncrement " + CF.INITIAL_INCREMENT);
 			PW.close();
 			CF.TellInfo("Applied to Comrades.Default.Options");
 		}
@@ -582,11 +587,48 @@ public class ComradesOptioner implements ActionListener {
 				CF.INITIAL_TIMER = text.getText();
 			}
 		});
-
+		
 		lineBox.add(T);
+		
+		
+		// Create box for current line
+		Box incrLineBox = new Box(BoxLayout.X_AXIS);
+		incrLineBox.setAlignmentX(0.0f);
+		
+		// Add Label to current line
+		JLabel incrL = new JLabel("Increment Value: ");
+		incrL.setMinimumSize(new Dimension(100, 20));
+		incrL.setMaximumSize(new Dimension(100, 20));
+		incrL.setPreferredSize(new Dimension(100, 20));
+		incrLineBox.add(incrL);
+		
+		// Add formatted text box to current line for time
+		JFormattedTextField incrT = new JFormattedTextField(df);
+		
+		try {
+			incrT.setValue(df.parse(CF.INITIAL_INCREMENT));
+		}
+		catch (ParseException e) {
+			// TODO Auto-generated catch block
+			incrT.setValue(3000);
+		}
+		
+		incrT.setColumns(8);
+		incrT.setMaximumSize(new Dimension(80, 20));
+
+		incrT.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				JTextField text = (JTextField) evt.getSource();
+				CF.INITIAL_INCREMENT = text.getText();
+			}
+		});
+		
+		incrLineBox.add(incrT);
 
 		// Add current line to main box
 		B.add(lineBox);
+		B.add(incrLineBox);
 
 		// Return main box
 		return B;

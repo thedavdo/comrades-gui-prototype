@@ -60,6 +60,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 	File PGN_FILE = null; // recur
 	String PIECE_STRING;
 	String INITIAL_TIMER = "00:05:00";
+	String INITIAL_INCREMENT = "00:00:03";
 	public MoveTimer whiteTime;
 	public MoveTimer blackTime;
 	JLabel labelWhiteTimer;
@@ -1134,8 +1135,9 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 
 		// Create new white and black timers and start white timer
 		int startTime = parseTime(INITIAL_TIMER);
-		whiteTime = new MoveTimer(this, startTime, labelWhiteTimer, "White: ");
-		blackTime = new MoveTimer(this, startTime, labelBlackTimer, "Black: ");
+		int incrementTime = parseTime(INITIAL_INCREMENT);
+		whiteTime = new MoveTimer(this, startTime, incrementTime, labelWhiteTimer, "White: ");
+		blackTime = new MoveTimer(this, startTime, incrementTime, labelBlackTimer, "Black: ");
 
 	}
 
@@ -1144,10 +1146,24 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		whiteTime.pause();
 		blackTime.pause();
 		if (!BOARD_PANEL.POS.WTM) {
+			
+			// When the white side finishes their play, increment their timer and resume black timer
+			
+			whiteTime.incrementCount(); // increment white timer by value specified in options, default of 3 seconds
+			
+			whiteTime.updateLabel(); // update timer display to reflect increment immediately
+			
 			blackTime.resume();
 		}
 		else {
-			whiteTime.resume();
+			
+			// When the black side finishes their play, increment their timer and resume white timer
+			
+			blackTime.incrementCount(); // increment black timer by value specified in options, default of 3 seconds
+			
+			blackTime.updateLabel(); // update timer display to reflect increment immediately
+			
+			whiteTime.resume(); 
 		}
 
 	}
