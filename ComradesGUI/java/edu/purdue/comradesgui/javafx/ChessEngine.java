@@ -33,57 +33,18 @@ public class ChessEngine {
 
 	public ChessEngine() {
 
-		logBuffer = new StringBuffer();
-		rawOptions = new ArrayList<>();
-
 		responseListeners = new ArrayList<>();
-
+		logBuffer = new StringBuffer();
 		pushCmdList = new ArrayList<>();
+		rawOptions = new ArrayList<>();
 
 		engineName = "nil";
 
 		initListener();
 	}
 
-	private void initListener() {
-
-		addResponseListener((cmd) -> {
-			//Listen for Response from 'isready'
-			if(cmd.equals("readyok")) {
-				logInfo("eng < Ready");
-				isReady = true;
-				waitingForReady = false;
-				return true;
-			}
-
-		//Listen for last Response from 'uci'
-			if (cmd.equals("uciok")) {
-				logInfo("UCI Ready.");
-				return true;
-			}
-
-		//Listen for one of the Responses from 'uci'
-			if (cmd.startsWith("id name")) {
-				engineName = cmd.substring(8);
-				logInfo("Engine Name: " + engineName);
-				return true;
-			}
-
-		//Listen for one of the Responses from 'uci'
-			if (cmd.startsWith("id author")) {
-				engineAuthor = cmd.substring(10);
-				logInfo("Author(s): " + engineAuthor);
-				return true;
-			}
-
-		//Listen for one of the Responses from 'uci'
-			if(cmd.startsWith("option")) {
-				rawOptions.add(cmd);
-				logInfo("Option Raw: " + cmd);
-				return true;
-			}
-			return false;
-		});
+	public boolean hasLoaded() {
+		return hasLoaded;
 	}
 
 	public void setLogging(boolean shouldLog) {
@@ -102,10 +63,55 @@ public class ChessEngine {
 		responseListeners.add(rl);
 	}
 
-	public boolean hasLoaded() {
-		return hasLoaded;
+	/**
+	 * Add our Listener to the ChessEngine to process the main items
+	 */
+	private void initListener() {
+
+		addResponseListener((cmd) -> {
+
+			//Listen for Response from 'isready'
+			if(cmd.equals("readyok")) {
+				logInfo("eng < Ready");
+				isReady = true;
+				waitingForReady = false;
+				return true;
+			}
+
+		//Listen for last Response from 'uci'
+			if (cmd.equals("uciok")) {
+				logInfo("eng < UCI Ready");
+				return true;
+			}
+
+		//Listen for one of the Responses from 'uci'
+			if (cmd.startsWith("id name")) {
+				engineName = cmd.substring(8);
+				logInfo("eng < Engine Name: " + engineName);
+				return true;
+			}
+
+		//Listen for one of the Responses from 'uci'
+			if (cmd.startsWith("id author")) {
+				engineAuthor = cmd.substring(10);
+				logInfo("eng < Author(s): " + engineAuthor);
+				return true;
+			}
+
+		//Listen for one of the Responses from 'uci'
+			if(cmd.startsWith("option")) {
+				rawOptions.add(cmd);
+				logInfo("eng < Option Raw: " + cmd);
+				return true;
+			}
+			return false;
+		});
 	}
 
+	/**
+	 * Attempts to load a Chess Engine from the given prath
+	 * @param path chess engine exe location
+	 */
 	public void loadFromPath(String path) {
 
 		try {
@@ -127,6 +133,9 @@ public class ChessEngine {
 		}
 	}
 
+	/**
+	 * Setup communications loop with the provided engine
+	 */
 	private void initializeEngine() {
 
 		logInfo("Initializing Engine...");
@@ -137,10 +146,12 @@ public class ChessEngine {
 
 				boolean runLoop = true;
 
-				while(runLoop) {
-					String state;
-					try {
-						state = bufReader.readLine();
+				try {
+					while(runLoop) {
+
+						pushCommands();
+
+						String state = bufReader.readLine();
 
 						if(state != null) {
 							if(!state.isEmpty()) {
@@ -148,21 +159,10 @@ public class ChessEngine {
 							}
 						}
 					}
-					catch(Exception e) {
-						runLoop = false;
-						logInfo("!! Error Reading from bufReader !!");
-						e.printStackTrace();
-					}
-
-					if(!isReady) {
-						if(!waitingForReady) {
-							sendCommand("isready", true);
-							logInfo("Waiting for engine ready");
-							waitingForReady = true;
-						}
-					}
-
-					pushCommands();
+				}
+				catch(Exception e) {
+					logInfo("!! Error Reading from bufReader !!");
+					e.printStackTrace();
 				}
 
 				return null;
@@ -175,11 +175,10 @@ public class ChessEngine {
 		requestCommand("uci", true);
 	}
 
-	public void startNewGame() {
-
-		requestCommand("ucinewgame", true);
-	}
-
+	/**
+	 * Method that enables ResponseListeners to capture data from the Engine
+	 * @param in data from engine
+	 */
 	private void processResponse(String in) {
 
 		boolean consumed = false;
@@ -196,13 +195,18 @@ public class ChessEngine {
 	}
 
 	/**
-	 * Send a command to the chess engine
-	 * @param cmd command to be sent
+	 * Adds a command to the queue to be sent to the engine
+	 * @param cmd The command you want to send
+	 * @param flush Should the writer be flushed after command is sent?
 	 */
 	public void requestCommand(String cmd, boolean flush) {
 		pushCmdList.add(new EngineCommand(cmd, flush));
 	}
 
+	/**
+	 * Directly sends a command to the engine --ONLY USE WITH ISREADY--
+	 * All other commands should use requestCommand
+	 */
 	private void sendCommand(String cmd, boolean flush) {
 		logInfo("cmd > " + cmd);
 		bufWriter.println(cmd);
@@ -210,21 +214,41 @@ public class ChessEngine {
 			flushWriter();
 	}
 
+	/**
+	 * Method that processes all requested commands to the engine
+	 */
 	private void pushCommands() {
 
 		if(isReady) {
 			if(!pushCmdList.isEmpty()) {
-
-				for(EngineCommand cmd : pushCmdList)
-					sendCommand(cmd.getCommand(), cmd.shouldFlush());
-
-				pushCmdList.clear();
-
+				sendCommand(pushCmdList.get(0).getCommand(), pushCmdList.get(0).shouldFlush());
+				pushCmdList.remove(0);
 				isReady = false;
+			}
+		}
+
+		if(!isReady) {
+			if(!waitingForReady) {
+				sendCommand("isready", true);
+				logInfo("Waiting for engine ready");
+				waitingForReady = true;
 			}
 		}
 	}
 
+	/**
+	 * Flushes the BufferedWriter
+	 */
+	private void flushWriter() {
+		logInfo("> > Flushing Writer...");
+		bufWriter.flush();
+		logInfo("< < Flush finished.");
+	}
+
+	/**
+	 * Verbose logging of the Engine's activity
+	 * @param input Message to be logged
+	 */
 	public void logInfo(String input) {
 
 		if(logBuffer != null) {
@@ -243,14 +267,6 @@ public class ChessEngine {
 		}
 	}
 
-	/**
-	 * Flushes the BufferedWriter
-	 */
-	private void flushWriter() {
-		logInfo("> > Flushing Writer...");
-		bufWriter.flush();
-		logInfo("< < Flush finished.");
-	}
 
 	public String toString() {
 		return this.engineName;
