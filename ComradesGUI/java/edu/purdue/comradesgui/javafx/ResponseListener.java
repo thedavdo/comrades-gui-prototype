@@ -4,5 +4,5 @@ import java.util.EventListener;
 
 public interface ResponseListener extends EventListener {
 
-	boolean onResponse(String cmd);
+	boolean onResponse(String[] cmdTokens, String cmd);
 }
