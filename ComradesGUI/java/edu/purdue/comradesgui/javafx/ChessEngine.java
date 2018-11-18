@@ -6,11 +6,9 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
 
-public class ChessEngine {
-
+public class ChessEngine extends Player {
 
 	//private Process fileProcess;
 	private BufferedReader bufReader;
@@ -28,10 +26,16 @@ public class ChessEngine {
 	private boolean hasLoaded = false;
 
 	private boolean shouldLog = true;
+
 	private boolean isReady = false;
 	private boolean waitingForReady = false;
 
+	private boolean attemptingICI = true;
+	private boolean useUCI = true;
+
 	public ChessEngine() {
+
+		super(PlayerType.ENGINE);
 
 		responseListeners = new ArrayList<>();
 		logBuffer = new StringBuffer();
@@ -68,40 +72,54 @@ public class ChessEngine {
 	 */
 	private void initListener() {
 
-		addResponseListener((cmd) -> {
+		addResponseListener((cmdTokens, cmd) -> {
 
 			//Listen for Response from 'isready'
-			if(cmd.equals("readyok")) {
-				logInfo("eng < Ready");
+			if(cmdTokens[0].equals("readyok")) {
+				logInfo("eng < Ready for Cmd");
 				isReady = true;
 				waitingForReady = false;
+
+				if(attemptingICI) {
+					if(useUCI)
+						requestCommand("uci", true);
+					attemptingICI = false;
+				}
+				return true;
+			}
+
+			if(cmdTokens[0].equals("ici-echo")) {
+				logInfo("eng < ICI Ready");
+				useUCI = false;
 				return true;
 			}
 
 		//Listen for last Response from 'uci'
-			if (cmd.equals("uciok")) {
+			if(cmdTokens[0].equals("uciok")) {
 				logInfo("eng < UCI Ready");
 				return true;
 			}
 
 		//Listen for one of the Responses from 'uci'
-			if (cmd.startsWith("id name")) {
-				engineName = cmd.substring(8);
-				logInfo("eng < Engine Name: " + engineName);
-				return true;
+			if(cmdTokens[0].equals("id")) {
+
+				if (cmdTokens[1].equals("name")) {
+					engineName = cmd.substring(cmd.indexOf(cmdTokens[2]));
+					logInfo("eng < Engine Name: " + engineName);
+					return true;
+				}
+
+				if (cmdTokens[1].equals("author")) {
+					engineAuthor = cmd.substring(cmd.indexOf(cmdTokens[2]));
+					logInfo("eng < Author(s): " + engineAuthor);
+					return true;
+				}
 			}
 
 		//Listen for one of the Responses from 'uci'
-			if (cmd.startsWith("id author")) {
-				engineAuthor = cmd.substring(10);
-				logInfo("eng < Author(s): " + engineAuthor);
-				return true;
-			}
-
-		//Listen for one of the Responses from 'uci'
-			if(cmd.startsWith("option")) {
+			if(cmdTokens[0].equals("option")) {
 				rawOptions.add(cmd);
-				logInfo("eng < Option Raw: " + cmd);
+				logInfo("eng < Option Imported: " + cmd);
 				return true;
 			}
 			return false;
@@ -172,7 +190,18 @@ public class ChessEngine {
 
 		logInfo("...Initialized");
 
-		requestCommand("uci", true);
+		requestCommand("ici", true);
+		//requestCommand("uci", true);
+	}
+
+	@Override
+	public void requestMove() {
+		requestCommand("position fen " + getBoardFEN(), true);
+		requestCommand("go ", true);
+	}
+
+	public void setGoType() {
+
 	}
 
 	/**
@@ -183,10 +212,14 @@ public class ChessEngine {
 
 		boolean consumed = false;
 
-		for(ResponseListener rl : responseListeners) {
-			if(rl.onResponse(in)) {
-				consumed = true;
-				break;
+		String[] cmdTokens = in.split(" ");
+
+		if(cmdTokens.length > 0) {
+			for(ResponseListener rl : responseListeners) {
+				if(rl.onResponse(cmdTokens, in)) {
+					consumed = true;
+					break;
+				}
 			}
 		}
 
@@ -199,7 +232,7 @@ public class ChessEngine {
 	 * @param cmd The command you want to send
 	 * @param flush Should the writer be flushed after command is sent?
 	 */
-	public void requestCommand(String cmd, boolean flush) {
+	private void requestCommand(String cmd, boolean flush) {
 		pushCmdList.add(new EngineCommand(cmd, flush));
 	}
 
@@ -230,7 +263,7 @@ public class ChessEngine {
 		if(!isReady) {
 			if(!waitingForReady) {
 				sendCommand("isready", true);
-				logInfo("Waiting for engine ready");
+				logInfo("Waiting for engine ready response");
 				waitingForReady = true;
 			}
 		}
@@ -240,9 +273,9 @@ public class ChessEngine {
 	 * Flushes the BufferedWriter
 	 */
 	private void flushWriter() {
-		logInfo("> > Flushing Writer...");
+		//logInfo("cmd > Flushing Writer...");
 		bufWriter.flush();
-		logInfo("< < Flush finished.");
+		//logInfo("cmd < Flush finished.");
 	}
 
 	/**
