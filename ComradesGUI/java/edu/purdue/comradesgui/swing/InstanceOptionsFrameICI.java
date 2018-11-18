@@ -236,7 +236,7 @@ public class InstanceOptionsFrameICI extends InstanceOptionsFrame {
 			if (TYPE.equals("check"))
 				CheckBox(BOX, CI.OPT_NAME[i], i);
 			/*
-			 * if (TYPE.equals ("combo")) ComboBox (BOX, CI.OPT_NAME[i], ST, i);
+			 * if (TYPE.equals ("combo")) ComboBox (BOX, commInst.OPT_NAME[i], ST, i);
 			 */
 			if (TYPE.equals("combo"))
 				ComboBox(BOX, CI.OPT_NAME[i], options[i].substring(options[i].indexOf("combo ")), i);

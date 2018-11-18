@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 public class MonteCarlo implements ChangeListener, ActionListener {
-	CommunicatorInstance CI;
+	CommunicatorInstance commInst;
 	JFrame MC_FRAME = null;
 	boolean WORKING = false;
 	boolean SPICEING = false;
@@ -33,30 +33,30 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	int LEGAL_COUNT;
 	long UP_DATE;
 	int CENTI_PAWN_PARSE;
-	ComradesFrame CF;
+	ComradesFrame commFrame;
 	ArrayList[] SCORES;
 
 	public MonteCarlo(CommunicatorInstance ci) {
 		super();
-		CI = ci;
-		CF = CI.frame;
+		commInst = ci;
+		commFrame = commInst.frame;
 		EVAL = new Long[256];
 		SORT = new int[256];
 		for (int i = 0; i < 256; i++)
 			EVAL[i] = 0L;
 		for (int i = 0; i < 256; i++)
 			SORT[i] = i;
-		LEGAL_COUNT = CI.COMM.frame.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES;
+		LEGAL_COUNT = commInst.COMM.frame.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES;
 		UP_DATE = new Date().getTime();
 		StartMonteCarlo();
 	}
 
 	public void GoMonteCarlo() {
-		if (CI.on)
-			CI.SendHalt();
+		if (commInst.on)
+			commInst.SendHalt();
 		ON_OFF.setBackground(Color.green);
 		ON_OFF.repaint();
-		CI.SendTo(CI.GetFenMoves(), false);
+		commInst.SendTo(commInst.GetFenMoves(), false);
 		String S = "go montecarlo";
 		S += " length " + LENGTH_SPINNER.getValue();
 		S += " depth " + DEPTH_SPINNER.getValue();
@@ -65,28 +65,28 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		S += " max " + MAX_SPINNER.getValue();
 		S += " min " + MIN_SPINNER.getValue();
 		S += " moves";
-		CF.MC_CPUS = (Integer) CPU_SPINNER.getValue();
-		CF.MC_DEPTH = (Integer) DEPTH_SPINNER.getValue();
-		CF.MC_VLEN = (Integer) VERBOSE_SPINNER.getValue();
-		CF.MC_MAXV = (Integer) MAX_SPINNER.getValue();
-		CF.MC_MINV = (Integer) MIN_SPINNER.getValue();
-		CF.MC_LENGTH = (Integer) LENGTH_SPINNER.getValue();
-		BoardPosition BP = CI.COMM.frame.BOARD_PANEL.POS;
+		commFrame.MC_CPUS = (Integer) CPU_SPINNER.getValue();
+		commFrame.MC_DEPTH = (Integer) DEPTH_SPINNER.getValue();
+		commFrame.MC_VLEN = (Integer) VERBOSE_SPINNER.getValue();
+		commFrame.MC_MAXV = (Integer) MAX_SPINNER.getValue();
+		commFrame.MC_MINV = (Integer) MIN_SPINNER.getValue();
+		commFrame.MC_LENGTH = (Integer) LENGTH_SPINNER.getValue();
+		BoardPosition BP = commInst.COMM.frame.BOARD_PANEL.POS;
 		for (int i = 0; i < BP.COUNT_OF_LEGAL_MOVES; i++)
 			if ((Boolean) (DATA[i][0]))
 				S += " " + BP.GetDirect(BP.move_list[i]);
-		CI.SendTo(S, true);
+		commInst.SendTo(S, true);
 		WORKING = true;
 	}
 
 	public void HaltMonteCarlo() {
 		if (!WORKING)
 			return;
-		CI.SendTo("stop", false);
-		CI.SendTo("isready", true);
+		commInst.SendTo("stop", false);
+		commInst.SendTo("isready", true);
 		ON_OFF.setBackground(Color.red);
 		ON_OFF.repaint();
-		CI.WaitForThroughPut("readyok", -1, false);
+		commInst.WaitForThroughPut("readyok", -1, false);
 		WORKING = false;
 	}
 
@@ -189,14 +189,14 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 		HBOX.add(SPICE);
 		BOX.add(HBOX);
 		// BOX.add (new JSeparator (SwingConstants.VERTICAL)); // value ?
-		CPU_SPINNER = GetSpinner("CPUs", CF.MC_CPUS, 1, 64, BOX);
-		DEPTH_SPINNER = GetSpinner("Depth", CF.MC_DEPTH, 5, 20, BOX);
-		LENGTH_SPINNER = GetSpinner("Length", CF.MC_LENGTH, 5, 65535, BOX);
-		VERBOSE_SPINNER = GetSpinner("VerboseLength", CF.MC_VLEN, 0, 65535, BOX);
-		MAX_SPINNER = GetSpinner("MaxValue", CF.MC_MAXV, -9000, 10000, BOX);
-		MIN_SPINNER = GetSpinner("MinValue", CF.MC_MINV, -10000, 9000, BOX);
+		CPU_SPINNER = GetSpinner("CPUs", commFrame.MC_CPUS, 1, 64, BOX);
+		DEPTH_SPINNER = GetSpinner("Depth", commFrame.MC_DEPTH, 5, 20, BOX);
+		LENGTH_SPINNER = GetSpinner("Length", commFrame.MC_LENGTH, 5, 65535, BOX);
+		VERBOSE_SPINNER = GetSpinner("VerboseLength", commFrame.MC_VLEN, 0, 65535, BOX);
+		MAX_SPINNER = GetSpinner("MaxValue", commFrame.MC_MAXV, -9000, 10000, BOX);
+		MIN_SPINNER = GetSpinner("MinValue", commFrame.MC_MINV, -10000, 9000, BOX);
 		// BOX.add (new JSeparator (SwingConstants.VERTICAL)); // value ?
-		TABLE = new JTable(new TableModel(CI.COMM.frame.BOARD_PANEL.POS));
+		TABLE = new JTable(new TableModel(commInst.COMM.frame.BOARD_PANEL.POS));
 		TABLE.setDefaultRenderer(Float.class, new RenderFloat());
 		TABLE.setDefaultRenderer(Double.class, new RenderDouble());
 		JScrollPane JSP = new JScrollPane(TABLE);
@@ -314,17 +314,17 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	}
 
 	public void StartMonteCarlo() {
-		MC_FRAME = new JFrame("MonteCarlo " + CI.COMM.id);
+		MC_FRAME = new JFrame("MonteCarlo " + commInst.COMM.id);
 		DoFrameMC(MC_FRAME);
 		MC_FRAME.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent win_evt) {
 				HaltMonteCarlo();
-				CI.MONTE_CARLO = null;
+				commInst.MONTE_CARLO = null;
 			}
 		});
 		MC_FRAME.setBackground(Color.lightGray);
 		MC_FRAME.pack();
-		MC_FRAME.setSize(420, 300 + 10 * CI.COMM.frame.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES); // demand
+		MC_FRAME.setSize(420, 300 + 10 * commInst.COMM.frame.BOARD_PANEL.POS.COUNT_OF_LEGAL_MOVES); // demand
 		MC_FRAME.setResizable(false);
 		MC_FRAME.setVisible(true);
 	}
@@ -365,17 +365,17 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	}
 
 	public void SpiceMC() {
-		BoardPosition BP = CI.COMM.frame.BOARD_PANEL.POS;
+		BoardPosition BP = commInst.COMM.frame.BOARD_PANEL.POS;
 		for (int i = 0; i < BP.COUNT_OF_LEGAL_MOVES; i++) {
 			WORKING = true;
 			SPICEING = true;
 			BESTMOVE = false;
-			CI.SendTo(CI.GetFenMoves(), false);
-			CI.SendTo("go depth 10 searchmoves " + BP.GetDirect(BP.move_list[i]), true);
+			commInst.SendTo(commInst.GetFenMoves(), false);
+			commInst.SendTo("go depth 10 searchmoves " + BP.GetDirect(BP.move_list[i]), true);
 			while (!BESTMOVE)
 				try {
 					Thread.sleep(1);
-					CI.ThreadInput();
+					commInst.ThreadInput();
 				}
 				catch (InterruptedException io) {
 				}
@@ -405,7 +405,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 	}
 
 	public void ResultMC(String S) {
-		BoardPosition BP = CI.COMM.frame.BOARD_PANEL.POS;
+		BoardPosition BP = commInst.COMM.frame.BOARD_PANEL.POS;
 		StringTokenizer ST = new StringTokenizer(S);
 		String MOVE = ST.nextToken();
 		Long VALUE = Long.valueOf(ST.nextToken());
@@ -460,7 +460,7 @@ public class MonteCarlo implements ChangeListener, ActionListener {
 
 	public void EndMonteCarlo() {
 		HaltMonteCarlo();
-		CI.MONTE_CARLO = null;
+		commInst.MONTE_CARLO = null;
 		MC_FRAME.setVisible(false);
 		MC_FRAME.dispose(); // null
 	}
