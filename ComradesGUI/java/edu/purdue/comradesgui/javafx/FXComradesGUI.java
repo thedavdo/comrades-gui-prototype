@@ -2,10 +2,8 @@ package edu.purdue.comradesgui.javafx;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,11 +14,16 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class FXComradesGUI extends Application {
 
@@ -44,56 +47,36 @@ public class FXComradesGUI extends Application {
 
 	private ObservableList<ChessEngine> chessEngines;
 
+	Font fontChess;
+	private int boardSize;
+
+	private int userSelX;
+	private int userSelY;
+
+	private ChessGame currentGame;
+
 	public FXComradesGUI() {
 
+		boardSize = 600;
+
 		chessEngines = FXCollections.observableArrayList();
+		currentGame = new ChessGame();
+
+		try {
+			FileInputStream fileInputStream = new FileInputStream(new File("MERIFONT.TTF"));
+			fontChess = Font.loadFont(fileInputStream, getCheckerSize() - 4);
+		}
+		catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
-	private char[][] parseFenString(String fen) {
+	public int getBoardSize(){
+		return boardSize;
+	}
 
-		char[][] parsed = new char[8][8];
-
-		String[] split = fen.split("/");
-
-		int rowIndex = 0;
-		for(String row : split) {
-
-			char[] unparsed = row.toCharArray();
-
-			int colIndex = 0;
-			for(char in : unparsed) {
-
-				if(Character.isAlphabetic(in)) {
-					parsed[rowIndex][colIndex] = in;
-					colIndex++;
-				}
-				else if(Character.isDigit(in)) {
-
-					int numEmpty = Integer.parseInt(""+in);
-
-					for(int i = 0; i < numEmpty; i++)
-						colIndex++;
-				}
-			}
-			rowIndex++;
-		}
-
-//		for(int i = 0; i < parsed.length; i++) {
-//
-//			char[] charArray = parsed[i];
-//			String row = "";
-//			for(int ii = 0; ii < charArray.length; ii++) {
-//
-//				char ch = charArray[ii];
-//				if(Character.isLetter(ch))
-//					row += ch;
-//				else
-//					row += "-";
-//			}
-//			System.out.println(row);
-//		}
-
-		return parsed;
+	public int getCheckerSize() {
+		return (int) (boardSize / 8d);
 	}
 
 	private void startAnimationTimer() {
@@ -102,20 +85,53 @@ public class FXComradesGUI extends Application {
 			animationTimer = new AnimationTimer() {
 				@Override
 				public void handle(long now) {
-					GraphicsContext graphics = chessCanvas.getGraphicsContext2D();
-					graphics.clearRect(0, 0, chessCanvas.getWidth(), chessCanvas.getHeight());
+					GraphicsContext graphics = boardCanvas.getGraphicsContext2D();
+					graphics.clearRect(0, 0, boardSize, boardSize);
 
-					int checkerSize = (int) (chessCanvas.getWidth() / 8d);
+					char[][] parseFEN = currentGame.getParsedFEN();
+					int checkerSize = getCheckerSize();
 
 					for(int x = 0; x < 8; x++) {
 						for(int y = 0; y < 8; y++) {
 
 							if((x + y) % 2 == 0)
-								graphics.setFill(Color.BEIGE);
+								graphics.setFill(Color.WHITE);
 							else
 								graphics.setFill(Color.LIGHTGRAY);
 
 							graphics.fillRect(x * checkerSize, y * checkerSize, checkerSize, checkerSize);
+
+							char selChar = parseFEN[x][y];
+
+							if(Character.isLetter(selChar)) {
+
+								Font f = fontChess;//Font.font("Consolas", FontWeight.BOLD, 22);
+
+								String str = "" + selChar;
+
+								Text text = new Text(str);
+								text.setFont(f);
+
+								int xLoc = (x) * checkerSize;
+								int yLoc = checkerSize + (y) * checkerSize;
+
+								xLoc += (int) ((((double) checkerSize) - text.getLayoutBounds().getWidth()) / 2d) - 1;
+								yLoc -= (int) ((((double) checkerSize) - text.getLayoutBounds().getHeight()) / 2d) + 1;
+
+								graphics.setFont(f);
+
+								if(Character.isUpperCase(selChar)) {
+									graphics.setFill(Color.GRAY);
+
+									graphics.fillText(str, xLoc + 1, yLoc + 1);
+									graphics.setFill(Color.BEIGE);
+									graphics.fillText(str, xLoc, yLoc);
+								}
+								else {
+									graphics.setFill(Color.BLACK);
+									graphics.fillText(str, xLoc, yLoc);
+								}
+							}
 						}
 					}
 				}
@@ -126,16 +142,13 @@ public class FXComradesGUI extends Application {
 	}
 
 	private AnimationTimer animationTimer;
-	private Canvas chessCanvas;
+	private Canvas boardCanvas;
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) {
 
 		primaryStage.setTitle("ComradesGUI - FX!");
 		primaryStage.setResizable(false);
-
-
-		//----- Start: Add UI elements here
 
 		MenuBar menuBar = new MenuBar();
 
@@ -156,7 +169,7 @@ public class FXComradesGUI extends Application {
 
 		GridPane grid = new GridPane();
 
-		chessCanvas = new Canvas(550, 550);
+		boardCanvas = new Canvas(boardSize, boardSize);
 
 		grid.setAlignment(Pos.TOP_LEFT);
 		grid.setHgap(8);
@@ -183,10 +196,15 @@ public class FXComradesGUI extends Application {
 			}
 		});
 
+		boardCanvas.setOnMouseClicked((event) -> {
+			userSelX = (int) (event.getX() / getCheckerSize());
+			userSelY = (int) (event.getY() / getCheckerSize());
+		});
+
 		//----- End: Add UI elements here
 
 		grid.add(engineComboBox, 0, 0);
-		grid.add(chessCanvas, 0, 1);
+		grid.add(boardCanvas, 0, 1);
 
 		topBox.getChildren().add(grid);
 
