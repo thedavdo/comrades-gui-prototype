@@ -8,20 +8,20 @@ public abstract class Player {
 		OTHER
 	}
 
-	private String boardFEN;
+	protected ChessGame chessGame;
+
 	private PlayerType playerType;
 
 	public Player(PlayerType playerType) {
-
 		this.playerType = playerType;
 	}
 
-	public void setBoardFEN(String boardFEN) {
-		this.boardFEN = boardFEN;
+	public void setGame(ChessGame chessGame) {
+		this.chessGame = chessGame;
 	}
 
-	public String getBoardFEN() {
-		return boardFEN;
+	public ChessGame getGame() {
+		return chessGame;
 	}
 
 	/**
