@@ -2,9 +2,6 @@ package edu.purdue.comradesgui.javafx;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,7 +15,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,22 +40,19 @@ public class FXComradesGUI extends Application {
 //		}
 //	}
 
-	private ObservableList<ChessEngine> chessEngines;
+	private ComradesMain comradesMain;
 
-	Font fontChess;
+	private Font fontChess;
 	private int boardSize;
 
 	private int userSelX;
 	private int userSelY;
 
-	private ChessGame currentGame;
-
 	public FXComradesGUI() {
 
-		boardSize = 600;
+		boardSize = 500;
 
-		chessEngines = FXCollections.observableArrayList();
-		currentGame = new ChessGame();
+		comradesMain = new ComradesMain();
 
 		try {
 			FileInputStream fileInputStream = new FileInputStream(new File("MERIFONT.TTF"));
@@ -87,7 +80,7 @@ public class FXComradesGUI extends Application {
 					GraphicsContext graphics = boardCanvas.getGraphicsContext2D();
 					graphics.clearRect(0, 0, boardSize, boardSize);
 
-					Character[][] parseFEN = currentGame.getArrayFEN();
+					ChessCell[][] parseFEN = comradesMain.getCurrentGame().getCells();
 					int checkerSize = getCheckerSize();
 
 					for(int x = 7; x >= 0; x--) {
@@ -100,35 +93,46 @@ public class FXComradesGUI extends Application {
 
 							graphics.fillRect(x * checkerSize, y * checkerSize, checkerSize, checkerSize);
 
-							Character selChar = parseFEN[x][y];
 
-							if(selChar != null) {
+							ChessCell selCell = parseFEN[x][y];
 
-								Font f = fontChess;//Font.font("Consolas", FontWeight.BOLD, 22);
+							if(selCell != null) {
 
-								String str = "" + selChar;
+								ChessPiece selPiece = selCell.getChessPiece();
 
-								Text text = new Text(str);
-								text.setFont(f);
+								if (selPiece != null) {
 
-								int xLoc = (x) * checkerSize;
-								int yLoc = checkerSize + (y) * checkerSize;
+									Character selChar = selPiece.getPieceChar();
 
-								xLoc += (int) ((((double) checkerSize) - text.getLayoutBounds().getWidth()) / 2d) - 1;
-								yLoc -= (int) ((((double) checkerSize) - text.getLayoutBounds().getHeight()) / 2d) + 1;
+									if (selChar != null) {
 
-								graphics.setFont(f);
+										Font f = fontChess;//Font.font("Consolas", FontWeight.BOLD, 22);
 
-								if(Character.isUpperCase(selChar)) {
-									graphics.setFill(Color.GRAY);
+										String str = "" + selChar;
 
-									graphics.fillText(str, xLoc + 1, yLoc + 1);
-									graphics.setFill(Color.BEIGE);
-									graphics.fillText(str, xLoc, yLoc);
-								}
-								else {
-									graphics.setFill(Color.BLACK);
-									graphics.fillText(str, xLoc, yLoc);
+										Text text = new Text(str);
+										text.setFont(f);
+
+										int xLoc = (x) * checkerSize;
+										int yLoc = checkerSize + (y) * checkerSize;
+
+										xLoc += (int) ((((double) checkerSize) - text.getLayoutBounds().getWidth()) / 2d) - 1;
+										yLoc -= (int) ((((double) checkerSize) - text.getLayoutBounds().getHeight()) / 2d) + 1;
+
+										graphics.setFont(f);
+
+										if (Character.isUpperCase(selChar)) {
+											graphics.setFill(Color.GRAY);
+
+											graphics.fillText(str, xLoc + 1, yLoc + 1);
+											graphics.setFill(Color.BEIGE);
+											graphics.fillText(str, xLoc, yLoc);
+										}
+										else {
+											graphics.setFill(Color.BLACK);
+											graphics.fillText(str, xLoc, yLoc);
+										}
+									}
 								}
 							}
 						}
@@ -140,8 +144,25 @@ public class FXComradesGUI extends Application {
 		}
 	}
 
+	private void checkCanStart() {
+
+		boolean enableStart = true;
+
+		if(whitePlayerCombo.getValue() == null)
+			enableStart = false;
+
+		if(blackPlayerCombo.getValue() == null)
+			enableStart = false;
+
+		startGameButton.setDisable(!enableStart);
+	}
+
 	private AnimationTimer animationTimer;
 	private Canvas boardCanvas;
+
+	private ComboBox<Player> whitePlayerCombo;
+	private ComboBox<Player> blackPlayerCombo;
+	private Button startGameButton;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -175,9 +196,16 @@ public class FXComradesGUI extends Application {
 		grid.setVgap(8);
 		grid.setPadding(new Insets(16, 16, 16, 16));
 
-		ComboBox<ChessEngine> engineComboBox = new ComboBox<>();
+		Text versusText = new Text("vs.");
+		whitePlayerCombo = new ComboBox<>();
+		blackPlayerCombo = new ComboBox<>();
 
-		engineComboBox.setItems(chessEngines);
+		startGameButton = new Button("Start Game!");
+
+		whitePlayerCombo.setMaxWidth(200);
+		blackPlayerCombo.setMaxWidth(200);
+		whitePlayerCombo.setItems(comradesMain.getPlayerList());
+		blackPlayerCombo.setItems(comradesMain.getPlayerList());
 
 		importEngineButton.setOnAction((actionEvent) -> {
 			FileChooser fileChooser = new FileChooser();
@@ -189,36 +217,70 @@ public class FXComradesGUI extends Application {
 				engine.loadFromPath(file.getAbsolutePath());
 
 				if(engine.hasLoaded()) {
-
-					chessEngines.add(engine);
+					comradesMain.addPlayer(engine);
 				}
 			}
 		});
 
+		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> checkCanStart());
+		blackPlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> checkCanStart());
+
+		startGameButton.setOnAction((actionEvent) -> {
+
+			if(whitePlayerCombo.getValue() == blackPlayerCombo.getValue()) {
+
+				Player selected = whitePlayerCombo.getValue();
+
+				if(selected.getPlayerType() == Player.PlayerType.ENGINE) {
+					ChessEngine engine = (ChessEngine) selected;
+					comradesMain.getCurrentGame().setWhitePlayer(engine);
+					comradesMain.getCurrentGame().setBlackPlayer(engine.copyEngine());
+				}
+			}
+			else {
+				comradesMain.getCurrentGame().setWhitePlayer(whitePlayerCombo.getValue());
+				comradesMain.getCurrentGame().setBlackPlayer(blackPlayerCombo.getValue());
+			}
+
+			comradesMain.startNewGame();
+		});
+
+		MoveTimer test = new MoveTimer();
+
 		boardCanvas.setOnMouseClicked((event) -> {
+
+			if(!test.isTimerStarted())
+				test.start();
+			else if(test.isTimerActive())
+				test.pause();
+			else
+				test.resume();
+
 			userSelX = (int) (event.getX() / getCheckerSize());
 			userSelY = (int) (event.getY() / getCheckerSize());
 
-			currentGame.requestMove("a1b1");
+			//currentGame.makeMove("a1b1");
 	//		currentGame.addPiece('p', userSelX, userSelY);
 		});
 
 		//----- End: Add UI elements here
 
-		grid.add(engineComboBox, 0, 0);
-		grid.add(boardCanvas, 0, 1);
+		grid.add(whitePlayerCombo, 0, 0);
+		grid.add(versusText, 1, 0);
+		grid.add(blackPlayerCombo, 2, 0);
+
+		grid.add(startGameButton, 3, 0);
+
+		grid.add(boardCanvas, 0, 1, 4, 1);
 
 		topBox.getChildren().add(grid);
 
 		this.startAnimationTimer();
+		checkCanStart();
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
-		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			public void handle(WindowEvent we) {
-				System.exit(1);
-			}
-		});
+		primaryStage.setOnCloseRequest((event) -> System.exit(1));
 	}
 }
