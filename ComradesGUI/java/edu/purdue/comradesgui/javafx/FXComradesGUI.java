@@ -14,7 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -88,11 +87,11 @@ public class FXComradesGUI extends Application {
 					GraphicsContext graphics = boardCanvas.getGraphicsContext2D();
 					graphics.clearRect(0, 0, boardSize, boardSize);
 
-					char[][] parseFEN = currentGame.getParsedFEN();
+					Character[][] parseFEN = currentGame.getArrayFEN();
 					int checkerSize = getCheckerSize();
 
-					for(int x = 0; x < 8; x++) {
-						for(int y = 0; y < 8; y++) {
+					for(int x = 7; x >= 0; x--) {
+						for(int y = 7; y >= 0; y--) {
 
 							if((x + y) % 2 == 0)
 								graphics.setFill(Color.WHITE);
@@ -101,9 +100,9 @@ public class FXComradesGUI extends Application {
 
 							graphics.fillRect(x * checkerSize, y * checkerSize, checkerSize, checkerSize);
 
-							char selChar = parseFEN[x][y];
+							Character selChar = parseFEN[x][y];
 
-							if(Character.isLetter(selChar)) {
+							if(selChar != null) {
 
 								Font f = fontChess;//Font.font("Consolas", FontWeight.BOLD, 22);
 
@@ -199,6 +198,9 @@ public class FXComradesGUI extends Application {
 		boardCanvas.setOnMouseClicked((event) -> {
 			userSelX = (int) (event.getX() / getCheckerSize());
 			userSelY = (int) (event.getY() / getCheckerSize());
+
+			currentGame.requestMove("a1b1");
+	//		currentGame.addPiece('p', userSelX, userSelY);
 		});
 
 		//----- End: Add UI elements here
