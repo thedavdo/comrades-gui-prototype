@@ -195,8 +195,14 @@ public class ChessEngine extends Player {
 	}
 
 	@Override
+	public void setGame(ChessGame chessGame) {
+		super.setGame(chessGame);
+		requestCommand("ucinewgame", true);
+	}
+
+	@Override
 	public void requestMove() {
-		requestCommand("position fen " + getBoardFEN(), true);
+		requestCommand("position fen " + chessGame.getStringFEN(), true);
 		requestCommand("go ", true);
 	}
 
