@@ -11,6 +11,8 @@ import java.util.List;
 public class ChessEngine extends Player {
 
 	//private Process fileProcess;
+	private String path;
+
 	private BufferedReader bufReader;
 	private PrintWriter bufWriter;
 
@@ -139,11 +141,12 @@ public class ChessEngine extends Player {
 			bufReader = new BufferedReader(new InputStreamReader(fileProcess.getInputStream()));
 			bufWriter = new PrintWriter(new OutputStreamWriter(fileProcess.getOutputStream()));
 
-			hasLoaded = true;
-
 			logInfo("Path loaded successfully");
+			this.path = path;
 
 			initializeEngine();
+
+			hasLoaded = true;
 		}
 		catch (Exception e) {
 			logInfo("!! Error Loading Path !!");
@@ -151,6 +154,9 @@ public class ChessEngine extends Player {
 		}
 	}
 
+	public String getEnginePath() {
+		return path;
+	}
 	/**
 	 * Setup communications loop with the provided engine
 	 */
@@ -306,6 +312,14 @@ public class ChessEngine extends Player {
 		}
 	}
 
+
+	public ChessEngine copyEngine() {
+
+		ChessEngine copy = new ChessEngine();
+		copy.loadFromPath(path);
+
+		return copy;
+	}
 
 	public String toString() {
 		return this.engineName;
