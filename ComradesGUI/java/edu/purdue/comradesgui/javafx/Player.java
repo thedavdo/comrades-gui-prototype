@@ -16,6 +16,10 @@ public abstract class Player {
 		this.playerType = playerType;
 	}
 
+	public PlayerType getPlayerType() {
+		return playerType;
+	}
+
 	public void setGame(ChessGame chessGame) {
 		this.chessGame = chessGame;
 	}
@@ -23,6 +27,7 @@ public abstract class Player {
 	public ChessGame getGame() {
 		return chessGame;
 	}
+
 
 	/**
 	 * Tells the player it is time to make a move
