@@ -4,5 +4,5 @@ import java.util.EventListener;
 
 public interface CommandResponseListener extends EventListener {
 
-	boolean onResponse(String[] cmdTokens, String cmd);
+	void onResponse(String[] cmdTokens, String cmd, ChessEngine engine);
 }
