@@ -3,7 +3,6 @@ package edu.purdue.comradesgui.javafx;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -199,6 +198,7 @@ public class FXComradesGUI extends Application {
 		grid.setPadding(new Insets(16, 16, 16, 16));
 
 		Text versusText = new Text("vs.");
+		Text blackTimerText = new Text("-");
 		Text whiteTimerText = new Text("-");
 		whitePlayerCombo = new ComboBox<>();
 		blackPlayerCombo = new ComboBox<>();
@@ -245,29 +245,19 @@ public class FXComradesGUI extends Application {
 				comradesMain.getCurrentGame().setBlackPlayer(blackPlayerCombo.getValue());
 			}
 
+			blackTimerText.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getBlackTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+			blackTimerText.textProperty().bind(comradesMain.getCurrentGame().getBlackTimer().getTimerDisplayProperty());
+
+			whiteTimerText.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getWhiteTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+			whiteTimerText.textProperty().bind(comradesMain.getCurrentGame().getWhiteTimer().getTimerDisplayProperty());
+
 			comradesMain.startNewGame();
 		});
 
-		MoveTimer test = new MoveTimer();
-
 		boardCanvas.setOnMouseClicked((event) -> {
-
-			if(!test.isTimerStarted())
-				test.start();
-			else if(test.isTimerActive())
-				test.pause();
-			else
-				test.resume();
-
 			userSelX = (int) (event.getX() / getCheckerSize());
 			userSelY = (int) (event.getY() / getCheckerSize());
-
-			//currentGame.makeMove("a1b1");
-	//		currentGame.addPiece('p', userSelX, userSelY);
 		});
-
-		whiteTimerText.fillProperty().bind(Bindings.when(test.getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
-		whiteTimerText.textProperty().bind(test.getRemainingTime());
 
 		//----- End: Add UI elements here
 
@@ -277,6 +267,7 @@ public class FXComradesGUI extends Application {
 
 		grid.add(startGameButton, 3, 0);
 		grid.add(whiteTimerText, 4, 0);
+		grid.add(blackTimerText, 4, 1);
 
 		grid.add(boardCanvas, 0, 1, 4, 1);
 
