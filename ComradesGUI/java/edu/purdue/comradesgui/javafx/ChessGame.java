@@ -1,35 +1,84 @@
 package edu.purdue.comradesgui.javafx;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class ChessGame {
 
-	private boolean gamePaused;
+	private BooleanProperty gamePaused;
 
 	private Player whitePlayer, blackPlayer;
+	private BooleanProperty whiteTurn, blackTurn;
+
+	private MoveTimer whiteTimer, blackTimer;
+	private BooleanProperty useTimers;
 
 	private ChessCell[][] chessCells;
 	private ObservableList<ChessPiece> deadWhite, deadBlack;
+
+	private MoveListener moveListener;
 
 	public ChessGame() {
 
 		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
+		whiteTimer = new MoveTimer();
+		blackTimer = new MoveTimer();
+
+		gamePaused = new SimpleBooleanProperty();
+
+		whiteTurn = new SimpleBooleanProperty();
+		blackTurn = new SimpleBooleanProperty();
+
+		useTimers = new SimpleBooleanProperty();
+
 		deadBlack = FXCollections.observableArrayList();
 		deadWhite = FXCollections.observableArrayList();
 
-		gamePaused = false;
+		gamePaused.setValue(true);
+		useTimers.setValue(true);
+
+		whiteTurn.setValue(false);
+		blackTurn.setValue(false);
+
+		moveListener = (player, move) -> {
+
+			if(player == getCurrentTurnsPlayer()) {
+				ChessGame.this.makeMove(move);
+				cycleTurns();
+			}
+
+			return false;
+		};
+	}
+
+	public void setUseTimers(boolean useTimers) {
+		this.useTimers.setValue(useTimers);
+	}
+
+	public MoveTimer getWhiteTimer() {
+		return whiteTimer;
+	}
+
+	public MoveTimer getBlackTimer() {
+		return blackTimer;
 	}
 
 	public void setWhitePlayer(Player ply) {
 		this.whitePlayer = ply;
-		ply.setGame(this);
+		initPlayer(ply);
 	}
 
 	public void setBlackPlayer(Player ply) {
 		this.blackPlayer = ply;
+		initPlayer(ply);
+	}
+
+	private void initPlayer(Player ply) {
 		ply.setGame(this);
+		ply.addMoveListener(this.moveListener);
 	}
 
 	public Player getWhitePlayer() {
@@ -40,8 +89,72 @@ public class ChessGame {
 		return blackPlayer;
 	}
 
-	public void startGame() {
+	public Player getCurrentTurnsPlayer() {
 
+		if(whiteTurn.getValue())
+			return whitePlayer;
+		else if(blackTurn.getValue())
+			return blackPlayer;
+		else
+			return null;
+	}
+
+	public void startGame() {
+		gamePaused.setValue(false);
+		cycleTurns();
+	}
+
+	public void setGamePaused(boolean paused) {
+
+		this.gamePaused.setValue(paused);
+
+		if(useTimers.getValue() && gamePaused.getValue()) {
+			whiteTimer.pause();
+			blackTimer.pause();
+		}
+	}
+
+	public void cycleTurns() {
+
+		if(!gamePaused.getValue()) {
+			if(whiteTurn.getValue()) {
+				whiteTurn.setValue(false);
+				blackTurn.setValue(true);
+			}
+			else if(blackTurn.getValue()) {
+				whiteTurn.setValue(true);
+				blackTurn.setValue(false);
+			}
+			else {
+				whiteTurn.setValue(true);
+				blackTurn.setValue(false);
+
+				if(useTimers.getValue()) {
+					whiteTimer.initialize();
+					blackTimer.initialize();
+				}
+			}
+
+			if(whiteTurn.getValue())
+				whitePlayer.requestToMakeMove();
+			else if(blackTurn.getValue())
+				blackPlayer.requestToMakeMove();
+
+			if(useTimers.getValue()) {
+				if(whiteTurn.getValue()) {
+					whiteTimer.resume();
+					blackTimer.pause();
+				}
+				else {
+					whiteTimer.pause();
+					blackTimer.resume();
+				}
+			}
+		}
+	}
+
+	public BooleanProperty isGamePaused() {
+		return gamePaused;
 	}
 
 	public boolean addPiece(Character piece, int col, int row) {
@@ -55,14 +168,13 @@ public class ChessGame {
 		return false;
 	}
 
-	public boolean makeMove(String move) {
+	public boolean makeMove(ChessMove move) {
 
 		if(isMoveLegal(move)) {
-			ChessMove moveParsed = new ChessMove(move, this);
-			if(move.length() > 3) {
+			if(move.getRawMove().length() > 3) {
 
-				ChessCell fromCell = moveParsed.getFromCell();
-				ChessCell toCell = moveParsed.getToCell();
+				ChessCell fromCell = move.getFromCell();
+				ChessCell toCell = move.getToCell();
 				ChessPiece piece = fromCell.getChessPiece();
 				if(piece != null) {
 					fromCell.setChessPiece(null);
@@ -77,9 +189,19 @@ public class ChessGame {
 		return false;
 	}
 
+	public boolean makeMove(String move) {
+
+		return makeMove(new ChessMove(move, this));
+	}
+
 	public boolean isMoveLegal(String move) {
 
-		ChessMove moveParsed = new ChessMove(move, this);
+		return isMoveLegal(new ChessMove(move, this));
+	}
+
+	public boolean isMoveLegal(ChessMove move) {
+
+		//ChessMove moveParsed = new ChessMove(move, this);
 
 
 		return true;
