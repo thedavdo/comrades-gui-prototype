@@ -1,15 +1,7 @@
-/**
- *
- */
 package edu.purdue.comradesgui.javafx;
 
 import javafx.animation.AnimationTimer;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableObjectValue;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 import java.util.concurrent.TimeUnit;
 
@@ -27,43 +19,51 @@ public class MoveTimer extends AnimationTimer {
 	private boolean isTimerStarted = false;
 	private boolean isTimerExpired = false;
 
-
-	//private boolean bufferCountDown = false;
-
-	private StringProperty remainingTimeProperty;
-
+	private StringProperty timerDisplayProperty;
 	private BooleanProperty bufferCountDown;
 
 	public MoveTimer() {
 
 		durationLength = 3570 * 1000;
 		remainingTime = durationLength;
-		bufferTime = 3000;
+		bufferTime = -1;//3000;
 		prevTimeEvent = -1;
 
-		remainingTimeProperty = new SimpleStringProperty();
+		timerDisplayProperty = new SimpleStringProperty();
 		bufferCountDown = new SimpleBooleanProperty();
 	}
 
-	@Override
-	public void start() {
-	//	turnPressedTime = System.currentTimeMillis();
-		super.start();
-		prevTimeEvent = System.currentTimeMillis();
-		isTimerStarted = true;
-		isTimerActive = true;
-		bufferCountDown.setValue(bufferTime != -1);
+	public void setDurationLength(long duration) {
+		this.durationLength = duration;
+		remainingTime = duration;
 	}
 
-	public void pause() {
-		isTimerActive = false;
-		prevTimeEvent = -1;
+	public long getDurationLength() {
+		return durationLength;
 	}
 
-	public void resume() {
-		isTimerActive = true;
-		prevTimeEvent = System.currentTimeMillis();
-		bufferCountDown.setValue(bufferTime != -1);
+	public void setBufferTime(long buffer) {
+		bufferTime = buffer;
+	}
+
+	public long getBufferTime() {
+		return bufferTime;
+	}
+
+	public long getRemainingTime() {
+		return remainingTime;
+	}
+
+	public void setRemainingTime(long time) {
+		remainingTime = time;
+	}
+
+	public void decrementTime(long time) {
+		remainingTime -= time;
+	}
+
+	public void incrementTime(long time) {
+		remainingTime += time;
 	}
 
 	public boolean isTimerStarted() {
@@ -78,12 +78,53 @@ public class MoveTimer extends AnimationTimer {
 		return isTimerActive;
 	}
 
-	public StringProperty getRemainingTime() {
-		return remainingTimeProperty;
+	public StringProperty getTimerDisplayProperty() {
+		return timerDisplayProperty;
 	}
 
 	public BooleanProperty getBufferCountDownProperty() {
 		return bufferCountDown;
+	}
+
+	/**
+	 * Initializes the Timer but does not activate the timer countdown
+	 */
+	public void initialize() {
+		super.start();
+
+		isTimerStarted = true;
+		isTimerActive = false;
+	}
+
+
+	/**
+	 * Initializes and activates the timer countdown.
+	 */
+	public void start() {
+
+		if(!this.isTimerStarted)
+			this.initialize();
+
+		prevTimeEvent = System.currentTimeMillis();
+		bufferCountDown.setValue(bufferTime != -1);
+		isTimerActive = true;
+	}
+
+	public void reset() {
+		remainingTime = durationLength;
+		prevTimeEvent = -1;
+		bufferCountDown.setValue(bufferTime != -1);
+	}
+
+	public void pause() {
+		isTimerActive = false;
+		prevTimeEvent = -1;
+	}
+
+	public void resume() {
+		isTimerActive = true;
+		prevTimeEvent = System.currentTimeMillis();
+		bufferCountDown.setValue(bufferTime != -1);
 	}
 
 	@Override
@@ -99,28 +140,22 @@ public class MoveTimer extends AnimationTimer {
 				long currentTime = System.currentTimeMillis();
 				long deltaTime = (currentTime - prevTimeEvent);
 
+				String timeStr = "Time Left: ";
+
 				if(bufferCountDown.getValue()) {
 					if (bufferTime <= deltaTime) {
 						bufferCountDown.setValue(false);
 						prevTimeEvent = currentTime;
 					}
-					remainingTimeProperty.setValue(generateTimeFormat(bufferTime - deltaTime));
+					timerDisplayProperty.setValue(generateTimeFormat(remainingTime) + " (" + generateTimeFormat(bufferTime - deltaTime) + ")");
 				}
 				else {
 					remainingTime -= deltaTime;
 					prevTimeEvent = currentTime;
-					remainingTimeProperty.setValue(generateTimeFormat(remainingTime));
+					timerDisplayProperty.setValue(generateTimeFormat(remainingTime));
 				}
 			}
 		}
-	}
-
-	public void setBufferTime(long buffer) {
-		bufferTime = buffer;
-	}
-
-	public void addTime(long time) {
-		remainingTime += time;
 	}
 
 	private String generateTimeFormat(long time) {
