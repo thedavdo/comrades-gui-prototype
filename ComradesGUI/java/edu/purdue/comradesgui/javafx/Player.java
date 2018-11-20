@@ -1,5 +1,8 @@
 package edu.purdue.comradesgui.javafx;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,17 +17,32 @@ public abstract class Player {
 	protected ChessGame chessGame;
 
 	private List<MoveListener> moveListeners;
-
 	private PlayerType playerType;
+
+	private BooleanProperty readyForGame;
 
 	public Player(PlayerType playerType) {
 		this.playerType = playerType;
 		this.moveListeners = new ArrayList<>();
+		readyForGame = new SimpleBooleanProperty();
 	}
 
 	public void addMoveListener(MoveListener moveListener) {
 
 		this.moveListeners.add(moveListener);
+	}
+
+	public BooleanProperty getReadyForGameProperty() {
+		return readyForGame;
+	}
+
+	public boolean isReadyForGame() {
+		return readyForGame.getValue();
+	}
+
+	public void setReadyForGame(boolean isReady) {
+		readyForGame.setValue(isReady);
+		chessGame.setPlayerReady(this, isReady);
 	}
 
 	public PlayerType getPlayerType() {
@@ -47,8 +65,7 @@ public abstract class Player {
 
 		if(move != null) {
 			for(MoveListener ml : moveListeners) {
-				if(ml.moveEvent(this, move))
-					break;
+				ml.moveEvent(this, move);
 			}
 		}
 	}
