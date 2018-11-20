@@ -18,7 +18,7 @@ public class ChessEngine extends Player {
 
 	private StringBuffer logBuffer;
 
-	private List<ResponseListener> responseListeners;
+	private List<CommandResponseListener> responseListeners;
 	private List<EngineCommand> pushCmdList;
 
 	private String engineName;
@@ -65,7 +65,7 @@ public class ChessEngine extends Player {
 		return logBuffer;
 	}
 
-	public void addResponseListener(ResponseListener rl) {
+	public void addResponseListener(CommandResponseListener rl) {
 		responseListeners.add(rl);
 	}
 
@@ -207,7 +207,7 @@ public class ChessEngine extends Player {
 	}
 
 	@Override
-	public void requestMove() {
+	public void requestToMakeMove() {
 		requestCommand("position fen " + chessGame.getStringFEN(), true);
 		requestCommand("go ", true);
 	}
@@ -227,7 +227,7 @@ public class ChessEngine extends Player {
 		String[] cmdTokens = in.split(" ");
 
 		if(cmdTokens.length > 0) {
-			for(ResponseListener rl : responseListeners) {
+			for(CommandResponseListener rl : responseListeners) {
 				if(rl.onResponse(cmdTokens, in)) {
 					consumed = true;
 					break;
