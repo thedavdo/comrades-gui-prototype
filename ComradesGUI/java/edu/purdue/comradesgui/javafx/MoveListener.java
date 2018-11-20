@@ -4,5 +4,5 @@ import java.util.EventListener;
 
 public interface MoveListener extends EventListener {
 
-	boolean moveEvent(Player ply, ChessMove move);
+	void moveEvent(Player ply, ChessMove move);
 }
