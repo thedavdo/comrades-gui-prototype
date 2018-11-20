@@ -1,5 +1,7 @@
 package edu.purdue.comradesgui.javafx;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
 import java.io.*;
@@ -13,13 +15,14 @@ public class ChessEngine extends Player {
 	//private Process fileProcess;
 	private String path;
 
+	private Process fileProcess;
 	private BufferedReader bufReader;
 	private PrintWriter bufWriter;
 
 	private StringBuffer logBuffer;
 
 	private List<CommandResponseListener> responseListeners;
-	private List<EngineCommand> pushCmdList;
+	private ObservableList<EngineCommand> pushCmdList;
 
 	private String engineName;
 	private String engineAuthor;
@@ -41,7 +44,7 @@ public class ChessEngine extends Player {
 
 		responseListeners = new ArrayList<>();
 		logBuffer = new StringBuffer();
-		pushCmdList = new ArrayList<>();
+		pushCmdList = FXCollections.observableArrayList();
 		rawOptions = new ArrayList<>();
 
 		engineName = "nil";
@@ -74,7 +77,7 @@ public class ChessEngine extends Player {
 	 */
 	private void initListener() {
 
-		addResponseListener((cmdTokens, cmd) -> {
+		addResponseListener((cmdTokens, cmd, engine) -> {
 
 			//Listen for Response from 'isready'
 			if(cmdTokens[0].equals("readyok")) {
@@ -87,19 +90,16 @@ public class ChessEngine extends Player {
 						requestCommand("uci", true);
 					attemptingICI = false;
 				}
-				return true;
 			}
 
 			if(cmdTokens[0].equals("ici-echo")) {
 				logInfo("eng < ICI Ready");
 				useUCI = false;
-				return true;
 			}
 
 		//Listen for last Response from 'uci'
 			if(cmdTokens[0].equals("uciok")) {
 				logInfo("eng < UCI Ready");
-				return true;
 			}
 
 		//Listen for one of the Responses from 'uci'
@@ -108,13 +108,11 @@ public class ChessEngine extends Player {
 				if (cmdTokens[1].equals("name")) {
 					engineName = cmd.substring(cmd.indexOf(cmdTokens[2]));
 					logInfo("eng < Engine Name: " + engineName);
-					return true;
 				}
 
 				if (cmdTokens[1].equals("author")) {
 					engineAuthor = cmd.substring(cmd.indexOf(cmdTokens[2]));
 					logInfo("eng < Author(s): " + engineAuthor);
-					return true;
 				}
 			}
 
@@ -122,9 +120,7 @@ public class ChessEngine extends Player {
 			if(cmdTokens[0].equals("option")) {
 				rawOptions.add(cmd);
 				logInfo("eng < Option Imported: " + cmd);
-				return true;
 			}
-			return false;
 		});
 	}
 
@@ -136,7 +132,7 @@ public class ChessEngine extends Player {
 
 		try {
 			logInfo("Attempting to load from path: " + path);
-			Process fileProcess = Runtime.getRuntime().exec(path);
+			fileProcess = Runtime.getRuntime().exec(path);
 
 			bufReader = new BufferedReader(new InputStreamReader(fileProcess.getInputStream()));
 			bufWriter = new PrintWriter(new OutputStreamWriter(fileProcess.getOutputStream()));
@@ -173,9 +169,12 @@ public class ChessEngine extends Player {
 				try {
 					while(runLoop) {
 
-						pushCommands();
+						ChessEngine.this.pushCommands();
 
-						String state = bufReader.readLine();
+						String state = null;
+
+						if(waitingForReady)
+							state = bufReader.readLine();
 
 						if(state != null) {
 							if(!state.isEmpty()) {
@@ -203,12 +202,16 @@ public class ChessEngine extends Player {
 	@Override
 	public void setGame(ChessGame chessGame) {
 		super.setGame(chessGame);
+
 		requestCommand("ucinewgame", true);
+		//requestCommand("position fen " + chessGame.generateStringFEN(), true);
+
+		//this.setReadyForGame(true);
 	}
 
 	@Override
 	public void requestToMakeMove() {
-		requestCommand("position fen " + chessGame.getStringFEN(), true);
+		requestCommand("position fen " + chessGame.generateStringFEN(), true);
 		requestCommand("go ", true);
 	}
 
@@ -222,21 +225,13 @@ public class ChessEngine extends Player {
 	 */
 	private void processResponse(String in) {
 
-		boolean consumed = false;
-
 		String[] cmdTokens = in.split(" ");
 
 		if(cmdTokens.length > 0) {
 			for(CommandResponseListener rl : responseListeners) {
-				if(rl.onResponse(cmdTokens, in)) {
-					consumed = true;
-					break;
-				}
+				rl.onResponse(cmdTokens, in, this);
 			}
 		}
-
-		if(!consumed)
-			logInfo("eng < " + in);
 	}
 
 	/**
