@@ -2,6 +2,8 @@ package edu.purdue.comradesgui.javafx;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -197,6 +199,7 @@ public class FXComradesGUI extends Application {
 		grid.setPadding(new Insets(16, 16, 16, 16));
 
 		Text versusText = new Text("vs.");
+		Text whiteTimerText = new Text("-");
 		whitePlayerCombo = new ComboBox<>();
 		blackPlayerCombo = new ComboBox<>();
 
@@ -263,6 +266,9 @@ public class FXComradesGUI extends Application {
 	//		currentGame.addPiece('p', userSelX, userSelY);
 		});
 
+		whiteTimerText.fillProperty().bind(Bindings.when(test.getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+		whiteTimerText.textProperty().bind(test.getRemainingTime());
+
 		//----- End: Add UI elements here
 
 		grid.add(whitePlayerCombo, 0, 0);
@@ -270,6 +276,7 @@ public class FXComradesGUI extends Application {
 		grid.add(blackPlayerCombo, 2, 0);
 
 		grid.add(startGameButton, 3, 0);
+		grid.add(whiteTimerText, 4, 0);
 
 		grid.add(boardCanvas, 0, 1, 4, 1);
 
