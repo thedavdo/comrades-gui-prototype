@@ -1,25 +1,19 @@
 package edu.purdue.comradesgui.javafx;
 
-import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 public class FXComradesGUI extends Application {
 
@@ -43,106 +37,12 @@ public class FXComradesGUI extends Application {
 
 	private ComradesMain comradesMain;
 
-	private Font fontChess;
-	private int boardSize;
-
 	private int userSelX;
 	private int userSelY;
 
 	public FXComradesGUI() {
 
-		boardSize = 500;
-
 		comradesMain = new ComradesMain();
-
-		try {
-			FileInputStream fileInputStream = new FileInputStream(new File("MERIFONT.TTF"));
-			fontChess = Font.loadFont(fileInputStream, getCheckerSize() - 4);
-		}
-		catch(FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public int getBoardSize(){
-		return boardSize;
-	}
-
-	public int getCheckerSize() {
-		return (int) (boardSize / 8d);
-	}
-
-	private void startAnimationTimer() {
-
-		if(animationTimer == null) {
-			animationTimer = new AnimationTimer() {
-				@Override
-				public void handle(long now) {
-					GraphicsContext graphics = boardCanvas.getGraphicsContext2D();
-					graphics.clearRect(0, 0, boardSize, boardSize);
-
-					ChessCell[][] parseFEN = comradesMain.getCurrentGame().getCells();
-					int checkerSize = getCheckerSize();
-
-					for(int x = 7; x >= 0; x--) {
-						for(int y = 7; y >= 0; y--) {
-
-							if((x + y) % 2 == 0)
-								graphics.setFill(Color.WHITE);
-							else
-								graphics.setFill(Color.LIGHTGRAY);
-
-							graphics.fillRect(x * checkerSize, y * checkerSize, checkerSize, checkerSize);
-
-
-							ChessCell selCell = parseFEN[x][y];
-
-							if(selCell != null) {
-
-								ChessPiece selPiece = selCell.getChessPiece();
-
-								if (selPiece != null) {
-
-									Character selChar = selPiece.getPieceChar();
-
-									if (selChar != null) {
-
-										Font f = fontChess;//Font.font("Consolas", FontWeight.BOLD, 22);
-
-										String str = "" + selChar;
-
-										Text text = new Text(str);
-										text.setFont(f);
-
-										int xLoc = (x) * checkerSize;
-										int yLoc = checkerSize + (y) * checkerSize;
-
-										xLoc += (int) ((((double) checkerSize) - text.getLayoutBounds().getWidth()) / 2d) - 1;
-										yLoc -= (int) ((((double) checkerSize) - text.getLayoutBounds().getHeight()) / 2d) + 1;
-
-										graphics.setFont(f);
-
-										if (Character.isUpperCase(selChar)) {
-											graphics.setFill(Color.GRAY);
-
-											graphics.fillText(str, xLoc + 1, yLoc + 1);
-											graphics.setFill(Color.BEIGE);
-											graphics.fillText(str, xLoc, yLoc);
-										}
-										else {
-											graphics.setFill(Color.BLACK);
-											graphics.fillText(str, xLoc, yLoc);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			};
-
-			animationTimer.start();
-		}
 	}
 
 	private void checkCanStart() {
@@ -158,8 +58,7 @@ public class FXComradesGUI extends Application {
 		startGameButton.setDisable(!enableStart);
 	}
 
-	private AnimationTimer animationTimer;
-	private Canvas boardCanvas;
+	private FXChessBoard chessBoard;
 
 	private ComboBox<Player> whitePlayerCombo;
 	private ComboBox<Player> blackPlayerCombo;
@@ -190,7 +89,7 @@ public class FXComradesGUI extends Application {
 
 		GridPane grid = new GridPane();
 
-		boardCanvas = new Canvas(boardSize, boardSize);
+		chessBoard = new FXChessBoard(500, comradesMain.getCurrentGame());
 
 		grid.setAlignment(Pos.TOP_LEFT);
 		grid.setHgap(8);
@@ -230,33 +129,50 @@ public class FXComradesGUI extends Application {
 
 		startGameButton.setOnAction((actionEvent) -> {
 
-			if(whitePlayerCombo.getValue() == blackPlayerCombo.getValue()) {
+			ChessGame chessGame = comradesMain.getCurrentGame();
 
-				Player selected = whitePlayerCombo.getValue();
+			if(!chessGame.isGameStarted()) {
 
-				if(selected.getPlayerType() == Player.PlayerType.ENGINE) {
-					ChessEngine engine = (ChessEngine) selected;
-					comradesMain.getCurrentGame().setWhitePlayer(engine);
-					comradesMain.getCurrentGame().setBlackPlayer(engine.copyEngine());
+				if(whitePlayerCombo.getValue() == blackPlayerCombo.getValue()) {
+
+					Player selected = whitePlayerCombo.getValue();
+
+					if(selected.getPlayerType() == Player.PlayerType.ENGINE) {
+						ChessEngine engine = (ChessEngine) selected;
+						comradesMain.getCurrentGame().setWhitePlayer(engine);
+						comradesMain.getCurrentGame().setBlackPlayer(engine.copyEngine());
+					}
 				}
+				else {
+					comradesMain.getCurrentGame().setWhitePlayer(whitePlayerCombo.getValue());
+					comradesMain.getCurrentGame().setBlackPlayer(blackPlayerCombo.getValue());
+				}
+
+				comradesMain.startNewGame();
+
+				blackTimerText.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getBlackTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+				blackTimerText.textProperty().bind(comradesMain.getCurrentGame().getBlackTimer().getTimerDisplayProperty());
+
+				whiteTimerText.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getWhiteTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+				whiteTimerText.textProperty().bind(comradesMain.getCurrentGame().getWhiteTimer().getTimerDisplayProperty());
+
+				startGameButton.setText("Pause");
 			}
 			else {
-				comradesMain.getCurrentGame().setWhitePlayer(whitePlayerCombo.getValue());
-				comradesMain.getCurrentGame().setBlackPlayer(blackPlayerCombo.getValue());
+				if(chessGame.isGamePaused()) {
+					chessGame.setGamePaused(false);
+					startGameButton.setText("Pause");
+				}
+				else {
+					chessGame.setGamePaused(true);
+					startGameButton.setText("Resume");
+				}
 			}
-
-			blackTimerText.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getBlackTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
-			blackTimerText.textProperty().bind(comradesMain.getCurrentGame().getBlackTimer().getTimerDisplayProperty());
-
-			whiteTimerText.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getWhiteTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
-			whiteTimerText.textProperty().bind(comradesMain.getCurrentGame().getWhiteTimer().getTimerDisplayProperty());
-
-			comradesMain.startNewGame();
 		});
 
-		boardCanvas.setOnMouseClicked((event) -> {
-			userSelX = (int) (event.getX() / getCheckerSize());
-			userSelY = (int) (event.getY() / getCheckerSize());
+		chessBoard.setOnMouseClicked((event) -> {
+			userSelX = (int) (event.getX() / chessBoard.getCheckerSize());
+			userSelY = (int) (event.getY() / chessBoard.getCheckerSize());
 		});
 
 		//----- End: Add UI elements here
@@ -269,11 +185,11 @@ public class FXComradesGUI extends Application {
 		grid.add(whiteTimerText, 4, 0);
 		grid.add(blackTimerText, 4, 1);
 
-		grid.add(boardCanvas, 0, 1, 4, 1);
+		grid.add(chessBoard, 0, 1, 4, 1);
 
 		topBox.getChildren().add(grid);
 
-		this.startAnimationTimer();
+		chessBoard.getAnimationTimer().start();
 		checkCanStart();
 
 		primaryStage.setScene(scene);
