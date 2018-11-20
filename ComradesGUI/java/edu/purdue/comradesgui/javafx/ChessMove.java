@@ -28,6 +28,10 @@ public class ChessMove {
 		toCell = chessGame.getCells()[toCol][toRow];
 	}
 
+	public String getRawMove() {
+		return rawMove;
+	}
+
 	public ChessCell getFromCell() {
 		return fromCell;
 	}
