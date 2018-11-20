@@ -7,27 +7,37 @@ import javafx.collections.ObservableList;
 
 public class ChessGame {
 
-	private BooleanProperty gamePaused;
-
-	private Player whitePlayer, blackPlayer;
-	private BooleanProperty whiteTurn, blackTurn;
-
-	private MoveTimer whiteTimer, blackTimer;
-	private BooleanProperty useTimers;
-
 	private ChessCell[][] chessCells;
 	private ObservableList<ChessPiece> deadWhite, deadBlack;
 
+	private Player whitePlayer, blackPlayer;
+
+	private MoveTimer whiteTimer, blackTimer;
+
+	private BooleanProperty whiteReadyToStart, blackReadyToStart;
+	private BooleanProperty gameStarted;
+	private BooleanProperty gamePaused;
+	private BooleanProperty useTimers;
+
+	private BooleanProperty whiteTurn, blackTurn;
+
 	private MoveListener moveListener;
+	private CommandResponseListener engineInitListener;
 
 	public ChessGame() {
 
 		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
+		System.out.println(generateStringFEN());
+
 		whiteTimer = new MoveTimer();
 		blackTimer = new MoveTimer();
 
+		gameStarted = new SimpleBooleanProperty();
 		gamePaused = new SimpleBooleanProperty();
+
+		whiteReadyToStart = new SimpleBooleanProperty();
+		blackReadyToStart = new SimpleBooleanProperty();
 
 		whiteTurn = new SimpleBooleanProperty();
 		blackTurn = new SimpleBooleanProperty();
@@ -37,8 +47,12 @@ public class ChessGame {
 		deadBlack = FXCollections.observableArrayList();
 		deadWhite = FXCollections.observableArrayList();
 
+		gameStarted.setValue(false);
 		gamePaused.setValue(true);
 		useTimers.setValue(true);
+
+		whiteReadyToStart.setValue(false);
+		blackReadyToStart.setValue(false);
 
 		whiteTurn.setValue(false);
 		blackTurn.setValue(false);
@@ -49,9 +63,11 @@ public class ChessGame {
 				ChessGame.this.makeMove(move);
 				cycleTurns();
 			}
-
-			return false;
 		};
+
+		engineInitListener = ((cmdTokens, cmd, engine) -> {
+			//Useful for something?
+		});
 	}
 
 	public void setUseTimers(boolean useTimers) {
@@ -77,8 +93,31 @@ public class ChessGame {
 	}
 
 	private void initPlayer(Player ply) {
-		ply.setGame(this);
+
+		if(ply instanceof ChessEngine) {
+			ChessEngine plyEngine = (ChessEngine) ply;
+			plyEngine.addResponseListener(engineInitListener);
+		}
 		ply.addMoveListener(this.moveListener);
+		ply.setGame(this);
+	}
+
+	public void setPlayerReady(Player ply, boolean isReady) {
+
+		if(whitePlayer == ply)
+			whiteReadyToStart.setValue(isReady);
+		else if(blackPlayer == ply)
+			blackReadyToStart.setValue(isReady);
+
+		if(isGameStarted()) {
+			if(this.isReadyToStart())
+				beginGame();
+		}
+	}
+
+	public boolean isReadyToStart() {
+
+		return whitePlayer.isReadyForGame() && blackPlayer.isReadyForGame();
 	}
 
 	public Player getWhitePlayer() {
@@ -100,23 +139,60 @@ public class ChessGame {
 	}
 
 	public void startGame() {
+		if(!isGameStarted()) {
+			if(isReadyToStart())
+				this.beginGame();
+		}
+	}
+
+	private void beginGame() {
+		gameStarted.setValue(true);
 		gamePaused.setValue(false);
 		cycleTurns();
+	}
+
+	public boolean isGameStarted() {
+		return gameStarted.getValue();
+	}
+
+	public BooleanProperty getGameStartedBooleanProperty() {
+		return gameStarted;
+	}
+
+	public boolean isGamePaused() {
+		return gamePaused.getValue();
 	}
 
 	public void setGamePaused(boolean paused) {
 
 		this.gamePaused.setValue(paused);
 
-		if(useTimers.getValue() && gamePaused.getValue()) {
-			whiteTimer.pause();
-			blackTimer.pause();
+		if(useTimers.getValue()) {
+
+			if(isGamePaused()) {
+				whiteTimer.pause();
+				blackTimer.pause();
+			}
+			else {
+				if(whiteTurn.getValue()) {
+					whiteTimer.resume();
+					blackTimer.pause();
+				}
+				else if(blackTurn.getValue()) {
+					whiteTimer.pause();
+					blackTimer.resume();
+				}
+			}
 		}
+	}
+
+	public BooleanProperty getGamePausedBooleanProperty() {
+		return gamePaused;
 	}
 
 	public void cycleTurns() {
 
-		if(!gamePaused.getValue()) {
+		if(!isGamePaused() && isGameStarted()) {
 			if(whiteTurn.getValue()) {
 				whiteTurn.setValue(false);
 				blackTurn.setValue(true);
@@ -153,10 +229,6 @@ public class ChessGame {
 		}
 	}
 
-	public BooleanProperty isGamePaused() {
-		return gamePaused;
-	}
-
 	public boolean addPiece(Character piece, int col, int row) {
 
 		if(chessCells != null) {
@@ -174,11 +246,15 @@ public class ChessGame {
 			if(move.getRawMove().length() > 3) {
 
 				ChessCell fromCell = move.getFromCell();
-				ChessCell toCell = move.getToCell();
 				ChessPiece piece = fromCell.getChessPiece();
+				ChessCell toCell = move.getToCell();
+
 				if(piece != null) {
-					fromCell.setChessPiece(null);
-					toCell.setChessPiece(piece);
+					if(toCell != null) {
+						fromCell.setChessPiece(null);
+						toCell.setChessPiece(piece);
+						return true;
+					}
 				}
 			}
 		}
@@ -215,6 +291,10 @@ public class ChessGame {
 
 		ChessCell[][] parsed = new ChessCell[8][8];
 
+		for(int i =0; i < 8; i++)
+			for(int ii =0  ; ii < 8; ii++)
+				parsed[i][ii] = new ChessCell(i, ii);
+
 		String[] split = strFEN.split("/");
 
 		int rowIndex = 7;
@@ -225,7 +305,6 @@ public class ChessGame {
 			int colIndex = 7;
 			for(Character in : unparsed) {
 				if(Character.isAlphabetic(in)) {
-					parsed[colIndex][rowIndex] = new ChessCell(colIndex, rowIndex);
 					parsed[colIndex][rowIndex].setChessPiece(new ChessPiece(in));
 					colIndex--;
 				}
@@ -243,7 +322,7 @@ public class ChessGame {
 		chessCells = parsed;
 	}
 
-	public String getStringFEN() {
+	public String generateStringFEN() {
 
 		String boardFEN = null;
 
@@ -255,18 +334,24 @@ public class ChessGame {
 				int emptyCount = 0;
 				for(int col = 7; col >= 0; col--) {
 
-					Character loc = chessCells[col][row].getChessPiece().getPieceChar();
+					boolean isEmpty = true;
+					ChessCell cell = chessCells[col][row];
 
-					if(loc != null) {
-						if(emptyCount > 0) {
-							boardFEN += emptyCount;
-							emptyCount = 0;
+					if(cell != null) {
+						ChessPiece chessPiece = cell.getChessPiece();
+						if(chessPiece != null) {
+							Character pieceChar = chessPiece.getPieceChar();
+							if(emptyCount > 0) {
+								boardFEN += emptyCount;
+								emptyCount = 0;
+							}
+							boardFEN += pieceChar;
+							isEmpty = false;
 						}
-						boardFEN += loc;
 					}
-					else {
+
+					if(isEmpty)
 						emptyCount++;
-					}
 				}
 
 				if(emptyCount > 0)
@@ -276,6 +361,7 @@ public class ChessGame {
 					boardFEN += "/";
 			}
 		}
+
 		return boardFEN;
 	}
 }
