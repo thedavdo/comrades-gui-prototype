@@ -28,8 +28,4 @@ public class ComradesMain {
 	public ChessGame getCurrentGame() {
 		return currentGame;
 	}
-
-	public void startNewGame() {
-		currentGame.startGame();
-	}
 }
