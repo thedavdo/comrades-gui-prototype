@@ -110,13 +110,14 @@ public class ChessGame {
 			blackReadyToStart.setValue(isReady);
 
 		if(isGameStarted()) {
-			if(this.isReadyToStart())
-				beginGame();
+			if(this.isReadyToStart()) {
+				gamePaused.setValue(false);
+				cycleTurns();
+			}
 		}
 	}
 
 	public boolean isReadyToStart() {
-
 		return whitePlayer.isReadyForGame() && blackPlayer.isReadyForGame();
 	}
 
@@ -139,16 +140,10 @@ public class ChessGame {
 	}
 
 	public void startGame() {
-		if(!isGameStarted()) {
-			if(isReadyToStart())
-				this.beginGame();
-		}
-	}
-
-	private void beginGame() {
+		System.out.println("Starting Game...");
+		this.whitePlayer.prepareForGame();
+		this.blackPlayer.prepareForGame();
 		gameStarted.setValue(true);
-		gamePaused.setValue(false);
-		cycleTurns();
 	}
 
 	public boolean isGameStarted() {
