@@ -118,7 +118,7 @@ public class FXComradesGUI extends Application {
 				ChessEngine engine = new ChessEngine();
 				engine.loadFromPath(file.getAbsolutePath());
 
-				if(engine.hasLoaded()) {
+				if(engine.hasLoadedFromFile()) {
 					comradesMain.addPlayer(engine);
 				}
 			}
@@ -139,24 +139,25 @@ public class FXComradesGUI extends Application {
 
 					if(selected.getPlayerType() == Player.PlayerType.ENGINE) {
 						ChessEngine engine = (ChessEngine) selected;
-						comradesMain.getCurrentGame().setWhitePlayer(engine);
-						comradesMain.getCurrentGame().setBlackPlayer(engine.copyEngine());
+						chessGame.setWhitePlayer(engine);
+						chessGame.setBlackPlayer(engine.copyEngine());
 					}
 				}
 				else {
-					comradesMain.getCurrentGame().setWhitePlayer(whitePlayerCombo.getValue());
-					comradesMain.getCurrentGame().setBlackPlayer(blackPlayerCombo.getValue());
+					chessGame.setWhitePlayer(whitePlayerCombo.getValue());
+					chessGame.setBlackPlayer(blackPlayerCombo.getValue());
 				}
 
-				comradesMain.startNewGame();
+				chessGame.startGame();
 
-				blackTimerText.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getBlackTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
-				blackTimerText.textProperty().bind(comradesMain.getCurrentGame().getBlackTimer().getTimerDisplayProperty());
+				blackTimerText.fillProperty().bind(Bindings.when(chessGame.getBlackTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+				blackTimerText.textProperty().bind(chessGame.getBlackTimer().getTimerDisplayProperty());
 
-				whiteTimerText.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getWhiteTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
-				whiteTimerText.textProperty().bind(comradesMain.getCurrentGame().getWhiteTimer().getTimerDisplayProperty());
+				whiteTimerText.fillProperty().bind(Bindings.when(chessGame.getWhiteTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+				whiteTimerText.textProperty().bind(chessGame.getWhiteTimer().getTimerDisplayProperty());
 
-				startGameButton.setText("Pause");
+				startGameButton.setText("Loading");
+				//startGameButton.setDisable(true);
 			}
 			else {
 				if(chessGame.isGamePaused()) {
@@ -170,9 +171,13 @@ public class FXComradesGUI extends Application {
 			}
 		});
 
+		//TextField tx = new TextField();
+
 		chessBoard.setOnMouseClicked((event) -> {
 			userSelX = (int) (event.getX() / chessBoard.getCheckerSize());
 			userSelY = (int) (event.getY() / chessBoard.getCheckerSize());
+
+			//((ChessEngine) comradesMain.getCurrentGame().getWhitePlayer()).requestCommand("isready", true);
 		});
 
 		//----- End: Add UI elements here
