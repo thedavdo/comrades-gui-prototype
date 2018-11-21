@@ -12,14 +12,27 @@ public class ChessCell {
 		this.rowPos = row;
 	}
 
+	public int getColPos() {
+		return colPos;
+	}
+
+	public int getRowPos() {
+		return rowPos;
+	}
+
 	public ChessPiece getChessPiece() {
 		return myPiece;
 	}
 
 	public void setChessPiece(ChessPiece piece) {
-		this.myPiece = piece;
 
+		this.myPiece = piece;
 		if(this.myPiece != null)
-			myPiece.setCell(this);
+			this.myPiece.setCell(this);
+	}
+
+	public String toString() {
+
+		return "Cell["+ colPos + "," + rowPos+ "] " + myPiece;
 	}
 }
