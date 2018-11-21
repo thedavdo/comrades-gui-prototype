@@ -1,5 +1,6 @@
 package edu.purdue.comradesgui.javafx;
 
+import javafx.animation.AnimationTimer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -23,20 +24,25 @@ public class ChessEngine extends Player {
 
 	private List<CommandResponseListener> responseListeners;
 	private ObservableList<EngineCommand> pushCmdList;
+	private ObservableList<EngineCommand> reserveCmdList;
 
-	private String engineName;
 	private String engineAuthor;
 	private List<String> rawOptions;
 
-	private boolean hasLoaded = false;
+	private boolean loadedFromFile = false;
+	private boolean initialized = false;
+
+	private boolean pushCmdThroughInit = false;
 
 	private boolean shouldLog = true;
 
-	private boolean isReady = false;
+	private boolean isReady = true;
 	private boolean waitingForReady = false;
 
 	private boolean attemptingICI = true;
 	private boolean useUCI = true;
+
+	private boolean attemptingNewGame = false;
 
 	public ChessEngine() {
 
@@ -44,16 +50,15 @@ public class ChessEngine extends Player {
 
 		responseListeners = new ArrayList<>();
 		logBuffer = new StringBuffer();
+		reserveCmdList = FXCollections.observableArrayList();
 		pushCmdList = FXCollections.observableArrayList();
 		rawOptions = new ArrayList<>();
-
-		engineName = "nil";
 
 		initListener();
 	}
 
-	public boolean hasLoaded() {
-		return hasLoaded;
+	public boolean hasLoadedFromFile() {
+		return loadedFromFile;
 	}
 
 	public void setLogging(boolean shouldLog) {
@@ -86,28 +91,40 @@ public class ChessEngine extends Player {
 				waitingForReady = false;
 
 				if(attemptingICI) {
-					if(useUCI)
+					if(useUCI) {
+						pushCmdThroughInit = true;
 						requestCommand("uci", true);
+						pushCmdThroughInit = false;
+					}
 					attemptingICI = false;
+				}
+
+				if(attemptingNewGame) {
+					this.setReadyForGame(true);
+					attemptingNewGame = false;
 				}
 			}
 
 			if(cmdTokens[0].equals("ici-echo")) {
 				logInfo("eng < ICI Ready");
 				useUCI = false;
+				finishInit();
 			}
 
 		//Listen for last Response from 'uci'
 			if(cmdTokens[0].equals("uciok")) {
 				logInfo("eng < UCI Ready");
+				finishInit();
 			}
 
 		//Listen for one of the Responses from 'uci'
 			if(cmdTokens[0].equals("id")) {
 
 				if (cmdTokens[1].equals("name")) {
-					engineName = cmd.substring(cmd.indexOf(cmdTokens[2]));
-					logInfo("eng < Engine Name: " + engineName);
+
+					setPlayerName(cmd.substring(cmd.indexOf(cmdTokens[2])));
+
+					logInfo("eng < Engine Name: " + getPlayerName());
 				}
 
 				if (cmdTokens[1].equals("author")) {
@@ -142,7 +159,7 @@ public class ChessEngine extends Player {
 
 			initializeEngine();
 
-			hasLoaded = true;
+			loadedFromFile = true;
 		}
 		catch (Exception e) {
 			logInfo("!! Error Loading Path !!");
@@ -160,26 +177,20 @@ public class ChessEngine extends Player {
 
 		logInfo("Initializing Engine...");
 
-		Task readerLoop = new Task() {
-			@Override
-			protected Void call() {
+		AnimationTimer readerLoop = new AnimationTimer() {
 
-				boolean runLoop = true;
-
+			public void handle(long now) {
 				try {
-					while(runLoop) {
 
-						ChessEngine.this.pushCommands();
 
-						String state = null;
+					String state = null;
 
-						if(waitingForReady)
-							state = bufReader.readLine();
+					if(waitingForReady)
+						state = bufReader.readLine();
 
-						if(state != null) {
-							if(!state.isEmpty()) {
-								processResponse(state);
-							}
+					if(state != null) {
+						if(!state.isEmpty()) {
+							processResponse(state);
 						}
 					}
 				}
@@ -187,36 +198,50 @@ public class ChessEngine extends Player {
 					logInfo("!! Error Reading from bufReader !!");
 					e.printStackTrace();
 				}
-
-				return null;
 			}
 		};
-		new Thread(readerLoop).start();
 
-		logInfo("...Initialized");
+		AnimationTimer writerLoop = new AnimationTimer() {
 
+			public void handle(long now) {
+				try {
+					pushCommands();
+				}
+				catch(Exception e) {
+					logInfo("!! Error Writing from to Buffer !!");
+					e.printStackTrace();
+				}
+			}
+		};
+
+		readerLoop.start();
+		writerLoop.start();
+
+		pushCmdThroughInit = true;
 		requestCommand("ici", true);
-		//requestCommand("uci", true);
+		pushCmdThroughInit = false;
+	}
+
+	private void finishInit() {
+		pushCmdList.addAll(reserveCmdList);
+		initialized = true;
+		logInfo("...Initialized");
 	}
 
 	@Override
-	public void setGame(ChessGame chessGame) {
-		super.setGame(chessGame);
-
-		requestCommand("ucinewgame", true);
-		//requestCommand("position fen " + chessGame.generateStringFEN(), true);
-
-		//this.setReadyForGame(true);
+	public void prepareForGame() {
+		System.out.println("Trying to prepare...");
+		if(this.chessGame != null) {
+			System.out.println("Valid chess engine...");
+			requestCommand("ucinewgame", true);
+			attemptingNewGame = true;
+		}
 	}
 
 	@Override
 	public void requestToMakeMove() {
 		requestCommand("position fen " + chessGame.generateStringFEN(), true);
 		requestCommand("go ", true);
-	}
-
-	public void setGoType() {
-
 	}
 
 	/**
@@ -239,8 +264,15 @@ public class ChessEngine extends Player {
 	 * @param cmd The command you want to send
 	 * @param flush Should the writer be flushed after command is sent?
 	 */
-	private void requestCommand(String cmd, boolean flush) {
-		pushCmdList.add(new EngineCommand(cmd, flush));
+	public void requestCommand(String cmd, boolean flush) {
+
+		EngineCommand engCmd = new EngineCommand(cmd, flush);
+		boolean choose = initialized || pushCmdThroughInit;
+
+		if(choose)
+			pushCmdList.add(engCmd);
+		else
+			reserveCmdList.add(engCmd);
 	}
 
 	/**
@@ -297,7 +329,7 @@ public class ChessEngine extends Player {
 				LocalDateTime curDateTime = LocalDateTime.now();
 				String time = curDateTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
 
-				String logLine = time.substring(0,10) + " | " + input;
+				String logLine = time.substring(0,10) + " | " + getPlayerName() + " | "  + input;
 
 				System.out.println(logLine);
 
@@ -314,9 +346,5 @@ public class ChessEngine extends Player {
 		copy.loadFromPath(path);
 
 		return copy;
-	}
-
-	public String toString() {
-		return this.engineName;
 	}
 }
