@@ -38,6 +38,34 @@ public abstract class Player {
 		return playerName;
 	}
 
+	public boolean isWhitePlayer() {
+		return (chessGame.getWhitePlayer() == this);
+	}
+
+	public boolean isBlackPlayer() {
+		return (chessGame.getBlackPlayer() == this);
+	}
+
+	public MoveTimer getMoveTimer() {
+
+		if(isWhitePlayer())
+			return chessGame.getWhiteTimer();
+		else if(isBlackPlayer())
+			return chessGame.getBlackTimer();
+
+		return null;
+	}
+
+	public MoveTimer getOpponentMoveTimer() {
+
+		if(isBlackPlayer())
+			return chessGame.getWhiteTimer();
+		else if(isWhitePlayer())
+			return chessGame.getBlackTimer();
+
+		return null;
+	}
+
 	public void addMoveListener(MoveListener moveListener) {
 
 		this.moveListeners.add(moveListener);
