@@ -24,7 +24,7 @@ public class MoveTimer extends AnimationTimer {
 
 	public MoveTimer() {
 
-		durationLength = 3570 * 1000;
+		durationLength = 300 * 1000;
 		remainingTime = durationLength;
 		bufferTime = -1;//3000;
 		prevTimeEvent = -1;
