@@ -76,7 +76,9 @@ public class ChessPiece {
 	 */
 	public void setCell(ChessCell cell) {
 
-		if(cell.getChessPiece() == this)
+		if(cell == null)
+			this.currentCell = null;
+		else if(cell.getChessPiece() == this)
 			this.currentCell = cell;
 	}
 
@@ -90,5 +92,9 @@ public class ChessPiece {
 	 */
 	public int getMoveCount() {
 		return moveCount;
+	}
+
+	public String toString() {
+		return "Piece: " + pieceChar;
 	}
 }
