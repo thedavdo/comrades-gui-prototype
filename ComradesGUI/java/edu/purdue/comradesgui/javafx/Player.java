@@ -21,10 +21,21 @@ public abstract class Player {
 
 	private BooleanProperty readyForGame;
 
+	private String playerName;
+
 	public Player(PlayerType playerType) {
 		this.playerType = playerType;
 		this.moveListeners = new ArrayList<>();
 		readyForGame = new SimpleBooleanProperty();
+		playerName = "unset playername";
+	}
+
+	public void setPlayerName(String playerName) {
+		this.playerName = playerName;
+	}
+
+	public String getPlayerName() {
+		return playerName;
 	}
 
 	public void addMoveListener(MoveListener moveListener) {
@@ -70,8 +81,15 @@ public abstract class Player {
 		}
 	}
 
+
+	public String toString() {
+		return getPlayerName();
+	}
+
 	/**
 	 * Tells the player it is time to generate a move
 	 */
 	public abstract void requestToMakeMove();
+
+	public abstract void prepareForGame();
 }
