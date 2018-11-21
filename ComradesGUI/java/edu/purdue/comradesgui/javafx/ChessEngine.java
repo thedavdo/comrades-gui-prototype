@@ -141,6 +141,7 @@ public class ChessEngine extends Player {
 
 			if(cmdTokens[0].equals("bestmove")) {
 				logInfo("eng < Best Move: " + cmdTokens[1]);
+				System.out.println(cmd);
 				this.makeMove(new ChessMove(cmdTokens[1], chessGame));
 			}
 
@@ -259,7 +260,14 @@ public class ChessEngine extends Player {
 
 		requestCommand(buildFEN, true);
 		//requestCommand("setoption name MultiPV value 3", true);
-		requestCommand("go", true);
+
+		String goString = "go";
+
+		goString = goString + " movetime 3000";
+		goString = goString + " wtime " + chessGame.getWhiteTimer().getRemainingTime();
+		goString = goString + " btime " + chessGame.getBlackTimer().getRemainingTime();
+
+		requestCommand(goString, true);
 	}
 
 	/**
