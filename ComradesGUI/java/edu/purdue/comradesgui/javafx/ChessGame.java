@@ -27,6 +27,7 @@ public class ChessGame {
 	public ChessGame() {
 
 		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+		//setBoardFromFEN("N7/P3pk1p/3p2p1/r4p2/8/4b2B/4P1KP/R7");
 
 		System.out.println(generateStringFEN());
 
@@ -237,24 +238,20 @@ public class ChessGame {
 
 	public boolean makeMove(ChessMove move) {
 
-		if(isMoveLegal(move)) {
-			if(move.getRawMove().length() > 3) {
+		ChessCell fromCell = move.getFromCell();
 
-				ChessCell fromCell = move.getFromCell();
-				ChessPiece piece = fromCell.getChessPiece();
-				ChessCell toCell = move.getToCell();
+		if(fromCell != null) {
 
-				if(piece != null) {
-					if(toCell != null) {
-						fromCell.setChessPiece(null);
-						toCell.setChessPiece(piece);
-						return true;
-					}
+			ChessPiece piece = fromCell.getChessPiece();
+			ChessCell toCell = move.getToCell();
+
+			if(piece != null) {
+				if(toCell != null) {
+					fromCell.setChessPiece(null);
+					toCell.setChessPiece(piece);
+					return true;
 				}
 			}
-		}
-		else {
-			System.out.println("not valid move");
 		}
 
 		return false;
@@ -284,34 +281,33 @@ public class ChessGame {
 
 	public void setBoardFromFEN(String strFEN) {
 
+		//N7/P3pk1p/3p2p1/r4p2/8/4b2B/4P1KP/R7
 		ChessCell[][] parsed = new ChessCell[8][8];
 
-		for(int i =0; i < 8; i++)
-			for(int ii =0  ; ii < 8; ii++)
-				parsed[i][ii] = new ChessCell(i, ii);
+		String[] splitFEN = strFEN.split("/");
 
-		String[] split = strFEN.split("/");
+		for(int row = 0; row < 8; row++) {
+			for(int col = 0; col < 8; col++) {
+				parsed[col][row] = new ChessCell(col, row);
+			}
+		}
 
-		int rowIndex = 7;
-		for(String row : split) {
+		for(int row = 7; row >= 0; row--) {
 
-			char[] unparsed = row.toCharArray();
+			String rowFEN = splitFEN[7-row];
+
+			char[] rowCharArray = rowFEN.toCharArray();
 
 			int colIndex = 7;
-			for(Character in : unparsed) {
-				if(Character.isAlphabetic(in)) {
-					parsed[colIndex][rowIndex].setChessPiece(new ChessPiece(in));
+
+			for(Character pieceChar : rowCharArray) {
+				if(Character.isDigit(pieceChar))
+					colIndex -= Character.digit(pieceChar, 10);
+				else {
+					parsed[7-colIndex][row].setChessPiece(new ChessPiece(pieceChar));
 					colIndex--;
 				}
-				else if(Character.isDigit(in)) {
-
-					int numEmpty = Integer.parseInt(""+in);
-
-					for(int i = 0; i < numEmpty; i++)
-						colIndex--;
-				}
 			}
-			rowIndex--;
 		}
 
 		chessCells = parsed;
@@ -327,6 +323,8 @@ public class ChessGame {
 			for(int row = 7; row >= 0; row--) {
 
 				int emptyCount = 0;
+
+				String rowBuild = "";
 				for(int col = 7; col >= 0; col--) {
 
 					boolean isEmpty = true;
@@ -337,23 +335,24 @@ public class ChessGame {
 						if(chessPiece != null) {
 							Character pieceChar = chessPiece.getPieceChar();
 							if(emptyCount > 0) {
-								boardFEN += emptyCount;
+								rowBuild = emptyCount + rowBuild;
 								emptyCount = 0;
 							}
-							boardFEN += pieceChar;
+							rowBuild = pieceChar + rowBuild;
 							isEmpty = false;
 						}
 					}
-
 					if(isEmpty)
 						emptyCount++;
 				}
 
 				if(emptyCount > 0)
-					boardFEN += emptyCount;
+					rowBuild = emptyCount + rowBuild;
 
-				if(row != 0)
-					boardFEN += "/";
+				if(row != 7)
+					rowBuild = "/" + rowBuild;
+
+				boardFEN = boardFEN + rowBuild;
 			}
 		}
 
