@@ -34,66 +34,48 @@ public class FXChessBoard extends Canvas {
 			@Override
 			public void handle(long now) {
 
-				double boardSize = FXChessBoard.this.getWidth();
-
 				GraphicsContext graphics = FXChessBoard.this.getGraphicsContext2D();
 				graphics.clearRect(0, 0, boardSize, boardSize);
 
-				ChessCell[][] parseFEN = chessGame.getCells();
-				double checkerSize = FXChessBoard.this.getCheckerSize();
+				ChessCell[][] cells = chessGame.getCells();
 
-				for(int x = 7; x >= 0; x--) {
-					for(int y = 7; y >= 0; y--) {
+				for(int row = 7; row >= 0; row--) {
+					for(int col = 0; col < 8; col++) {
 
-						if((x + y) % 2 == 0)
+						double xLoc = (7-col) * getCheckerSize();
+						double yLoc = (row + 1) * getCheckerSize();
+
+						if((col + row) % 2 == 0)
 							graphics.setFill(Color.WHITE);
 						else
 							graphics.setFill(Color.LIGHTGRAY);
 
-						graphics.fillRect(x * checkerSize, y * checkerSize, checkerSize, checkerSize);
+						graphics.fillRect(xLoc, row *getCheckerSize(), getCheckerSize(), getCheckerSize());
 
-						if(!chessGame.isGamePaused()) {
+						ChessCell cell = cells[col][row];
 
-							ChessCell selCell = parseFEN[x][y];
+						if(cell.getChessPiece() != null) {
+							Character ch = cells[col][row].getChessPiece().getPieceChar();
 
-							if (selCell != null) {
+							graphics.setFont(fontChess);
+							String str = "" + ch;
 
-								ChessPiece selPiece = selCell.getChessPiece();
+							Text text = new Text(str);
+							text.setFont(fontChess);
 
-								if (selPiece != null) {
+							xLoc += ((( getCheckerSize()) - text.getLayoutBounds().getWidth()) / 2d) - 1d;
+							yLoc -= ((( getCheckerSize()) - text.getLayoutBounds().getHeight()) / 2d) + 1d;
 
-									Character selChar = selPiece.getPieceChar();
+							if (Character.isUpperCase(ch)) {
+								graphics.setFill(Color.GRAY);
 
-									if (selChar != null) {
-
-										Font f = fontChess;//Font.font("Consolas", FontWeight.BOLD, 22);
-
-										String str = "" + selChar;
-
-										Text text = new Text(str);
-										text.setFont(f);
-
-										double xLoc = (x) * checkerSize;
-										double yLoc = checkerSize + (y) * checkerSize;
-
-										xLoc += (((checkerSize) - text.getLayoutBounds().getWidth()) / 2d) - 1d;
-										yLoc -= (((checkerSize) - text.getLayoutBounds().getHeight()) / 2d) + 1d;
-
-										graphics.setFont(f);
-
-										if (Character.isUpperCase(selChar)) {
-											graphics.setFill(Color.GRAY);
-
-											graphics.fillText(str, xLoc + 1, yLoc + 1);
-											graphics.setFill(Color.BEIGE);
-											graphics.fillText(str, xLoc, yLoc);
-										}
-										else {
-											graphics.setFill(Color.BLACK);
-											graphics.fillText(str, xLoc, yLoc);
-										}
-									}
-								}
+								graphics.fillText(str, xLoc + 1, yLoc + 1);
+								graphics.setFill(Color.BEIGE);
+								graphics.fillText(str, xLoc, yLoc);
+							}
+							else {
+								graphics.setFill(Color.BLACK);
+								graphics.fillText(str, xLoc, yLoc);
 							}
 						}
 					}
