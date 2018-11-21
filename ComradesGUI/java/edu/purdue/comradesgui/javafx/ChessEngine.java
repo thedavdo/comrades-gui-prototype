@@ -86,7 +86,7 @@ public class ChessEngine extends Player {
 
 			//Listen for Response from 'isready'
 			if(cmdTokens[0].equals("readyok")) {
-				logInfo("eng < Ready for Cmd");
+				//logInfo("eng < Ready for Cmd");
 				isReady = true;
 				waitingForReady = false;
 
@@ -138,6 +138,13 @@ public class ChessEngine extends Player {
 				rawOptions.add(cmd);
 				logInfo("eng < Option Imported: " + cmd);
 			}
+
+			if(cmdTokens[0].equals("bestmove")) {
+				logInfo("eng < Best Move: " + cmdTokens[1]);
+				this.makeMove(new ChessMove(cmdTokens[1], chessGame));
+			}
+
+			//logInfo(cmd);
 		});
 	}
 
@@ -177,29 +184,33 @@ public class ChessEngine extends Player {
 
 		logInfo("Initializing Engine...");
 
-		AnimationTimer readerLoop = new AnimationTimer() {
 
-			public void handle(long now) {
-				try {
+		Thread readerThread = new Thread(() -> {
+			AnimationTimer readerLoop = new AnimationTimer() {
 
+				public void handle(long now) {
+					try {
 
-					String state = null;
+						String state = null;
 
-					if(waitingForReady)
-						state = bufReader.readLine();
+						if(bufReader.ready())
+							state = bufReader.readLine();
 
-					if(state != null) {
-						if(!state.isEmpty()) {
-							processResponse(state);
+						if(state != null) {
+							if(!state.isEmpty()) {
+								processResponse(state);
+							}
 						}
 					}
+					catch(Exception e) {
+						logInfo("!! Error Reading from bufReader !!");
+						e.printStackTrace();
+					}
 				}
-				catch(Exception e) {
-					logInfo("!! Error Reading from bufReader !!");
-					e.printStackTrace();
-				}
-			}
-		};
+			};
+			readerLoop.start();
+		});
+		readerThread.start();
 
 		AnimationTimer writerLoop = new AnimationTimer() {
 
@@ -213,8 +224,6 @@ public class ChessEngine extends Player {
 				}
 			}
 		};
-
-		readerLoop.start();
 		writerLoop.start();
 
 		pushCmdThroughInit = true;
@@ -230,9 +239,9 @@ public class ChessEngine extends Player {
 
 	@Override
 	public void prepareForGame() {
-		System.out.println("Trying to prepare...");
+		//System.out.println("Trying to prepare...");
 		if(this.chessGame != null) {
-			System.out.println("Valid chess engine...");
+			//System.out.println("Valid chess engine...");
 			requestCommand("ucinewgame", true);
 			attemptingNewGame = true;
 		}
@@ -240,8 +249,17 @@ public class ChessEngine extends Player {
 
 	@Override
 	public void requestToMakeMove() {
-		requestCommand("position fen " + chessGame.generateStringFEN(), true);
-		requestCommand("go ", true);
+
+		String buildFEN = "position fen " + chessGame.generateStringFEN();
+
+		if(isWhitePlayer())
+			buildFEN = buildFEN + " w";
+		else
+			buildFEN = buildFEN + " b";
+
+		requestCommand(buildFEN, true);
+		//requestCommand("setoption name MultiPV value 3", true);
+		requestCommand("go", true);
 	}
 
 	/**
@@ -302,7 +320,7 @@ public class ChessEngine extends Player {
 		if(!isReady) {
 			if(!waitingForReady) {
 				sendCommand("isready", true);
-				logInfo("Waiting for engine ready response");
+				//logInfo("Waiting for engine ready response");
 				waitingForReady = true;
 			}
 		}
