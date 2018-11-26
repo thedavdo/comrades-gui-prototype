@@ -3,7 +3,7 @@ package edu.purdue.comradesgui.javafx;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GoCommandBuilder {
+public class ChessEngineGoBuilder {
 
 	private List<ChessMove> searchMoves;
 
@@ -17,7 +17,7 @@ public class GoCommandBuilder {
 
 	private boolean infinite;
 
-	public GoCommandBuilder() {
+	public ChessEngineGoBuilder() {
 
 		ponder = false;
 
