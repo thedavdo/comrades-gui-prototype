@@ -29,7 +29,7 @@ public class ChessGame {
 	private BooleanProperty whiteTurn, blackTurn;
 
 	private ChessMoveListener chessMoveListener;
-	private CommandResponseListener engineInitListener;
+	private ChessEngineResponseListener engineInitListener;
 
 	public ChessGame() {
 		//setBoardFromFEN("8/8/2K5/2N1B3/2k5/8/5Q2/8");

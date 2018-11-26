@@ -20,7 +20,7 @@ public class ChessEngine extends ChessPlayer {
 
 	private StringBuffer logBuffer;
 
-	private List<CommandResponseListener> responseListeners;
+	private List<ChessEngineResponseListener> responseListeners;
 	private ObservableList<ChessEngineCommand> pushCmdList;
 	private ObservableList<ChessEngineCommand> reserveCmdList;
 
@@ -42,7 +42,7 @@ public class ChessEngine extends ChessPlayer {
 
 	private boolean attemptingNewGame = false;
 
-	private GoCommandBuilder goCommand;
+	private ChessEngineGoBuilder goCommand;
 
 	public ChessEngine() {
 
@@ -54,7 +54,7 @@ public class ChessEngine extends ChessPlayer {
 		pushCmdList = FXCollections.observableArrayList();
 		optionList = FXCollections.observableArrayList();
 
-		goCommand = new GoCommandBuilder();
+		goCommand = new ChessEngineGoBuilder();
 
 		initListener();
 	}
@@ -75,7 +75,7 @@ public class ChessEngine extends ChessPlayer {
 		return logBuffer;
 	}
 
-	public void addResponseListener(CommandResponseListener rl) {
+	public void addResponseListener(ChessEngineResponseListener rl) {
 		responseListeners.add(rl);
 	}
 
@@ -281,7 +281,7 @@ public class ChessEngine extends ChessPlayer {
 		String[] cmdTokens = in.split(" ");
 
 		if(cmdTokens.length > 0) {
-			for(CommandResponseListener rl : responseListeners) {
+			for(ChessEngineResponseListener rl : responseListeners) {
 				rl.onResponse(cmdTokens, in, this);
 			}
 		}
