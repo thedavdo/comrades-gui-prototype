@@ -17,7 +17,14 @@ public class ChessGame {
 	private BooleanProperty whiteReadyToStart, blackReadyToStart;
 	private BooleanProperty gameStarted;
 	private BooleanProperty gamePaused;
+
 	private BooleanProperty useTimers;
+
+	private BooleanProperty useTimerIncrement;
+	private BooleanProperty useTimerBuffer;
+
+	private long timerDuration;
+	private long timerDelay;
 
 	private BooleanProperty whiteTurn, blackTurn;
 
@@ -25,8 +32,9 @@ public class ChessGame {
 	private CommandResponseListener engineInitListener;
 
 	public ChessGame() {
-
+		//setBoardFromFEN("8/8/2K5/2N1B3/2k5/8/5Q2/8");
 		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+		//setBoardFromFEN("8/1p6/8/8/8/8/8/8");
 		//setBoardFromFEN("N7/P3pk1p/3p2p1/r4p2/8/4b2B/4P1KP/R7");
 
 		System.out.println(generateStringFEN());
@@ -45,12 +53,21 @@ public class ChessGame {
 
 		useTimers = new SimpleBooleanProperty();
 
+		useTimerIncrement = new SimpleBooleanProperty();
+		useTimerBuffer = new SimpleBooleanProperty();
+
 		deadBlack = FXCollections.observableArrayList();
 		deadWhite = FXCollections.observableArrayList();
 
 		gameStarted.setValue(false);
-		gamePaused.setValue(true);
-		useTimers.setValue(true);
+		gamePaused.setValue(false);
+
+		useTimers.setValue(false);
+		useTimerIncrement.setValue(false);
+		useTimerBuffer.setValue(false);
+
+		timerDuration = 300 * 1000;
+		timerDelay = 5000;
 
 		whiteReadyToStart.setValue(false);
 		blackReadyToStart.setValue(false);
@@ -61,7 +78,7 @@ public class ChessGame {
 		moveListener = (player, move) -> {
 
 			if(player == getCurrentTurnsPlayer()) {
-				ChessGame.this.makeMove(move);
+				makeMove(move);
 				cycleTurns();
 			}
 		};
@@ -75,12 +92,95 @@ public class ChessGame {
 		this.useTimers.setValue(useTimers);
 	}
 
+	public BooleanProperty getUseTimers() {
+		return useTimers;
+	}
+
+	public boolean isUsingTimers() {
+
+		return this.useTimers.getValue();
+	}
+
+	public void setTimerDuration(long duration) {
+		this.timerDuration = duration;
+		whiteTimer.setDurationLength(timerDuration);
+		blackTimer.setDurationLength(timerDuration);
+	}
+
+	public long getTimerDuration() {
+		return timerDuration;
+	}
+
 	public MoveTimer getWhiteTimer() {
 		return whiteTimer;
 	}
 
 	public MoveTimer getBlackTimer() {
 		return blackTimer;
+	}
+
+	public void setUseDelayAsIncrement(boolean useIncrement) {
+
+		if(timerDelay > -1) {
+			useTimerIncrement.setValue(useIncrement);
+
+			if(useIncrement) {
+				useTimerBuffer.setValue(false);
+				whiteTimer.setBufferTime(-1);
+				blackTimer.setBufferTime(-1);
+			}
+		}
+	}
+
+	public void setUseDelayAsBuffer(boolean useBuffer) {
+
+		if(timerDelay > -1) {
+			useTimerBuffer.setValue(useBuffer);
+			if(useBuffer) {
+				useTimerIncrement.setValue(false);
+				whiteTimer.setBufferTime(timerDelay);
+				blackTimer.setBufferTime(timerDelay);
+			}
+			else {
+				whiteTimer.setBufferTime(-1);
+				blackTimer.setBufferTime(-1);
+			}
+		}
+	}
+
+	public boolean isDelayAsBuffer() {
+		return useTimerBuffer.getValue();
+	}
+
+	public boolean isDelayAsIncrement() {
+		return useTimerIncrement.getValue();
+	}
+
+	public boolean isUsingTimerDelay() {
+		return isDelayAsBuffer() || isDelayAsIncrement();
+	}
+
+	public void setUseTimerDelay(boolean useDelay) {
+
+		if(useDelay) {
+			setUseDelayAsIncrement(true);
+			setUseDelayAsBuffer(false);
+		}
+		else {
+			setUseDelayAsIncrement(false);
+			setUseDelayAsBuffer(false);
+		}
+	}
+
+	public void setTimerDelay(long delay) {
+		this.timerDelay = delay;
+
+		if(!useTimerIncrement.getValue() && !useTimerBuffer.getValue())
+			setUseDelayAsIncrement(true);
+	}
+
+	public long getTimerDelay() {
+		return timerDelay;
 	}
 
 	public void setWhitePlayer(Player ply) {
@@ -145,6 +245,7 @@ public class ChessGame {
 		this.whitePlayer.prepareForGame();
 		this.blackPlayer.prepareForGame();
 		gameStarted.setValue(true);
+
 	}
 
 	public boolean isGameStarted() {
@@ -214,10 +315,14 @@ public class ChessGame {
 
 			if(useTimers.getValue()) {
 				if(whiteTurn.getValue()) {
+					if(useTimerIncrement.getValue())
+						whiteTimer.incrementTime(timerDelay);
 					whiteTimer.resume();
 					blackTimer.pause();
 				}
 				else {
+					if(useTimerIncrement.getValue())
+						blackTimer.incrementTime(timerDelay);
 					whiteTimer.pause();
 					blackTimer.resume();
 				}
@@ -240,18 +345,47 @@ public class ChessGame {
 
 		ChessCell fromCell = move.getFromCell();
 
-		if(fromCell != null) {
+		if(move.isMoveFound()) {
 
-			ChessPiece piece = fromCell.getChessPiece();
-			ChessCell toCell = move.getToCell();
+			if(fromCell != null) {
 
-			if(piece != null) {
-				if(toCell != null) {
-					fromCell.setChessPiece(null);
-					toCell.setChessPiece(piece);
-					return true;
+				ChessPiece fromPiece = fromCell.getChessPiece();
+				ChessCell toCell = move.getToCell();
+
+				if(fromPiece != null) {
+					if(toCell != null) {
+
+						ChessPiece toPiece = toCell.getChessPiece();
+
+						if(toPiece != null) {
+							if(toPiece.isWhiteTeam() != fromPiece.isWhiteTeam()) {
+								if(toPiece.isWhiteTeam())
+									deadWhite.add(toPiece);
+								else if(toPiece.isBlackTeam())
+									deadBlack.add(toPiece);
+							}
+							else {
+								System.out.println("same team...");
+								return false;
+							}
+						}
+
+						if(!move.getLeftover().isEmpty()) {
+							if(move.getLeftover().equals("q"))
+								fromPiece.setPieceType('q', true);
+						}
+
+						fromCell.setChessPiece(null);
+						toCell.setChessPiece(fromPiece);
+						fromPiece.incrementMoveCount();
+
+						return true;
+					}
 				}
 			}
+		}
+		else {
+			this.setGamePaused(true);
 		}
 
 		return false;
@@ -269,9 +403,6 @@ public class ChessGame {
 
 	public boolean isMoveLegal(ChessMove move) {
 
-		//ChessMove moveParsed = new ChessMove(move, this);
-
-
 		return true;
 	}
 
@@ -279,38 +410,52 @@ public class ChessGame {
 		return chessCells;
 	}
 
+	public boolean isValidFEN(String testFEN) {
+
+		if(testFEN == null)
+			return false;
+
+		if(testFEN.isEmpty())
+			return false;
+
+		return true;
+	}
+
 	public void setBoardFromFEN(String strFEN) {
 
-		//N7/P3pk1p/3p2p1/r4p2/8/4b2B/4P1KP/R7
-		ChessCell[][] parsed = new ChessCell[8][8];
 
-		String[] splitFEN = strFEN.split("/");
+		if(isValidFEN(strFEN)) {
 
-		for(int row = 0; row < 8; row++) {
-			for(int col = 0; col < 8; col++) {
-				parsed[col][row] = new ChessCell(col, row);
-			}
-		}
+			ChessCell[][] parsed = new ChessCell[8][8];
 
-		for(int row = 7; row >= 0; row--) {
+			String[] splitFEN = strFEN.split("/");
 
-			String rowFEN = splitFEN[7-row];
-
-			char[] rowCharArray = rowFEN.toCharArray();
-
-			int colIndex = 7;
-
-			for(Character pieceChar : rowCharArray) {
-				if(Character.isDigit(pieceChar))
-					colIndex -= Character.digit(pieceChar, 10);
-				else {
-					parsed[7-colIndex][row].setChessPiece(new ChessPiece(pieceChar));
-					colIndex--;
+			for(int row = 0; row < 8; row++) {
+				for(int col = 0; col < 8; col++) {
+					parsed[col][row] = new ChessCell(col, row);
 				}
 			}
-		}
 
-		chessCells = parsed;
+			for(int row = 7; row >= 0; row--) {
+
+				String rowFEN = splitFEN[7 - row];
+
+				char[] rowCharArray = rowFEN.toCharArray();
+
+				int colIndex = 7;
+
+				for(Character pieceChar : rowCharArray) {
+					if(Character.isDigit(pieceChar))
+						colIndex -= Character.digit(pieceChar, 10);
+					else {
+						parsed[7 - colIndex][row].setChessPiece(new ChessPiece(pieceChar));
+						colIndex--;
+					}
+				}
+			}
+
+			chessCells = parsed;
+		}
 	}
 
 	public String generateStringFEN() {
