@@ -77,8 +77,8 @@ public class FXComradesGUI extends Application {
 
 	private FXChessBoard chessBoard;
 
-	private ComboBox<Player> whitePlayerCombo;
-	private ComboBox<Player> blackPlayerCombo;
+	private ComboBox<ChessPlayer> whitePlayerCombo;
+	private ComboBox<ChessPlayer> blackPlayerCombo;
 	private CheckBox useTimerCheckBox;
 	private CheckBox useTimerDelay;
 	private TextField timerDuration;
@@ -125,8 +125,8 @@ public class FXComradesGUI extends Application {
 		mainGrid.setPadding(new Insets(16, 16, 16, 16));
 		mainGrid.setAlignment(Pos.TOP_LEFT);
 
-		Text blackComboText = new Text("Black Player: ");
-		Text whiteComboText = new Text("White Player: ");
+		Text blackComboText = new Text("Black ChessPlayer: ");
+		Text whiteComboText = new Text("White ChessPlayer: ");
 		Text versusText = new Text("vs.");
 		Text timerDurationText = new Text("Timer Duration: ");
 		Text timerIncrementText = new Text("Timer Delay: ");
@@ -248,7 +248,7 @@ public class FXComradesGUI extends Application {
 
 		gameSetupPane.setMinWidth(300);
 		gameSetupPane.setContent(gameSetupGrid);
-		gameSetupPane.setText("Player Setup");
+		gameSetupPane.setText("ChessPlayer Setup");
 		gameSetupPane.setCollapsible(false);
 		gameSetupPane.setAlignment(Pos.TOP_LEFT);
 
@@ -299,8 +299,8 @@ public class FXComradesGUI extends Application {
 		blackPlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateButtons());
 
 
-		Text blackTimerLabel = new Text("Black Player Clock:");
-		Text whiteTimerlabel = new Text("White Player Clock:");
+		Text blackTimerLabel = new Text("Black ChessPlayer Clock:");
+		Text whiteTimerlabel = new Text("White ChessPlayer Clock:");
 		Text blackTimerFeed = new Text("");
 		Text whiteTimerFeed = new Text("");
 
@@ -334,9 +334,9 @@ public class FXComradesGUI extends Application {
 
 				if(whitePlayerCombo.getValue() == blackPlayerCombo.getValue()) {
 
-					Player selected = whitePlayerCombo.getValue();
+					ChessPlayer selected = whitePlayerCombo.getValue();
 
-					if(selected.getPlayerType() == Player.PlayerType.ENGINE) {
+					if(selected.getPlayerType() == ChessPlayer.PlayerType.ENGINE) {
 						ChessEngine engine = (ChessEngine) selected;
 						chessGame.setWhitePlayer(engine);
 						chessGame.setBlackPlayer(engine.copyEngine());

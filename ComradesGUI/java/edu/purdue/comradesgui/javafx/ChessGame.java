@@ -10,9 +10,9 @@ public class ChessGame {
 	private ChessCell[][] chessCells;
 	private ObservableList<ChessPiece> deadWhite, deadBlack;
 
-	private Player whitePlayer, blackPlayer;
+	private ChessPlayer whitePlayer, blackPlayer;
 
-	private MoveTimer whiteTimer, blackTimer;
+	private ChessPlayerTimer whiteTimer, blackTimer;
 
 	private BooleanProperty whiteReadyToStart, blackReadyToStart;
 	private BooleanProperty gameStarted;
@@ -28,7 +28,7 @@ public class ChessGame {
 
 	private BooleanProperty whiteTurn, blackTurn;
 
-	private MoveListener moveListener;
+	private ChessMoveListener chessMoveListener;
 	private CommandResponseListener engineInitListener;
 
 	public ChessGame() {
@@ -39,8 +39,8 @@ public class ChessGame {
 
 		System.out.println(generateStringFEN());
 
-		whiteTimer = new MoveTimer();
-		blackTimer = new MoveTimer();
+		whiteTimer = new ChessPlayerTimer();
+		blackTimer = new ChessPlayerTimer();
 
 		gameStarted = new SimpleBooleanProperty();
 		gamePaused = new SimpleBooleanProperty();
@@ -75,7 +75,7 @@ public class ChessGame {
 		whiteTurn.setValue(false);
 		blackTurn.setValue(false);
 
-		moveListener = (player, move) -> {
+		chessMoveListener = (player, move) -> {
 
 			if(player == getCurrentTurnsPlayer()) {
 				makeMove(move);
@@ -111,11 +111,11 @@ public class ChessGame {
 		return timerDuration;
 	}
 
-	public MoveTimer getWhiteTimer() {
+	public ChessPlayerTimer getWhiteTimer() {
 		return whiteTimer;
 	}
 
-	public MoveTimer getBlackTimer() {
+	public ChessPlayerTimer getBlackTimer() {
 		return blackTimer;
 	}
 
@@ -183,27 +183,27 @@ public class ChessGame {
 		return timerDelay;
 	}
 
-	public void setWhitePlayer(Player ply) {
+	public void setWhitePlayer(ChessPlayer ply) {
 		this.whitePlayer = ply;
 		initPlayer(ply);
 	}
 
-	public void setBlackPlayer(Player ply) {
+	public void setBlackPlayer(ChessPlayer ply) {
 		this.blackPlayer = ply;
 		initPlayer(ply);
 	}
 
-	private void initPlayer(Player ply) {
+	private void initPlayer(ChessPlayer ply) {
 
 		if(ply instanceof ChessEngine) {
 			ChessEngine plyEngine = (ChessEngine) ply;
 			plyEngine.addResponseListener(engineInitListener);
 		}
-		ply.addMoveListener(this.moveListener);
+		ply.addMoveListener(this.chessMoveListener);
 		ply.setGame(this);
 	}
 
-	public void setPlayerReady(Player ply, boolean isReady) {
+	public void setPlayerReady(ChessPlayer ply, boolean isReady) {
 
 		if(whitePlayer == ply)
 			whiteReadyToStart.setValue(isReady);
@@ -222,15 +222,15 @@ public class ChessGame {
 		return whitePlayer.isReadyForGame() && blackPlayer.isReadyForGame();
 	}
 
-	public Player getWhitePlayer() {
+	public ChessPlayer getWhitePlayer() {
 		return whitePlayer;
 	}
 
-	public Player getBlackPlayer() {
+	public ChessPlayer getBlackPlayer() {
 		return blackPlayer;
 	}
 
-	public Player getCurrentTurnsPlayer() {
+	public ChessPlayer getCurrentTurnsPlayer() {
 
 		if(whiteTurn.getValue())
 			return whitePlayer;

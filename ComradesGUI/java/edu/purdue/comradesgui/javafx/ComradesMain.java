@@ -9,7 +9,7 @@ public class ComradesMain {
 
 	private ChessGame currentGame;
 
-	private ObservableList<Player> playerList;
+	private ObservableList<ChessPlayer> playerList;
 
 	public ComradesMain() {
 
@@ -17,11 +17,11 @@ public class ComradesMain {
 		currentGame = new ChessGame();
 	}
 
-	public ObservableList<Player> getPlayerList() {
+	public ObservableList<ChessPlayer> getPlayerList() {
 		return playerList;
 	}
 
-	public void addPlayer(Player ply) {
+	public void addPlayer(ChessPlayer ply) {
 		playerList.add(ply);
 	}
 

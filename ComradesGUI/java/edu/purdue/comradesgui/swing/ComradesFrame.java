@@ -795,7 +795,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 	public void startGame() {
 		switch (gameMode) {
 			case 1:
-				BOARD_PANEL.White = "Human Player";
+				BOARD_PANEL.White = "Human ChessPlayer";
 				BOARD_PANEL.Black = INSTANCES[0].name;
 				break;
 			case 2:
@@ -807,7 +807,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 				BOARD_PANEL.Black = INSTANCES[0].name;
 				break;
 			default:
-				BOARD_PANEL.White = "Human Player";
+				BOARD_PANEL.White = "Human ChessPlayer";
 				BOARD_PANEL.Black = INSTANCES[0].name;
 				break;
 		}
@@ -1006,7 +1006,7 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 	}
 
 	/**
-	 * Creates a box with White and Black Player timers
+	 * Creates a box with White and Black ChessPlayer timers
 	 *
 	 * @return Box container with two player move timers
 	 */
@@ -1146,24 +1146,24 @@ public class ComradesFrame implements MouseListener, ActionListener, FocusListen
 		whiteTime.pause();
 		blackTime.pause();
 		if (!BOARD_PANEL.POS.WTM) {
-			
+
 			// When the white side finishes their play, increment their timer and resume black timer
-			
+
 			whiteTime.incrementCount(); // increment white timer by value specified in options, default of 3 seconds
-			
+
 			whiteTime.updateLabel(); // update timer display to reflect increment immediately
-			
+
 			blackTime.resume();
 		}
 		else {
-			
+
 			// When the black side finishes their play, increment their timer and resume white timer
-			
+
 			blackTime.incrementCount(); // increment black timer by value specified in options, default of 3 seconds
-			
+
 			blackTime.updateLabel(); // update timer display to reflect increment immediately
-			
-			whiteTime.resume(); 
+
+			whiteTime.resume();
 		}
 
 	}

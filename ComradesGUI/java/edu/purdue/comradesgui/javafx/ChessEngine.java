@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChessEngine extends Player {
+public class ChessEngine extends ChessPlayer {
 
 	private String path;
 
@@ -21,11 +21,11 @@ public class ChessEngine extends Player {
 	private StringBuffer logBuffer;
 
 	private List<CommandResponseListener> responseListeners;
-	private ObservableList<EngineCommand> pushCmdList;
-	private ObservableList<EngineCommand> reserveCmdList;
+	private ObservableList<ChessEngineCommand> pushCmdList;
+	private ObservableList<ChessEngineCommand> reserveCmdList;
 
 	private String engineAuthor;
-	private ObservableList<EngineOption> optionList;
+	private ObservableList<ChessEngineOption> optionList;
 
 	private boolean loadedFromFile = false;
 	private boolean initialized = false;
@@ -137,7 +137,7 @@ public class ChessEngine extends Player {
 		//Listen for one of the Responses from 'uci'
 			if(cmdTokens[0].equals("option")) {
 
-				EngineOption engOption = new EngineOption(cmd, this);
+				ChessEngineOption engOption = new ChessEngineOption(cmd, this);
 				optionList.add(engOption);
 				logInfo("eng < Option Imported: " + engOption);
 			}
@@ -239,9 +239,9 @@ public class ChessEngine extends Player {
 		logInfo("...Initialized");
 	}
 
-	public EngineOption getEngineOption(String name) {
+	public ChessEngineOption getEngineOption(String name) {
 
-		for(EngineOption opt : optionList) {
+		for(ChessEngineOption opt : optionList) {
 			if(opt.getName().equalsIgnoreCase(name))
 				return opt;
 		}
@@ -294,7 +294,7 @@ public class ChessEngine extends Player {
 	 */
 	public void requestCommand(String cmd, boolean flush) {
 
-		EngineCommand engCmd = new EngineCommand(cmd, flush);
+		ChessEngineCommand engCmd = new ChessEngineCommand(cmd, flush);
 		boolean choose = initialized || pushCmdThroughInit;
 
 		if(choose)
