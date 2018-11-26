@@ -25,7 +25,7 @@ public class ChessEngine extends Player {
 	private ObservableList<EngineCommand> reserveCmdList;
 
 	private String engineAuthor;
-	private ObservableList<EngineOption> rawOptions;
+	private ObservableList<EngineOption> optionList;
 
 	private boolean loadedFromFile = false;
 	private boolean initialized = false;
@@ -52,7 +52,7 @@ public class ChessEngine extends Player {
 		logBuffer = new StringBuffer();
 		reserveCmdList = FXCollections.observableArrayList();
 		pushCmdList = FXCollections.observableArrayList();
-		rawOptions = FXCollections.observableArrayList();
+		optionList = FXCollections.observableArrayList();
 
 		goCommand = new GoCommandBuilder();
 
@@ -137,18 +137,15 @@ public class ChessEngine extends Player {
 		//Listen for one of the Responses from 'uci'
 			if(cmdTokens[0].equals("option")) {
 
-				EngineOption engOption = new EngineOption(cmd);
-				rawOptions.add(engOption);
+				EngineOption engOption = new EngineOption(cmd, this);
+				optionList.add(engOption);
 				logInfo("eng < Option Imported: " + engOption);
 			}
 
 			if(cmdTokens[0].equals("bestmove")) {
 				logInfo("eng < Best Move: " + cmdTokens[1]);
-				System.out.println(cmd);
 				this.makeMove(new ChessMove(cmdTokens[1], chessGame));
 			}
-
-			//logInfo(cmd);
 		});
 	}
 
@@ -240,6 +237,16 @@ public class ChessEngine extends Player {
 		pushCmdList.addAll(reserveCmdList);
 		initialized = true;
 		logInfo("...Initialized");
+	}
+
+	public EngineOption getEngineOption(String name) {
+
+		for(EngineOption opt : optionList) {
+			if(opt.getName().equalsIgnoreCase(name))
+				return opt;
+		}
+
+		return null;
 	}
 
 	@Override
