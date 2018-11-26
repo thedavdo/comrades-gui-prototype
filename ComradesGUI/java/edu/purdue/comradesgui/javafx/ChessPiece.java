@@ -94,6 +94,10 @@ public class ChessPiece {
 		return moveCount;
 	}
 
+	public void incrementMoveCount() {
+		moveCount++;
+	}
+
 	public String toString() {
 		return "Piece: " + pieceChar;
 	}
