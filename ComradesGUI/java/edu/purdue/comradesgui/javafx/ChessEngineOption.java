@@ -1,6 +1,6 @@
 package edu.purdue.comradesgui.javafx;
 
-public class EngineOption {
+public class ChessEngineOption {
 
 	private ChessEngine chessEngine;
 
@@ -15,7 +15,7 @@ public class EngineOption {
 
 	private int spinMin, spinMax, spinValue;
 
-	public EngineOption(String toParse, ChessEngine chessEngine) {
+	public ChessEngineOption(String toParse, ChessEngine chessEngine) {
 
 		this.chessEngine = chessEngine;
 		rawOptionFeed = toParse;

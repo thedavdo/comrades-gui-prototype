@@ -1,16 +1,16 @@
 package edu.purdue.comradesgui.javafx;
 
-public class EngineCommand {
+public class ChessEngineCommand {
 
 	private String cmdStr;
 
 	private boolean shouldFlush;
 
-	public EngineCommand(String cmd) {
+	public ChessEngineCommand(String cmd) {
 		this(cmd, true);
 	}
 
-	public EngineCommand(String cmd, boolean flush) {
+	public ChessEngineCommand(String cmd, boolean flush) {
 		cmdStr = cmd;
 		shouldFlush = flush;
 	}

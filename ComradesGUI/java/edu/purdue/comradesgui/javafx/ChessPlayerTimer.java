@@ -5,7 +5,7 @@ import javafx.beans.property.*;
 
 import java.util.concurrent.TimeUnit;
 
-public class MoveTimer extends AnimationTimer {
+public class ChessPlayerTimer extends AnimationTimer {
 
 
 	private long durationLength;
@@ -22,11 +22,11 @@ public class MoveTimer extends AnimationTimer {
 	private StringProperty timerDisplayProperty;
 	private BooleanProperty bufferCountDown;
 
-	public MoveTimer() {
+	public ChessPlayerTimer() {
 
 		durationLength = 300 * 1000;
 		remainingTime = durationLength;
-		bufferTime = -1;//3000;
+		bufferTime = -1;
 		prevTimeEvent = -1;
 
 		timerDisplayProperty = new SimpleStringProperty();

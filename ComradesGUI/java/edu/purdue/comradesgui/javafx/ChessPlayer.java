@@ -6,7 +6,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Player {
+public abstract class ChessPlayer {
 
 	public enum PlayerType {
 		ENGINE,
@@ -16,16 +16,16 @@ public abstract class Player {
 
 	protected ChessGame chessGame;
 
-	private List<MoveListener> moveListeners;
+	private List<ChessMoveListener> chessMoveListeners;
 	private PlayerType playerType;
 
 	private BooleanProperty readyForGame;
 
 	private String playerName;
 
-	public Player(PlayerType playerType) {
+	public ChessPlayer(PlayerType playerType) {
 		this.playerType = playerType;
-		this.moveListeners = new ArrayList<>();
+		this.chessMoveListeners = new ArrayList<>();
 		readyForGame = new SimpleBooleanProperty();
 		playerName = "unset playername";
 	}
@@ -46,7 +46,7 @@ public abstract class Player {
 		return (chessGame.getBlackPlayer() == this);
 	}
 
-	public MoveTimer getMoveTimer() {
+	public ChessPlayerTimer getMoveTimer() {
 
 		if(isWhitePlayer())
 			return chessGame.getWhiteTimer();
@@ -56,7 +56,7 @@ public abstract class Player {
 		return null;
 	}
 
-	public MoveTimer getOpponentMoveTimer() {
+	public ChessPlayerTimer getOpponentMoveTimer() {
 
 		if(isBlackPlayer())
 			return chessGame.getWhiteTimer();
@@ -66,9 +66,9 @@ public abstract class Player {
 		return null;
 	}
 
-	public void addMoveListener(MoveListener moveListener) {
+	public void addMoveListener(ChessMoveListener chessMoveListener) {
 
-		this.moveListeners.add(moveListener);
+		this.chessMoveListeners.add(chessMoveListener);
 	}
 
 	public BooleanProperty getReadyForGameProperty() {
@@ -103,7 +103,7 @@ public abstract class Player {
 	public void makeMove(ChessMove move) {
 
 		if(move != null) {
-			for(MoveListener ml : moveListeners) {
+			for(ChessMoveListener ml : chessMoveListeners) {
 				ml.moveEvent(this, move);
 			}
 		}
