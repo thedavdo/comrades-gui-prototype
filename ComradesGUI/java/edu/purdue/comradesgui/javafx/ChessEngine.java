@@ -3,7 +3,6 @@ package edu.purdue.comradesgui.javafx;
 import javafx.animation.AnimationTimer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -44,6 +43,8 @@ public class ChessEngine extends Player {
 
 	private boolean attemptingNewGame = false;
 
+	private GoCommandBuilder goCommand;
+
 	public ChessEngine() {
 
 		super(PlayerType.ENGINE);
@@ -53,6 +54,8 @@ public class ChessEngine extends Player {
 		reserveCmdList = FXCollections.observableArrayList();
 		pushCmdList = FXCollections.observableArrayList();
 		rawOptions = new ArrayList<>();
+
+		goCommand = new GoCommandBuilder();
 
 		initListener();
 	}
@@ -78,7 +81,7 @@ public class ChessEngine extends Player {
 	}
 
 	/**
-	 * Add our Listener to the ChessEngine to process the main items
+	 * Add ChesEngine's Listener to process the command responses
 	 */
 	private void initListener() {
 
@@ -178,6 +181,7 @@ public class ChessEngine extends Player {
 	public String getEnginePath() {
 		return path;
 	}
+
 	/**
 	 * Setup communications loop with the provided engine
 	 */
@@ -240,9 +244,7 @@ public class ChessEngine extends Player {
 
 	@Override
 	public void prepareForGame() {
-		//System.out.println("Trying to prepare...");
 		if(this.chessGame != null) {
-			//System.out.println("Valid chess engine...");
 			requestCommand("ucinewgame", true);
 			attemptingNewGame = true;
 		}
@@ -261,13 +263,13 @@ public class ChessEngine extends Player {
 		requestCommand(buildFEN, true);
 		//requestCommand("setoption name MultiPV value 3", true);
 
-		String goString = "go";
+//		String goString = "go";
+//
+//		//goString = goString + " movetime 3000";
+//		goString = goString + " wtime " + chessGame.getWhiteTimer().getRemainingTime();
+//		goString = goString + " btime " + chessGame.getBlackTimer().getRemainingTime();
 
-		goString = goString + " movetime 3000";
-		goString = goString + " wtime " + chessGame.getWhiteTimer().getRemainingTime();
-		goString = goString + " btime " + chessGame.getBlackTimer().getRemainingTime();
-
-		requestCommand(goString, true);
+		requestCommand(goCommand.getCommand(chessGame), true);
 	}
 
 	/**
@@ -364,7 +366,6 @@ public class ChessEngine extends Player {
 			}
 		}
 	}
-
 
 	public ChessEngine copyEngine() {
 
