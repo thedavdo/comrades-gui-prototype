@@ -12,7 +12,6 @@ import java.util.List;
 
 public class ChessEngine extends Player {
 
-	//private Process fileProcess;
 	private String path;
 
 	private Process fileProcess;
@@ -26,7 +25,7 @@ public class ChessEngine extends Player {
 	private ObservableList<EngineCommand> reserveCmdList;
 
 	private String engineAuthor;
-	private List<String> rawOptions;
+	private ObservableList<EngineOption> rawOptions;
 
 	private boolean loadedFromFile = false;
 	private boolean initialized = false;
@@ -53,7 +52,7 @@ public class ChessEngine extends Player {
 		logBuffer = new StringBuffer();
 		reserveCmdList = FXCollections.observableArrayList();
 		pushCmdList = FXCollections.observableArrayList();
-		rawOptions = new ArrayList<>();
+		rawOptions = FXCollections.observableArrayList();
 
 		goCommand = new GoCommandBuilder();
 
@@ -89,7 +88,6 @@ public class ChessEngine extends Player {
 
 			//Listen for Response from 'isready'
 			if(cmdTokens[0].equals("readyok")) {
-				//logInfo("eng < Ready for Cmd");
 				isReady = true;
 				waitingForReady = false;
 
@@ -138,8 +136,10 @@ public class ChessEngine extends Player {
 
 		//Listen for one of the Responses from 'uci'
 			if(cmdTokens[0].equals("option")) {
-				rawOptions.add(cmd);
-				logInfo("eng < Option Imported: " + cmd);
+
+				EngineOption engOption = new EngineOption(cmd);
+				rawOptions.add(engOption);
+				logInfo("eng < Option Imported: " + engOption);
 			}
 
 			if(cmdTokens[0].equals("bestmove")) {
@@ -261,13 +261,6 @@ public class ChessEngine extends Player {
 			buildFEN = buildFEN + " b";
 
 		requestCommand(buildFEN, true);
-		//requestCommand("setoption name MultiPV value 3", true);
-
-//		String goString = "go";
-//
-//		//goString = goString + " movetime 3000";
-//		goString = goString + " wtime " + chessGame.getWhiteTimer().getRemainingTime();
-//		goString = goString + " btime " + chessGame.getBlackTimer().getRemainingTime();
 
 		requestCommand(goCommand.getCommand(chessGame), true);
 	}
@@ -308,7 +301,7 @@ public class ChessEngine extends Player {
 	 * All other commands should use requestCommand
 	 */
 	private void sendCommand(String cmd, boolean flush) {
-		logInfo("cmd > " + cmd);
+		logInfo("gui > " + cmd);
 		bufWriter.println(cmd);
 		if(flush)
 			flushWriter();
@@ -330,7 +323,6 @@ public class ChessEngine extends Player {
 		if(!isReady) {
 			if(!waitingForReady) {
 				sendCommand("isready", true);
-				//logInfo("Waiting for engine ready response");
 				waitingForReady = true;
 			}
 		}
@@ -340,9 +332,7 @@ public class ChessEngine extends Player {
 	 * Flushes the BufferedWriter
 	 */
 	private void flushWriter() {
-		//logInfo("cmd > Flushing Writer...");
 		bufWriter.flush();
-		//logInfo("cmd < Flush finished.");
 	}
 
 	/**
