@@ -415,6 +415,13 @@ public class FXComradesGUI extends Application {
 			}
 		});
 
+		optionsButton.setOnAction((actionEvent) -> {
+
+			FXChessOptions fxMenu = new FXChessOptions(comradesMain);
+			fxMenu.start(new Stage());
+
+		});
+
 		setFENButton.setOnAction((actionEvent) -> {
 
 			TextInputDialog dialog = new TextInputDialog(comradesMain.getCurrentGame().generateStringFEN());
@@ -427,6 +434,8 @@ public class FXComradesGUI extends Application {
 
 			result.ifPresent((inFEN) -> comradesMain.getCurrentGame().setBoardFromFEN(inFEN));
 		});
+
+
 
 		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
