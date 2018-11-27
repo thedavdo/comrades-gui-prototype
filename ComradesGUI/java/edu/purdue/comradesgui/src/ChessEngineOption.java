@@ -14,16 +14,46 @@ public abstract class ChessEngineOption {
 		this.chessEngine = chessEngine;
 		rawOptionFeed = toParse;
 
-		int nameIndex = toParse.indexOf("name");
-		int typeIndex =  toParse.indexOf("type");
-		int defaultIndex = toParse.indexOf("default");
+		String[] split = toParse.split(" ");
 
-		name = toParse.substring(nameIndex + 5, typeIndex - 1);
+		for(int index = 0; index < split.length; index++) {
 
-		if(defaultIndex > 0)
-			type = toParse.substring(typeIndex + 5, defaultIndex - 1);
-		else
-			type = toParse.substring(typeIndex + 5);
+			String name = split[index];
+
+			if(isKeyword(name)) {
+
+				String value = "";
+
+				if(index != split.length - 1) {
+					for(int valIndex = index + 1; valIndex < split.length; valIndex++) {
+						String inVal = split[valIndex];
+						if(isKeyword(inVal))
+							break;
+						else
+							value += split[valIndex];
+					}
+				}
+
+				if(name.equalsIgnoreCase("name"))
+					this.name = value;
+				else if(name.equalsIgnoreCase("type"))
+					this.type = value;
+				else
+					parseInputString(name, value);
+
+			}
+		}
+	}
+
+	private boolean isKeyword(String inStr) {
+
+		String[] keywords = {"name", "type", "default", "min", "max"};
+
+		for(String keyword : keywords)
+			if(inStr.equalsIgnoreCase(keyword))
+				return true;
+
+		return false;
 	}
 
 	public String getName() {
@@ -43,4 +73,6 @@ public abstract class ChessEngineOption {
 
 		return out;
 	}
+
+	protected abstract void parseInputString(String name, String value);
 }
