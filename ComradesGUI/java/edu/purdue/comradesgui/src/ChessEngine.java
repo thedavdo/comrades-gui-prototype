@@ -139,9 +139,11 @@ public class ChessEngine extends ChessPlayer {
 			if(cmdTokens[0].equals("option")) {
 
 				ChessEngineOption engOption = generateOption(cmd);
-
 				optionList.add(engOption);
-				logInfo("eng < Option Imported: " + engOption);
+//				logInfo("eng < Option Imported: " + engOption);
+//
+//				if(engOption == null)
+//					logInfo("eng < Option: " + cmd);
 			}
 
 			if(cmdTokens[0].equals("bestmove")) {
@@ -241,7 +243,7 @@ public class ChessEngine extends ChessPlayer {
 		logInfo("...Initialized");
 	}
 
-	public ChessEngineOption getEngineOption(String name) {
+	public ChessEngineOption getOption(String name) {
 
 		for(ChessEngineOption opt : optionList) {
 			if(opt.getName().equalsIgnoreCase(name))
@@ -249,6 +251,10 @@ public class ChessEngine extends ChessPlayer {
 		}
 
 		return null;
+	}
+
+	public ObservableList<ChessEngineOption> getOptionList() {
+		return optionList;
 	}
 
 	@Override
@@ -370,15 +376,16 @@ public class ChessEngine extends ChessPlayer {
 
 		ChessEngineOption option = null;
 
-		int typeIndex =  cmd.indexOf("type");
-		int defaultIndex = cmd.indexOf("default");
+		String[] split = cmd.split(" ");
 
-		String type;
+		String type = "";
 
-		if(defaultIndex > 0)
-			type = cmd.substring(typeIndex + 5, defaultIndex - 1);
-		else
-			type = cmd.substring(typeIndex + 5);
+		for(int i = 0; i < split.length; i++) {
+			if(split[i].equalsIgnoreCase("type")) {
+				type = split[i + 1];
+				break;
+			}
+		}
 
 		if(type.equalsIgnoreCase("check"))
 			option = new ChessEngineOptionCheck(cmd, this);
