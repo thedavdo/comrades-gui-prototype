@@ -7,20 +7,16 @@ public class ChessEngineOptionSpin extends ChessEngineOption {
 
 	public ChessEngineOptionSpin(String toParse, ChessEngine chessEngine) {
 		super(toParse, chessEngine);
+	}
 
-		int defaultIndex = toParse.indexOf("default");
+	protected void parseInputString(String name, String value) {
 
-		if(defaultIndex > 0) {
-			if(type.equalsIgnoreCase("spin")) {
-
-				int minIndex = toParse.indexOf("min");
-				int maxIndex = toParse.indexOf("max");
-
-				spinValue = Integer.valueOf(toParse.substring(defaultIndex + 8, minIndex - 1));
-				spinMin = Integer.valueOf(toParse.substring(minIndex + 4, maxIndex - 1));
-				spinMax = Integer.valueOf(toParse.substring(maxIndex + 4));
-			}
-		}
+		if(name.equalsIgnoreCase("min"))
+			this.spinMin = Integer.valueOf(value);
+		else if(name.equalsIgnoreCase("max"))
+			this.spinMax = Integer.valueOf(value);
+		else if(name.equalsIgnoreCase("default"))
+			this.spinValue = Integer.valueOf(value);
 	}
 
 	public void setSpinValue(int value) {
@@ -36,6 +32,14 @@ public class ChessEngineOptionSpin extends ChessEngineOption {
 	public int getSpinValue() {
 
 		return spinValue;
+	}
+
+	public int getMinValue() {
+		return spinMin;
+	}
+
+	public int getMaxValue() {
+		return spinMax;
 	}
 
 	public String toString() {
