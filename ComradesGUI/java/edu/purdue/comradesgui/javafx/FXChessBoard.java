@@ -1,5 +1,7 @@
 package edu.purdue.comradesgui.javafx;
 
+import edu.purdue.comradesgui.src.ChessCell;
+import edu.purdue.comradesgui.src.ChessGame;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

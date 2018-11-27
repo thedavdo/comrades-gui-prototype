@@ -64,7 +64,7 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 	public void actionPerformed(ActionEvent act_evt) // JComboBox
 	{
 		String S = act_evt.getSource().getClass().getName();
-		if (S.equals("javax.swing.JButton")) {
+		if (S.equals("javax.old.JButton")) {
 			JButton B = (JButton) (act_evt.getSource()); // incur ?
 			if (act_evt.getActionCommand() == "ChangePath")
 				ChangePath();
@@ -73,7 +73,7 @@ public class CommunicatorOptionsFrameUCI implements ItemListener, ActionListener
 			if (act_evt.getActionCommand() == "DELETE")
 				COMM.DeleteCommunicator(OPTIONS_FRAME);
 		}
-		if (S.equals("javax.swing.JComboBox")) {
+		if (S.equals("javax.old.JComboBox")) {
 			JComboBox B = (JComboBox) (act_evt.getSource());
 			ChangeValue(act_evt.getActionCommand(), (String) (B.getSelectedItem()));
 		}

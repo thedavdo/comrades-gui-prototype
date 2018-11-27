@@ -1,5 +1,9 @@
 package edu.purdue.comradesgui.javafx;
 
+import edu.purdue.comradesgui.src.ChessEngine;
+import edu.purdue.comradesgui.src.ChessGame;
+import edu.purdue.comradesgui.src.ChessPlayer;
+import edu.purdue.comradesgui.src.ComradesMain;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -46,33 +50,44 @@ public class FXComradesGUI extends Application {
 
 	private void updateButtons() {
 
-		boolean enableStart = true;
+		if(!comradesMain.getCurrentGame().isGameStarted()) {
 
-		if(whitePlayerCombo.getValue() == null)
-			enableStart = false;
+			boolean enableStart = true;
 
-		if(blackPlayerCombo.getValue() == null)
-			enableStart = false;
+			if(whitePlayerCombo.getValue() == null)
+				enableStart = false;
 
-		if(useTimerCheckBox.isSelected()) {
-			timerDuration.setDisable(false);
-			useTimerDelay.setDisable(false);
+			if(blackPlayerCombo.getValue() == null)
+				enableStart = false;
+
+			if(useTimerCheckBox.isSelected()) {
+				timerDurationTextField.setDisable(false);
+				useTimerDelay.setDisable(false);
+				blackTimerFeed.setVisible(true);
+				whiteTimerFeed.setVisible(true);
+				blackTimerLabel.setVisible(true);
+				whiteTimerlabel.setVisible(true);
+			}
+			else {
+				timerDurationTextField.setDisable(true);
+				useTimerDelay.setDisable(true);
+				blackTimerFeed.setVisible(false);
+				whiteTimerFeed.setVisible(false);
+				blackTimerLabel.setVisible(false);
+				whiteTimerlabel.setVisible(false);
+			}
+
+			if(useTimerDelay.isSelected() && !useTimerDelay.isDisabled()) {
+				useDelayAsBuffer.setDisable(false);
+				timerDelayTextField.setDisable(false);
+			}
+			else {
+				useDelayAsBuffer.setDisable(true);
+				timerDelayTextField.setDisable(true);
+			}
+
+			startGameButton.setDisable(!enableStart);
 		}
-		else {
-			timerDuration.setDisable(true);
-			useTimerDelay.setDisable(true);
-		}
-
-		if(useTimerDelay.isSelected() && !useTimerDelay.isDisabled()) {
-			useDelayAsBuffer.setDisable(false);
-			timerDelayTextField.setDisable(false);
-		}
-		else {
-			useDelayAsBuffer.setDisable(true);
-			timerDelayTextField.setDisable(true);
-		}
-
-		startGameButton.setDisable(!enableStart);
 	}
 
 	private FXChessBoard chessBoard;
@@ -81,10 +96,15 @@ public class FXComradesGUI extends Application {
 	private ComboBox<ChessPlayer> blackPlayerCombo;
 	private CheckBox useTimerCheckBox;
 	private CheckBox useTimerDelay;
-	private TextField timerDuration;
+	private TextField timerDurationTextField;
 	private CheckBox useDelayAsBuffer;
 	private TextField timerDelayTextField;
 	private Button startGameButton;
+
+	private Text blackTimerLabel = new Text("Black ChessPlayer Clock:");
+	private Text whiteTimerlabel = new Text("White ChessPlayer Clock:");
+	private Text blackTimerFeed = new Text("");
+	private Text whiteTimerFeed = new Text("");
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -133,19 +153,28 @@ public class FXComradesGUI extends Application {
 		whitePlayerCombo = new ComboBox<>();
 		blackPlayerCombo = new ComboBox<>();
 		useTimerCheckBox = new CheckBox("Use Timers");
-		timerDuration = new TextField();
+		timerDurationTextField = new TextField();
 		useTimerDelay = new CheckBox("Enable Delay");
 		useDelayAsBuffer = new CheckBox("Use as Buffer?");
 		timerDelayTextField = new TextField();
+		blackTimerFeed = new Text("");
+		whiteTimerFeed = new Text("");
+		blackTimerLabel = new Text("Black ChessPlayer Clock:");
+		whiteTimerlabel = new Text("White ChessPlayer Clock:");
 
 		startGameButton = new Button("Start Game!");
 
 		useTimerCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
 
 			if(newValue) {
-				timerDuration.textProperty().setValue("" + comradesMain.getCurrentGame().getTimerDuration());
-			}
+				blackTimerFeed.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getBlackTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+				blackTimerFeed.textProperty().bind(comradesMain.getCurrentGame().getBlackTimer().getTimerDisplayProperty());
+				whiteTimerFeed.fillProperty().bind(Bindings.when(comradesMain.getCurrentGame().getWhiteTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
+				whiteTimerFeed.textProperty().bind(comradesMain.getCurrentGame().getWhiteTimer().getTimerDisplayProperty());
 
+				timerDurationTextField.textProperty().setValue("" + comradesMain.getCurrentGame().getTimerDuration());
+			}
+			comradesMain.getCurrentGame().setUseTimers(newValue);
 			updateButtons();
 		}));
 
@@ -154,14 +183,18 @@ public class FXComradesGUI extends Application {
 			if(newValue) {
 				timerDelayTextField.textProperty().setValue("" + comradesMain.getCurrentGame().getTimerDelay());
 			}
-
+			comradesMain.getCurrentGame().setUseTimerDelay(newValue);
 			updateButtons();
 		}));
 
-		timerDuration.textProperty().addListener(((observable, oldValue, newValue) -> {
+		useDelayAsBuffer.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+			comradesMain.getCurrentGame().setUseDelayAsBuffer(newValue);
+			updateButtons();
+		}));
+
+		timerDurationTextField.textProperty().addListener(((observable, oldValue, newValue)  -> {
 
 			if(newValue != null) {
-
 				if(!newValue.isEmpty()) {
 
 					String[] split = newValue.split(":");
@@ -173,25 +206,54 @@ public class FXComradesGUI extends Application {
 						long minutes = TimeUnit.MILLISECONDS.toMinutes(lVal) % 60;
 						long seconds = TimeUnit.MILLISECONDS.toSeconds(lVal) % 60;
 
-						timerDuration.setText(hours + ":" + minutes + ":" + seconds);
+						timerDurationTextField.setText(hours + ":" + minutes + ":" + seconds);
 					}
 					else if(split.length == 3) {
-						for(int i = 0; i < 3; i++) {
-							String str = split[i];
-							if(!str.matches("\\d*")) {
-								timerDuration.setText(oldValue);
-								break;
-							}
+
+						boolean goodFormat = true;
+
+						long hoursVal = -1;
+						long minutesVal = -1;
+						long secondsVal = -1;
+
+						if(!split[0].matches("\\d*"))
+							goodFormat = false;
+						else
+							hoursVal = TimeUnit.HOURS.toMillis(Long.parseLong(split[0]));
+
+						if(!split[1].matches("\\d*"))
+							goodFormat = false;
+						else
+							minutesVal = TimeUnit.MINUTES.toMillis(Long.parseLong(split[1]));
+
+						if(!split[2].matches("\\d*"))
+							goodFormat = false;
+						else
+							secondsVal = TimeUnit.SECONDS.toMillis(Long.parseLong(split[2]));
+
+						if(goodFormat) {
+
+							long totalValue = hoursVal + minutesVal + secondsVal;
+
+							long minutesNew = TimeUnit.MILLISECONDS.toMinutes(minutesVal);
+							long secondsNew = TimeUnit.MILLISECONDS.toSeconds(secondsVal);
+
+							if(secondsNew < 60 && minutesNew < 60)
+								comradesMain.getCurrentGame().setTimerDuration(totalValue);
+							else
+								timerDurationTextField.setText(totalValue + "");
 						}
+						else
+							timerDurationTextField.setText(oldValue);
 					}
 					else
-						timerDuration.setText(oldValue);
+						timerDurationTextField.setText(oldValue);
 				}
 				else
-					timerDuration.setText(oldValue);
+					timerDurationTextField.setText(oldValue);
 			}
 			else
-				timerDuration.setText(oldValue);
+				timerDurationTextField.setText(oldValue);
 
 			updateButtons();
 		}));
@@ -199,7 +261,6 @@ public class FXComradesGUI extends Application {
 		timerDelayTextField.textProperty().addListener(((observable, oldValue, newValue) -> {
 
 			if(newValue != null) {
-
 				if(!newValue.isEmpty()) {
 
 					String[] split = newValue.split(":");
@@ -214,13 +275,41 @@ public class FXComradesGUI extends Application {
 						timerDelayTextField.setText(hours + ":" + minutes + ":" + seconds);
 					}
 					else if(split.length == 3) {
-						for(int i = 0; i < 3; i++) {
-							String str = split[i];
-							if(!str.matches("\\d*")) {
-								timerDelayTextField.setText(oldValue);
-								break;
-							}
+
+						boolean goodFormat = true;
+
+						long hoursVal = -1;
+						long minutesVal = -1;
+						long secondsVal = -1;
+
+						if(!split[0].matches("\\d*"))
+							goodFormat = false;
+						else
+							hoursVal = TimeUnit.HOURS.toMillis(Long.parseLong(split[0]));
+
+						if(!split[1].matches("\\d*"))
+							goodFormat = false;
+						else
+							minutesVal = TimeUnit.MINUTES.toMillis(Long.parseLong(split[1]));
+
+						if(!split[2].matches("\\d*"))
+							goodFormat = false;
+						else
+							secondsVal = TimeUnit.SECONDS.toMillis(Long.parseLong(split[2]));
+
+						if(goodFormat) {
+							long totalValue = hoursVal + minutesVal + secondsVal;
+
+							long minutesNew = TimeUnit.MILLISECONDS.toMinutes(minutesVal);
+							long secondsNew = TimeUnit.MILLISECONDS.toSeconds(secondsVal);
+
+							if(secondsNew < 60 && minutesNew < 60)
+								comradesMain.getCurrentGame().setTimerDelay(totalValue);
+							else
+								timerDelayTextField.setText(totalValue + "");
 						}
+						else
+							timerDelayTextField.setText(oldValue);
 					}
 					else
 						timerDelayTextField.setText(oldValue);
@@ -259,7 +348,7 @@ public class FXComradesGUI extends Application {
 		gameSetupGrid.add(whitePlayerCombo, 1, 2);
 		gameSetupGrid.add(useTimerCheckBox, 0, 3);
 		gameSetupGrid.add(timerDurationText, 0, 4);
-		gameSetupGrid.add(timerDuration, 1, 4);
+		gameSetupGrid.add(timerDurationTextField, 1, 4);
 		gameSetupGrid.add(useTimerDelay, 0, 5);
 		gameSetupGrid.add(useDelayAsBuffer, 1, 5);
 		gameSetupGrid.add(timerIncrementText, 0, 6);
@@ -276,9 +365,8 @@ public class FXComradesGUI extends Application {
 				ChessEngine engine = new ChessEngine();
 				engine.loadFromPath(file.getAbsolutePath());
 
-				if(engine.hasLoadedFromFile()) {
+				if(engine.hasLoadedFromFile())
 					comradesMain.addPlayer(engine);
-				}
 			}
 		});
 
@@ -295,14 +383,18 @@ public class FXComradesGUI extends Application {
 			result.ifPresent((inFEN) -> comradesMain.getCurrentGame().setBoardFromFEN(inFEN));
 		});
 
-		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateButtons());
-		blackPlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateButtons());
+		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			comradesMain.getCurrentGame().setWhitePlayer(newValue);
+			updateButtons();
+		});
+
+		blackPlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			comradesMain.getCurrentGame().setBlackPlayer(newValue);
+			updateButtons();
+		});
 
 
-		Text blackTimerLabel = new Text("Black ChessPlayer Clock:");
-		Text whiteTimerlabel = new Text("White ChessPlayer Clock:");
-		Text blackTimerFeed = new Text("");
-		Text whiteTimerFeed = new Text("");
+
 
 		TitledPane gameStatusPane = new TitledPane();
 		gameStatusPane.setText("Game Info");
@@ -324,69 +416,28 @@ public class FXComradesGUI extends Application {
 
 		gameStatusPane.setContent(gameStatusGrid);
 
-
-
 		startGameButton.setOnAction((actionEvent) -> {
 
 			ChessGame chessGame = comradesMain.getCurrentGame();
 
 			if(!chessGame.isGameStarted()) {
 
-				if(whitePlayerCombo.getValue() == blackPlayerCombo.getValue()) {
-
-					ChessPlayer selected = whitePlayerCombo.getValue();
-
-					if(selected.getPlayerType() == ChessPlayer.PlayerType.ENGINE) {
-						ChessEngine engine = (ChessEngine) selected;
-						chessGame.setWhitePlayer(engine);
-						chessGame.setBlackPlayer(engine.copyEngine());
-					}
-				}
-				else {
-					chessGame.setWhitePlayer(whitePlayerCombo.getValue());
-					chessGame.setBlackPlayer(blackPlayerCombo.getValue());
-				}
-
-				if(useTimerCheckBox.isSelected()) {
-
-					String[] durationSplit = timerDuration.getText().split(":");
-
-					long durationMilli = 0;
-
-					durationMilli += TimeUnit.HOURS.toMillis(Long.valueOf(durationSplit[0]));
-					durationMilli += TimeUnit.MINUTES.toMillis(Long.valueOf(durationSplit[1]));
-					durationMilli += TimeUnit.SECONDS.toMillis(Long.valueOf(durationSplit[2]));
-
-					chessGame.setUseTimers(true);
-					chessGame.setTimerDuration(durationMilli);
-
-					if(useTimerDelay.isSelected()) {
-
-						String[] delaySplit = timerDelayTextField.getText().split(":");
-
-						long delayMilli = 0;
-
-						delayMilli += TimeUnit.HOURS.toMillis(Long.valueOf(delaySplit[0]));
-						delayMilli += TimeUnit.MINUTES.toMillis(Long.valueOf(delaySplit[1]));
-						delayMilli += TimeUnit.SECONDS.toMillis(Long.valueOf(delaySplit[2]));
-
-						chessGame.setTimerDelay(delayMilli);
-
-						if(useDelayAsBuffer.isSelected())
-							chessGame.setUseDelayAsBuffer(true);
-					}
-				}
-
-				//chessGame.setTimerDelay(3000);
-				//chessGame.setUseDelayAsIncrement(true);
+//				if(whitePlayerCombo.getValue() == blackPlayerCombo.getValue()) {
+//
+//					ChessPlayer selected = whitePlayerCombo.getValue();
+//
+//					if(selected.getPlayerType() == ChessPlayer.PlayerType.ENGINE) {
+//						ChessEngine engine = (ChessEngine) selected;
+//						chessGame.setWhitePlayer(engine);
+//						chessGame.setBlackPlayer(engine.copyEngine());
+//					}
+//				}
+//				else {
+//					chessGame.setWhitePlayer(whitePlayerCombo.getValue());
+//					chessGame.setBlackPlayer(blackPlayerCombo.getValue());
+//				}
 
 				chessGame.startGame();
-
-				blackTimerFeed.fillProperty().bind(Bindings.when(chessGame.getBlackTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
-				blackTimerFeed.textProperty().bind(chessGame.getBlackTimer().getTimerDisplayProperty());
-
-				whiteTimerFeed.fillProperty().bind(Bindings.when(chessGame.getWhiteTimer().getBufferCountDownProperty()).then(Color.GREEN).otherwise(Color.DODGERBLUE));
-				whiteTimerFeed.textProperty().bind(chessGame.getWhiteTimer().getTimerDisplayProperty());
 
 				startGameButton.setText("Started");
 

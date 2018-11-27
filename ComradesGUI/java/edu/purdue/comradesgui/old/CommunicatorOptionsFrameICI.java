@@ -1,13 +1,12 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.old;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.io.File;
+import java.util.StringTokenizer;
 
 public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener, ChangeListener, KeyListener {
 	JTextField PATH_AREA;
@@ -20,7 +19,7 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 	}
 
 	public void ChangePath() {
-		JFileChooser JFC = new JFileChooser(System.getProperty("user.dir")); // HACK
+		JFileChooser JFC = new JFileChooser(System.getProperty("user.dir"));
 		int Value = JFC.showOpenDialog(JFC);
 		if (Value != JFileChooser.APPROVE_OPTION)
 			return;
@@ -196,7 +195,8 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 				B.setSelected(true);
 			else
 				B.setSelected(false);
-		} else
+		}
+		else
 			B.setSelected(COMM.OPT_VALUE[i].equals("true"));
 		B.addItemListener(this);
 		B.setAlignmentX(0.0f);
@@ -276,7 +276,7 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 				return;
 			File FILE = JFC.getSelectedFile();
 			if (!FILE.exists()) {
-				COMM.CF.TellInfo("File does not exist");
+				COMM.frame.TellInfo("File does not exist");
 				return;
 			}
 			ChangeValue(NAME, FILE.getAbsolutePath());
@@ -300,12 +300,12 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 			JButton X = new JButton("Change");
 			X.setActionCommand("Change");
 			X.addActionListener(this);
-			X.setMargin(new Insets(1, 5, 1, 5)); // HACK
+			X.setMargin(new Insets(1, 5, 1, 5));
 			B.add(X);
 			JButton Y = new JButton("NULL");
 			Y.setActionCommand("NULL");
 			Y.addActionListener(this);
-			Y.setMargin(new Insets(1, 5, 1, 5)); // HACK
+			Y.setMargin(new Insets(1, 5, 1, 5));
 			B.add(Y);
 			B.setAlignmentX(0.0f);
 			return B;
@@ -355,7 +355,7 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 				return;
 			}
 			if (act_evt.getActionCommand().equals("ADD")) {
-				Box B = (Box) (BOX.getParent()); // HACK
+				Box B = (Box) (BOX.getParent());
 				B.add(new MultiButton("NULL", NAME, B.getComponentCount()).MakeBox(false));
 				B.revalidate();
 				B.repaint();
@@ -372,7 +372,7 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 				return;
 			File FILE = JFC.getSelectedFile();
 			if (!FILE.exists()) {
-				COMM.CF.TellInfo("File does not exist");
+				COMM.frame.TellInfo("File does not exist");
 				return;
 			}
 			ChangeMultiValue(NAME, FILE.getAbsolutePath(), LOC);
@@ -396,18 +396,18 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 			JButton X = new JButton("Change");
 			X.setActionCommand("Change");
 			X.addActionListener(this);
-			X.setMargin(new Insets(1, 5, 1, 5)); // HACK
+			X.setMargin(new Insets(1, 5, 1, 5));
 			B.add(X);
 			JButton Y = new JButton("NULL");
 			Y.setActionCommand("NULL");
 			Y.addActionListener(this);
-			Y.setMargin(new Insets(1, 5, 1, 5)); // HACK
+			Y.setMargin(new Insets(1, 5, 1, 5));
 			B.add(Y);
 			if (ADD) {
 				JButton Z = new JButton("ADD");
 				Z.setActionCommand("ADD");
 				Z.addActionListener(this);
-				Z.setMargin(new Insets(1, 5, 1, 5)); // HACK
+				Z.setMargin(new Insets(1, 5, 1, 5));
 				B.add(Z);
 			}
 			B.setAlignmentX(0.0f);
@@ -427,7 +427,7 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 			COMM.OPT_TYPE[i] = new String("directory-multi-reset");
 			COMM.OPT_VALUE[i] = new String(DEFAULT);
 		}
-		StringTokenizer ST = new StringTokenizer(DEFAULT, "|"); // HACK
+		StringTokenizer ST = new StringTokenizer(DEFAULT, "|");
 		int k = 0;
 		MultiButton MB = new MultiButton(ST.nextToken(), NAME, k++);
 		BY.add(MB.MakeBox(true));
@@ -498,10 +498,10 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 		if (!COMM.IS_NEW)
 			def = Integer.valueOf(COMM.OPT_VALUE[i]);
 		if (def > max)
-			def = new Integer(max); // HACK
+			def = (max);
 		if (def < min)
-			def = new Integer(min); // HACK
-		SpinnerNumberModel MODEL = new SpinnerNumberModel(def, min, max, new Integer(1));
+			def = (min);
+		SpinnerNumberModel MODEL = new SpinnerNumberModel(def, min, max, Integer.valueOf(1));
 		JSpinner J = new JSpinner(MODEL);
 		J.setName(NAME);
 		J.addChangeListener(this);
@@ -520,10 +520,10 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 		BOX.add(B);
 		if (COMM.IS_NEW) {
 			if (BINARY)
-				COMM.OPT_TYPE[i] = new String("binary");
+				COMM.OPT_TYPE[i] = ("binary");
 			else
-				COMM.OPT_TYPE[i] = new String("spin");
-			COMM.OPT_VALUE[i] = new String(def.toString()); // HACK
+				COMM.OPT_TYPE[i] = ("spin");
+			COMM.OPT_VALUE[i] = (def.toString());
 		}
 	}
 
@@ -541,9 +541,9 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 			String TYPE = ST.nextToken();
 			int w = TABBED.indexOfTab(SUB_CLASS);
 			if (w == -1)
-				continue; // HACK
+				continue;
 			JScrollPane JSP = (JScrollPane) (TABBED.getComponentAt(w));
-			Box BOX = (Box) (JSP.getViewport().getView()); // HACK
+			Box BOX = (Box) (JSP.getViewport().getView());
 			if (TYPE.equals("button"))
 				ButtonBox(BOX, COMM.OPT_NAME[i], i);
 			if (TYPE.equals("check"))
@@ -588,7 +588,7 @@ public class CommunicatorOptionsFrameICI implements ItemListener, ActionListener
 			S = "";
 		else
 			S = COMM.id;
-		OPTIONS_FRAME = new JFrame("Default Options " + S); // HACK
+		OPTIONS_FRAME = new JFrame("Default Options " + S);
 		AddOptions_ICI(OPTIONS_FRAME);
 		OPTIONS_FRAME.setBackground(Color.lightGray);
 		OPTIONS_FRAME.pack();

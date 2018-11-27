@@ -1,13 +1,11 @@
-package edu.purdue.comradesgui;
+package edu.purdue.comradesgui.old;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.lang.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
+import java.util.StringTokenizer;
 
 public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionListener, ChangeListener {
 	CommunicatorInstance CI;
@@ -58,7 +56,8 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 					StringTokenizer ST = new StringTokenizer(CI.OPT_VALUE[i], "|");
 					while (ST.hasMoreTokens())
 						CI.SendTo("setoption name " + CI.OPT_NAME[i] + " value " + ST.nextToken(), false);
-				} else
+				}
+				else
 					CI.SendTo("setoption name " + CI.OPT_NAME[i] + " value " + CI.OPT_VALUE[i], false);
 			}
 		for (int i = 0; i < opt_count; i++) {
@@ -67,7 +66,7 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 			if (CI.OPT_NAME[i].equals("MultiCentiPawnPV") || CI.OPT_NAME[i].equals("MultiPV_cp"))
 				CI.MultiPV_Centi_Pawn = Integer.valueOf(CI.OPT_VALUE[i]).intValue();
 		}
-		CI.IP.RenewInstancePanel();
+		CI.instancePanel.RenewInstancePanel();
 		CI.SendTo("isready", true);
 		CI.WaitForThroughPut("readyok", -1, true);
 		OPTIONS_FRAME.setVisible(false);
@@ -85,16 +84,16 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 		CI.SleepFor(100);
 		CI.process.destroy();
 		CI.process = null; // ensure
-		for (i = 0; i < CI.CF.instances; i++)
-			if (CI == CI.CF.INSTANCES[i])
+		for (i = 0; i < CI.frame.instances; i++)
+			if (CI == CI.frame.INSTANCES[i])
 				break;
-		for (int j = i; j < CI.CF.instances - 1; j++)
-			CI.CF.INSTANCES[j] = CI.CF.INSTANCES[j + 1];
+		for (int j = i; j < CI.frame.instances - 1; j++)
+			CI.frame.INSTANCES[j] = CI.frame.INSTANCES[j + 1];
 		CI.DisMissInstance();
 	}
 
 	public void ButtonPush(String S) {
-		CI.SendTo("setoption name " + S + " value true", true); // HACK
+		CI.SendTo("setoption name " + S + " value true", true);
 		if (S.equals("RobboInformatory"))
 			new RobboInformatoryFrame(CI);
 	}
@@ -243,7 +242,8 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 				else
 					break;
 			}
-		} else {
+		}
+		else {
 			String X = new String(STR);
 			int s = X.indexOf("var ");
 			int t = X.indexOf("default ");
@@ -310,7 +310,8 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 			min = Integer.valueOf(ST.nextToken());
 			max = Integer.valueOf(ST.nextToken());
 			def = Integer.valueOf(ST.nextToken());
-		} else {
+		}
+		else {
 			while (ST.hasMoreTokens()) {
 				String S = ST.nextToken();
 				Integer m = Integer.valueOf(ST.nextToken());
@@ -324,10 +325,10 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 		}
 		def = Integer.valueOf(CI.OPT_VALUE[i]);
 		if (def > max)
-			def = new Integer(max); // HACK
+			def = (max);
 		if (def < min)
-			def = new Integer(min); // HACK
-		SpinnerNumberModel MODEL = new SpinnerNumberModel(def, min, max, new Integer(1));
+			def = (min);
+		SpinnerNumberModel MODEL = new SpinnerNumberModel(def, min, max, Integer.valueOf(1));
 		JSpinner J = new JSpinner(MODEL);
 		J.setName(NAME);
 		J.addChangeListener(this);
