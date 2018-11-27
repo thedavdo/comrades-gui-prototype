@@ -7,16 +7,12 @@ public class ChessEngineOptionCheck extends ChessEngineOption {
 
 	public ChessEngineOptionCheck(String toParse, ChessEngine chessEngine) {
 		super(toParse, chessEngine);
+	}
 
-		int defaultIndex = toParse.indexOf("default");
+	protected void parseInputString(String name, String value) {
 
-		if(defaultIndex > 0) {
-			if(type.equalsIgnoreCase("check")) {
-
-				int typeIndex = toParse.indexOf("type");
-				checkValue = Boolean.valueOf(toParse.substring(typeIndex + 5));
-			}
-		}
+		if(name.equalsIgnoreCase("check"))
+			this.checkValue = Boolean.valueOf(value);
 	}
 
 	public void setChecked(boolean check) {
