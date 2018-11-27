@@ -90,6 +90,51 @@ public class FXComradesGUI extends Application {
 		}
 	}
 
+	private boolean updatePlayerSelection(ComboBox<ChessPlayer> inCombo, ComboBox<ChessPlayer> otherCombo) {
+
+		boolean success = true;
+
+		ChessGame chessGame = comradesMain.getCurrentGame();
+
+		if(inCombo.getValue() != null) {
+
+			if(otherCombo.getValue() != null) {
+
+				if(inCombo.getValue() == otherCombo.getValue()) {
+
+					ChessPlayer selected = inCombo.getValue();
+
+					if(selected.getPlayerType() == ChessPlayer.PlayerType.ENGINE) {
+
+						String msg = "You selected the same engine to play against itself, a copy of it must be added to continue.";
+						Alert promptDuplicate = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK, ButtonType.CANCEL);
+						promptDuplicate.setHeaderText("Duplicate Engine?");
+						promptDuplicate.setTitle("Duplicate Engine?");
+						promptDuplicate.showAndWait();
+
+						if(promptDuplicate.getResult() == ButtonType.OK) {
+							ChessEngine engine = (ChessEngine) selected;
+							ChessEngine engineCopy = engine.copyEngine();
+
+							comradesMain.addPlayer(engineCopy);
+							inCombo.setValue(engineCopy);
+						}
+						else
+							success = false;
+					}
+				}
+
+			}
+		}
+
+		if(inCombo == blackPlayerCombo)
+			chessGame.setBlackPlayer(inCombo.getValue());
+		else
+			chessGame.setWhitePlayer(inCombo.getValue());
+
+		return success;
+	}
+
 	private FXChessBoard chessBoard;
 
 	private ComboBox<ChessPlayer> whitePlayerCombo;
@@ -384,17 +429,22 @@ public class FXComradesGUI extends Application {
 		});
 
 		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			comradesMain.getCurrentGame().setWhitePlayer(newValue);
-			updateButtons();
+
+			boolean success = updatePlayerSelection(whitePlayerCombo, blackPlayerCombo);
+			if(!success)
+				whitePlayerCombo.setValue(oldValue);
+			else
+				updateButtons();
 		});
 
 		blackPlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			comradesMain.getCurrentGame().setBlackPlayer(newValue);
-			updateButtons();
+
+			boolean success = updatePlayerSelection(blackPlayerCombo, whitePlayerCombo);
+			if(!success)
+				blackPlayerCombo.setValue(oldValue);
+			else
+				updateButtons();
 		});
-
-
-
 
 		TitledPane gameStatusPane = new TitledPane();
 		gameStatusPane.setText("Game Info");
@@ -422,25 +472,9 @@ public class FXComradesGUI extends Application {
 
 			if(!chessGame.isGameStarted()) {
 
-//				if(whitePlayerCombo.getValue() == blackPlayerCombo.getValue()) {
-//
-//					ChessPlayer selected = whitePlayerCombo.getValue();
-//
-//					if(selected.getPlayerType() == ChessPlayer.PlayerType.ENGINE) {
-//						ChessEngine engine = (ChessEngine) selected;
-//						chessGame.setWhitePlayer(engine);
-//						chessGame.setBlackPlayer(engine.copyEngine());
-//					}
-//				}
-//				else {
-//					chessGame.setWhitePlayer(whitePlayerCombo.getValue());
-//					chessGame.setBlackPlayer(blackPlayerCombo.getValue());
-//				}
-
 				chessGame.startGame();
 
 				startGameButton.setText("Started");
-
 				startGameButton.setDisable(true);
 			}
 		});
