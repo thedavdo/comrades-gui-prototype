@@ -195,12 +195,14 @@ public class ChessGame {
 
 	private void initPlayer(ChessPlayer ply) {
 
-		if(ply instanceof ChessEngine) {
-			ChessEngine plyEngine = (ChessEngine) ply;
-			plyEngine.addResponseListener(engineInitListener);
+		if(ply != null) {
+			if(ply instanceof ChessEngine) {
+				ChessEngine plyEngine = (ChessEngine) ply;
+				plyEngine.addResponseListener(engineInitListener);
+			}
+			ply.addMoveListener(this.chessMoveListener);
+			ply.setGame(this);
 		}
-		ply.addMoveListener(this.chessMoveListener);
-		ply.setGame(this);
 	}
 
 	public void setPlayerReady(ChessPlayer ply, boolean isReady) {
