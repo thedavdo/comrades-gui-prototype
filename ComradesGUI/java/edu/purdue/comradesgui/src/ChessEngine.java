@@ -123,7 +123,8 @@ public class ChessEngine extends ChessPlayer {
 
 				if (cmdTokens[1].equals("name")) {
 
-					setPlayerName(cmd.substring(cmd.indexOf(cmdTokens[2])));
+					if(getPlayerName().equalsIgnoreCase("unset playername"))
+						setPlayerName(cmd.substring(cmd.indexOf(cmdTokens[2])));
 
 					logInfo("eng < Engine Name: " + getPlayerName());
 				}
@@ -137,7 +138,8 @@ public class ChessEngine extends ChessPlayer {
 		//Listen for one of the Responses from 'uci'
 			if(cmdTokens[0].equals("option")) {
 
-				ChessEngineOption engOption = new ChessEngineOption(cmd, this);
+				ChessEngineOption engOption = generateOption(cmd);
+
 				optionList.add(engOption);
 				logInfo("eng < Option Imported: " + engOption);
 			}
@@ -364,9 +366,36 @@ public class ChessEngine extends ChessPlayer {
 		}
 	}
 
+	private ChessEngineOption generateOption(String cmd) {
+
+		ChessEngineOption option = null;
+
+		int typeIndex =  cmd.indexOf("type");
+		int defaultIndex = cmd.indexOf("default");
+
+		String type;
+
+		if(defaultIndex > 0)
+			type = cmd.substring(typeIndex + 5, defaultIndex - 1);
+		else
+			type = cmd.substring(typeIndex + 5);
+
+		if(type.equalsIgnoreCase("check"))
+			option = new ChessEngineOptionCheck(cmd, this);
+		else if(type.equalsIgnoreCase("spin"))
+			option = new ChessEngineOptionSpin(cmd, this);
+		else if(type.equalsIgnoreCase("string"))
+			option = new ChessEngineOptionString(cmd, this);
+		else if(type.equalsIgnoreCase("button"))
+			option = new ChessEngineOptionButton(cmd, this);
+
+		return option;
+	}
+
 	public ChessEngine copyEngine() {
 
 		ChessEngine copy = new ChessEngine();
+		copy.setPlayerName(this.getPlayerName() + "(Copy)");
 		copy.loadFromPath(path);
 
 		return copy;
