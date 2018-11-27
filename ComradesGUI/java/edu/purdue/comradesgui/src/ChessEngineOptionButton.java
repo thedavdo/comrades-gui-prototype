@@ -6,6 +6,10 @@ public class ChessEngineOptionButton extends ChessEngineOption {
 		super(toParse, chessEngine);
 	}
 
+	protected void parseInputString(String name, String value) {
+
+	}
+
 	public void pressButton() {
 		chessEngine.requestCommand("setoption name " + name, true);
 	}
