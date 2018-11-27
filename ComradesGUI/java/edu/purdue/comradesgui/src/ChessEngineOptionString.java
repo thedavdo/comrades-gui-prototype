@@ -8,6 +8,10 @@ public class ChessEngineOptionString extends ChessEngineOption {
 		super(toParse, chessEngine);
 	}
 
+	protected void parseInputString(String name, String value) {
+
+	}
+
 	public void setStringValue(String str) {
 		this.strValue = str;
 		chessEngine.requestCommand("setoption name " + name + " value " + strValue, true);
