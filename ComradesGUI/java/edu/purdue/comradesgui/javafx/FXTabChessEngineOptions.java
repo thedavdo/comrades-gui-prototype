@@ -84,24 +84,43 @@ public class FXTabChessEngineOptions extends Tab {
 			ChessEngineOptionSpin optionSpin = (ChessEngineOptionSpin) engineOption;
 
 			Label label = new Label(optionSpin.getName());
+			Slider slider = new Slider();
+			TextField textField = new TextField();
+
 			nodes.add(label);
 
 			label.setTooltip(new Tooltip("[min: " + optionSpin.getMinValue() + ", max: " + optionSpin.getMaxValue() +"]"));
 
-			TextField textField = new TextField();
+
+			slider.setMax(optionSpin.getMaxValue());
+			slider.setMin(optionSpin.getMinValue());
+			slider.setValue(optionSpin.getSpinValue());
+			slider.setSnapToTicks(true);
+			slider.valueProperty().addListener(((observable, oldValue, newValue) -> {
+
+				textField.setText(newValue.intValue() + "");
+			}));
+
+			nodes.add(slider);
+
 			textField.setText("" + optionSpin.getSpinValue());
+			textField.setMaxWidth(60);
 			textField.textProperty().addListener((observable, oldValue,  newValue) -> {
 
 				if(newValue == null)
 					textField.setText(oldValue);
 				else if(newValue.isEmpty())
 					textField.setText(oldValue);
-				else if(!newValue.matches("\\d*"))
+				else if(!isNumber(newValue))
 					textField.setText(oldValue);
 				else {
 					int val = Integer.parseInt(newValue);
-					if(val > optionSpin.getMaxValue() || val < optionSpin.getMinValue())
+					if(val > optionSpin.getMaxValue() || val < optionSpin.getMinValue()) {
 						textField.setText(oldValue);
+					}
+					else if(val != (int) slider.getValue())
+						slider.setValue(val);
+
 				}
 			});
 			nodes.add(textField);
@@ -113,25 +132,30 @@ public class FXTabChessEngineOptions extends Tab {
 		else if(engineOption instanceof ChessEngineOptionCheck) {
 
 			ChessEngineOptionCheck optionCheck = (ChessEngineOptionCheck) engineOption;
-			CheckBox checkBox = new CheckBox(optionCheck.getName());
+
+			Label label = new Label(optionCheck.getName());
+			CheckBox checkBox = new CheckBox();
+			label.setGraphic(checkBox);
+			label.setContentDisplay(ContentDisplay.RIGHT);
 
 			checkBox.setSelected(optionCheck.isChecked());
 
 			checkBox.selectedProperty().addListener(((observable, oldValue, newValue) -> optionCheck.setChecked(newValue)));
 
-			nodes.add(checkBox);
+			nodes.add(label);
 		}
 		else if(engineOption instanceof ChessEngineOptionButton) {
 
 			ChessEngineOptionButton optionButton = (ChessEngineOptionButton) engineOption;
 
 			Label label = new Label(optionButton.getName());
-			nodes.add(label);
-
 			Button button = new Button("Send");
+			label.setGraphic(button);
+			label.setContentDisplay(ContentDisplay.RIGHT);
+
 			button.setOnAction((actionEvent) -> optionButton.pressButton());
 
-			nodes.add(button);
+			nodes.add(label);
 		}
 		else if(engineOption instanceof ChessEngineOptionString) {
 
@@ -151,5 +175,17 @@ public class FXTabChessEngineOptions extends Tab {
 		}
 
 		return nodes;
+	}
+
+
+	private boolean isNumber(String in) {
+
+		try {
+			int num = Integer.parseInt(in);
+			return true;
+		}
+		catch(Exception e) { }
+
+		return false;
 	}
 }
