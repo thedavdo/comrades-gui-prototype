@@ -25,6 +25,24 @@ public class FXComradesGUI extends Application {
 
 	private ComradesMain comradesMain;
 
+	private FXChessBoard chessBoard;
+
+	private ComboBox<ChessPlayer> whitePlayerCombo;
+	private ComboBox<ChessPlayer> blackPlayerCombo;
+	private CheckBox useTimerCheckBox;
+	private CheckBox useTimerDelay;
+	private TextField timerDurationTextField;
+	private CheckBox useDelayAsBuffer;
+	private TextField timerDelayTextField;
+	private Button startGameButton;
+
+	private Text blackTimerLabel = new Text("Black ChessPlayer Clock:");
+	private Text whiteTimerlabel = new Text("White ChessPlayer Clock:");
+	private Text blackTimerFeed = new Text("");
+	private Text whiteTimerFeed = new Text("");
+
+	private Stage optionsStage;
+
 	public FXComradesGUI() {
 		comradesMain = new ComradesMain();
 
@@ -70,6 +88,14 @@ public class FXComradesGUI extends Application {
 
 			startGameButton.setDisable(!enableStart);
 		}
+		else {
+			useTimerCheckBox.setDisable(true);
+			timerDurationTextField.setDisable(true);
+			useTimerDelay.setDisable(true);
+			useDelayAsBuffer.setDisable(true);
+			timerDelayTextField.setDisable(true);
+			startGameButton.setDisable(true);
+		}
 	}
 
 	private boolean updatePlayerSelection(ComboBox<ChessPlayer> inCombo, ComboBox<ChessPlayer> otherCombo) {
@@ -87,7 +113,7 @@ public class FXComradesGUI extends Application {
 					ChessPlayer selected = inCombo.getValue();
 
 					if(selected.getPlayerType() == ChessPlayer.PlayerType.ENGINE) {
-
+						inCombo.getSelectionModel().clearSelection();
 						String msg = "You selected the same engine to play against itself, a copy of it must be added to continue.";
 						Alert promptDuplicate = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK, ButtonType.CANCEL);
 						promptDuplicate.setHeaderText("Duplicate Engine?");
@@ -116,24 +142,6 @@ public class FXComradesGUI extends Application {
 
 		return success;
 	}
-
-	private FXChessBoard chessBoard;
-
-	private ComboBox<ChessPlayer> whitePlayerCombo;
-	private ComboBox<ChessPlayer> blackPlayerCombo;
-	private CheckBox useTimerCheckBox;
-	private CheckBox useTimerDelay;
-	private TextField timerDurationTextField;
-	private CheckBox useDelayAsBuffer;
-	private TextField timerDelayTextField;
-	private Button startGameButton;
-
-	private Text blackTimerLabel = new Text("Black ChessPlayer Clock:");
-	private Text whiteTimerlabel = new Text("White ChessPlayer Clock:");
-	private Text blackTimerFeed = new Text("");
-	private Text whiteTimerFeed = new Text("");
-
-	private FXChessOptions optionsPanel;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -400,12 +408,20 @@ public class FXComradesGUI extends Application {
 
 		optionsButton.setOnAction((actionEvent) -> {
 
-//			if(optionsPanel == null) {
-
-			Stage optionsStage = new Stage();
-			optionsPanel = new FXChessOptions(this);
-			optionsPanel.start(optionsStage);
-//			}
+			if(optionsStage != null) {
+				try {
+					optionsStage.show();
+					optionsStage.requestFocus();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+			else {
+				optionsStage = new Stage();
+				FXChessOptions optionsPanel = new FXChessOptions(this);
+				optionsPanel.start(optionsStage);
+			}
 		});
 
 		setFENButton.setOnAction((actionEvent) -> {
@@ -439,6 +455,9 @@ public class FXComradesGUI extends Application {
 				updateButtons();
 		});
 
+		whitePlayerCombo.setPromptText("<none selected>");
+		blackPlayerCombo.setPromptText("<none selected>");
+
 		TitledPane gameStatusPane = new TitledPane();
 		gameStatusPane.setText("Game Info");
 		gameStatusPane.setCollapsible(false);
@@ -470,6 +489,7 @@ public class FXComradesGUI extends Application {
 				startGameButton.setText("Started");
 				startGameButton.setDisable(true);
 			}
+			updateButtons();
 		});
 
 		mainGrid.add(gameStatusPane,0,0, 1, 2);
