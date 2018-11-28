@@ -23,24 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 public class FXComradesGUI extends Application {
 
-
-//	public static void displayWindow() {
-//
-//		try {
-//			FXComradesGUI.launch(new String[1]);
-//		}
-//		catch (IllegalStateException e) {
-//			e.printStackTrace();
-//
-//			try {
-//				new FXComradesGUI().start(new Stage());
-//			}
-//			catch (Exception e1) {
-//				e1.printStackTrace();
-//			}
-//		}
-//	}
-
 	private ComradesMain comradesMain;
 
 	public FXComradesGUI() {
@@ -150,6 +132,8 @@ public class FXComradesGUI extends Application {
 	private Text whiteTimerlabel = new Text("White ChessPlayer Clock:");
 	private Text blackTimerFeed = new Text("");
 	private Text whiteTimerFeed = new Text("");
+
+	private FXChessOptions optionsPanel;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -400,7 +384,6 @@ public class FXComradesGUI extends Application {
 		gameSetupGrid.add(timerDelayTextField, 1, 6);
 		gameSetupGrid.add(startGameButton, 0, 8);
 
-
 		importEngineButton.setOnAction((actionEvent) -> {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select engine executable...");
@@ -417,9 +400,12 @@ public class FXComradesGUI extends Application {
 
 		optionsButton.setOnAction((actionEvent) -> {
 
-			FXChessOptions fxMenu = new FXChessOptions(comradesMain);
-			fxMenu.start(new Stage());
+//			if(optionsPanel == null) {
 
+			Stage optionsStage = new Stage();
+			optionsPanel = new FXChessOptions(this);
+			optionsPanel.start(optionsStage);
+//			}
 		});
 
 		setFENButton.setOnAction((actionEvent) -> {
@@ -434,8 +420,6 @@ public class FXComradesGUI extends Application {
 
 			result.ifPresent((inFEN) -> comradesMain.getCurrentGame().setBoardFromFEN(inFEN));
 		});
-
-
 
 		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
@@ -500,5 +484,13 @@ public class FXComradesGUI extends Application {
 		primaryStage.show();
 
 		primaryStage.setOnCloseRequest((event) -> System.exit(1));
+	}
+
+	public ComradesMain getComradesMain() {
+		return comradesMain;
+	}
+
+	public FXChessBoard getChessBoard() {
+		return chessBoard;
 	}
 }
