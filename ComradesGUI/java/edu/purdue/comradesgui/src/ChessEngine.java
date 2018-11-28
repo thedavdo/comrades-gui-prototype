@@ -137,13 +137,8 @@ public class ChessEngine extends ChessPlayer {
 
 		//Listen for one of the Responses from 'uci'
 			if(cmdTokens[0].equals("option")) {
-
 				ChessEngineOption engOption = generateOption(cmd);
 				optionList.add(engOption);
-//				logInfo("eng < Option Imported: " + engOption);
-//
-//				if(engOption == null)
-//					logInfo("eng < Option: " + cmd);
 			}
 
 			if(cmdTokens[0].equals("bestmove")) {
@@ -274,6 +269,8 @@ public class ChessEngine extends ChessPlayer {
 			buildFEN = buildFEN + " w";
 		else
 			buildFEN = buildFEN + " b";
+
+		buildFEN = buildFEN + " KQkq - 0 1";
 
 		requestCommand(buildFEN, true);
 
