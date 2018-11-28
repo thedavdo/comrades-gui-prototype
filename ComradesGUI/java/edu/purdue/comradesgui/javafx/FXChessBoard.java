@@ -18,7 +18,10 @@ public class FXChessBoard extends Canvas {
 	private ChessGame chessGame;
 	private AnimationTimer animationTimer;
 
-	private Font fontChess;
+	private Color oddTileColor, evenTileColor;
+	private Font boardFont;
+
+	private boolean fillPieces, framePieces;
 
 	private double boardSize;
 
@@ -30,32 +33,32 @@ public class FXChessBoard extends Canvas {
 
 		try {
 			FileInputStream fileInputStream = new FileInputStream(new File("MERIFONT.TTF"));
-			fontChess = Font.loadFont(fileInputStream, getCheckerSize() - 4);
+			boardFont = Font.loadFont(fileInputStream, getCheckerSize() - 4);
 		}
 		catch(FileNotFoundException e) {
 			e.printStackTrace();
 		}
 
+		evenTileColor = new Color(1, 205d/255d, 160d/255d, 1);
+		oddTileColor = new Color(209d/255d, 140d/255d, 70d/255d, 1);
+
+		fillPieces = true;
+		framePieces = false;
+
 		animationTimer = new AnimationTimer() {
 			@Override
 			public void handle(long now) {
-				FXChessBoard.this.drawChessBoard();
+				drawChessBoard();
 			}
 		};
 	}
 
-	public void drawChessBoard() {
+	private void drawChessBoard() {
 
 		GraphicsContext graphics = getGraphicsContext2D();
 		graphics.clearRect(0, 0, getWidth(), getWidth());
 
-		//graphics.setFill(Color.LIGHTGRAY);
-		//graphics.fillRect(0, 0, getWidth(), getWidth());
-
 		ChessCell[][] cells = chessGame.getCells();
-
-		Color lightTile = new Color(1, 205d/255d, 160d/255d, 1);
-		Color darkTile = new Color(209d/255d, 140d/255d, 70d/255d, 1);
 
 		for(int row = 0; row < 8; row++) {
 
@@ -66,9 +69,9 @@ public class FXChessBoard extends Canvas {
 
 
 				if((col + row) % 2 == 0)
-					graphics.setFill(lightTile);
+					graphics.setFill(evenTileColor);
 				else
-					graphics.setFill(darkTile);
+					graphics.setFill(oddTileColor);
 
 				graphics.fillRect(xLoc, yLoc - getCheckerSize(), getCheckerSize(), getCheckerSize());
 
@@ -77,11 +80,11 @@ public class FXChessBoard extends Canvas {
 				if(cell.getChessPiece() != null) {
 					Character ch = cell.getChessPiece().getPieceChar();
 
-					graphics.setFont(fontChess);
-					String str = "" + ch;
+					graphics.setFont(boardFont);
+					String str = "" + getSkinnedPiece(ch);
 
 					Text text = new Text(str);
-					text.setFont(fontChess);
+					text.setFont(boardFont);
 
 					double pieceX = xLoc + (((getCheckerSize()) - text.getLayoutBounds().getWidth()) / 2d);
 					double pieceY = yLoc - (((getCheckerSize()) - text.getLayoutBounds().getHeight()) / 2d);
@@ -94,6 +97,8 @@ public class FXChessBoard extends Canvas {
 						graphics.fillText(str, pieceX, pieceY);
 					}
 					else {
+						graphics.setFill(Color.BEIGE);
+						graphics.fillText(str, pieceX - 1, pieceY - 1);
 						graphics.setFill(Color.BLACK);
 						graphics.fillText(str, pieceX, pieceY);
 					}
@@ -135,6 +140,74 @@ public class FXChessBoard extends Canvas {
 
 	public ChessGame getChessGame() {
 		return chessGame;
+	}
+
+	public Color getOddTileColor() {
+		return oddTileColor;
+	}
+
+	public Color getEvenTileColor() {
+		return evenTileColor;
+	}
+
+	public void setOddTileColor(Color colorIn) {
+		if(colorIn != null)
+			this.oddTileColor = colorIn;
+	}
+
+	private Character getSkinnedPiece(Character inChar) {
+
+		Character outChar = Character.toLowerCase(inChar);
+
+		if(fillPieces) {
+			if(outChar == 'q')
+				outChar = 'w';
+			else if(outChar == 'r')
+				outChar = 't';
+			else if(outChar == 'p')
+				outChar = 'o';
+			else if(outChar == 'k')
+				outChar = 'l';
+			else if(outChar == 'b')
+				outChar = 'v';
+			else if(outChar == 'n')
+				outChar = 'm';
+		}
+
+		if(framePieces)
+			outChar = Character.toUpperCase(outChar);
+
+		return outChar;
+	}
+
+	public void setEvenTileColor(Color colorIn) {
+		if(colorIn != null)
+			this.evenTileColor = colorIn;
+	}
+
+	public Font getBoardFont() {
+		return boardFont;
+	}
+
+	public void setBoardFont(Font font) {
+		if(font != null)
+			this.boardFont = font;
+	}
+
+	public void setFillPieces(boolean fill) {
+		fillPieces = fill;
+	}
+
+	public boolean getFillPieces() {
+		return fillPieces;
+	}
+
+	public void setFramePieces(boolean frame) {
+		framePieces = frame;
+	}
+
+	public boolean getFramePieces() {
+		return framePieces;
 	}
 
 	public double getBoardPosX() {
