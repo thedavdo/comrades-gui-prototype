@@ -97,6 +97,23 @@ public class FXComradesGUI extends Application {
 		}
 	}
 
+	public void refreshPlayerCombos() {
+
+		ChessPlayer whiteSelect = whitePlayerCombo.getSelectionModel().getSelectedItem();
+
+		if(whiteSelect != null) {
+			whitePlayerCombo.getSelectionModel().clearSelection();
+			whitePlayerCombo.setValue(whiteSelect);
+		}
+
+		ChessPlayer blackSelect = blackPlayerCombo.getSelectionModel().getSelectedItem();
+
+		if(blackSelect  != null) {
+			blackPlayerCombo.getSelectionModel().clearSelection();
+			blackPlayerCombo.setValue(blackSelect);
+		}
+	}
+
 	private boolean updatePlayerSelection(ComboBox<ChessPlayer> inCombo, ComboBox<ChessPlayer> otherCombo) {
 
 		boolean success = true;
@@ -184,8 +201,8 @@ public class FXComradesGUI extends Application {
 		mainGrid.setPadding(new Insets(16, 16, 16, 16));
 		mainGrid.setAlignment(Pos.TOP_LEFT);
 
-		Text blackComboText = new Text("Black ChessPlayer: ");
-		Text whiteComboText = new Text("White ChessPlayer: ");
+		Text blackComboText = new Text("Black Player: ");
+		Text whiteComboText = new Text("White Player: ");
 		Text versusText = new Text("vs.");
 		Text timerDurationText = new Text("Timer Duration: ");
 		Text timerIncrementText = new Text("Timer Delay: ");
@@ -198,8 +215,8 @@ public class FXComradesGUI extends Application {
 		timerDelayTextField = new TextField();
 		blackTimerFeed = new Text("");
 		whiteTimerFeed = new Text("");
-		blackTimerLabel = new Text("Black ChessPlayer Clock:");
-		whiteTimerlabel = new Text("White ChessPlayer Clock:");
+		blackTimerLabel = new Text("Black Clock:");
+		whiteTimerlabel = new Text("White Clock:");
 
 		startGameButton = new Button("Start Game!");
 
@@ -469,6 +486,7 @@ public class FXComradesGUI extends Application {
 		GridPane gameInfoGrid = new GridPane();
 		gameInfoGrid.setHgap(8);
 		gameInfoGrid.setVgap(8);
+		gameInfoGrid.setMinWidth(250);
 		gameInfoGrid.setPadding(new Insets(16, 16, 16, 16));
 		gameInfoGrid.setAlignment(Pos.TOP_LEFT);
 
