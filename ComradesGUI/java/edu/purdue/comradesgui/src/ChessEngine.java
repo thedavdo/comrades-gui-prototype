@@ -265,12 +265,12 @@ public class ChessEngine extends ChessPlayer {
 
 		String buildFEN = "position fen " + chessGame.generateStringFEN();
 
-		if(isWhitePlayer())
-			buildFEN = buildFEN + " w";
-		else
-			buildFEN = buildFEN + " b";
-
-		buildFEN = buildFEN + " KQkq - 0 1";
+//		if(isWhitePlayer())
+//			buildFEN = buildFEN + " w";
+//		else
+//			buildFEN = buildFEN + " b";
+//
+//		buildFEN = buildFEN + " KQkq - 0 1";
 
 		requestCommand(buildFEN, true);
 
