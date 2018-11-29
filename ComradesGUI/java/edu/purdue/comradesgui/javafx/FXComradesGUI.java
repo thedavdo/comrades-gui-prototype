@@ -449,7 +449,7 @@ public class FXComradesGUI extends Application {
 			dialog.setTitle("Set Board FEN");
 			dialog.setHeaderText("Set Board FEN");
 			dialog.setContentText("FEN:");
-			dialog.getDialogPane().setPrefWidth(350);
+			dialog.getDialogPane().setPrefWidth(450);
 
 			Optional<String> result = dialog.showAndWait();
 
