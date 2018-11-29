@@ -66,20 +66,12 @@ public class FXComradesGUI extends Application {
 
 			if(useTimerCheckBox.isSelected()) {
 				timerDurationTextField.setDisable(false);
-//				useTimerDelay.setDisable(false);
-//				blackTimerFeed.setVisible(true);
-//				whiteTimerFeed.setVisible(true);
-//				blackTimerLabel.setVisible(true);
-//				whiteTimerlabel.setVisible(true);
+				useTimerDelay.setDisable(false);
 				gameInfoPane.setVisible(true);
 			}
 			else {
 				timerDurationTextField.setDisable(true);
 				useTimerDelay.setDisable(true);
-//				blackTimerFeed.setVisible(false);
-//				whiteTimerFeed.setVisible(false);
-//				blackTimerLabel.setVisible(false);
-//				whiteTimerlabel.setVisible(false);
 				gameInfoPane.setVisible(false);
 			}
 
