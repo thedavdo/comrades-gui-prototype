@@ -1,7 +1,9 @@
 package edu.purdue.comradesgui.src;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -9,6 +11,9 @@ public class ChessGame {
 
 	private ChessCell[][] chessCells;
 	private ObservableList<ChessPiece> deadWhite, deadBlack;
+
+
+	private IntegerProperty turnCount;
 
 	private ChessPlayer whitePlayer, blackPlayer;
 
@@ -37,13 +42,14 @@ public class ChessGame {
 		//setBoardFromFEN("8/1p6/8/8/8/8/8/8");
 		//setBoardFromFEN("N7/P3pk1p/3p2p1/r4p2/8/4b2B/4P1KP/R7");
 
-		System.out.println(generateStringFEN());
+		//System.out.println(generateStringFEN());
 
 		whiteTimer = new ChessPlayerTimer();
 		blackTimer = new ChessPlayerTimer();
 
 		gameStarted = new SimpleBooleanProperty();
-	//	gamePaused = new SimpleBooleanProperty();
+
+		turnCount = new SimpleIntegerProperty();
 
 		whiteReadyToStart = new SimpleBooleanProperty();
 		blackReadyToStart = new SimpleBooleanProperty();
@@ -60,7 +66,8 @@ public class ChessGame {
 		deadWhite = FXCollections.observableArrayList();
 
 		gameStarted.setValue(false);
-		//gamePaused.setValue(false);
+
+		turnCount.set(0);
 
 		useTimers.setValue(false);
 		useTimerIncrement.setValue(false);
@@ -86,6 +93,14 @@ public class ChessGame {
 		engineInitListener = ((cmdTokens, cmd, engine) -> {
 			//Useful for something?
 		});
+	}
+
+	public IntegerProperty getTurnCountProperty() {
+		return turnCount;
+	}
+
+	public int getTurnCount() {
+		return turnCount.getValue();
 	}
 
 	public void setUseTimers(boolean useTimers) {
@@ -258,40 +273,10 @@ public class ChessGame {
 		return gameStarted;
 	}
 
-//	public boolean isGamePaused() {
-//		return gamePaused.getValue();
-//	}
-
-	public void setGamePaused(boolean paused) {
-
-	//	this.gamePaused.setValue(paused);
-
-		if(useTimers.getValue()) {
-
-//			if(isGamePaused()) {
-//				whiteTimer.pause();
-//				blackTimer.pause();
-//			}
-//			else {
-				if(whiteTurn.getValue()) {
-					whiteTimer.resume();
-					blackTimer.pause();
-				}
-				else if(blackTurn.getValue()) {
-					whiteTimer.pause();
-					blackTimer.resume();
-				}
-//			}
-		}
-	}
-
-//	public BooleanProperty getGamePausedBooleanProperty() {
-//		return gamePaused;
-//	}
 
 	public void cycleTurns() {
 
-		if(/*!isGamePaused() &&*/ isGameStarted()) {
+		if(isGameStarted()) {
 			if(whiteTurn.getValue()) {
 				whiteTurn.setValue(false);
 				blackTurn.setValue(true);
@@ -310,8 +295,10 @@ public class ChessGame {
 				}
 			}
 
-			if(whiteTurn.getValue())
+			if(whiteTurn.getValue()) {
+				turnCount.set(turnCount.get() + 1);
 				whitePlayer.requestToMakeMove();
+			}
 			else if(blackTurn.getValue())
 				blackPlayer.requestToMakeMove();
 
@@ -385,9 +372,6 @@ public class ChessGame {
 					}
 				}
 			}
-		}
-		else {
-			this.setGamePaused(true);
 		}
 
 		return false;
@@ -502,6 +486,14 @@ public class ChessGame {
 				boardFEN = boardFEN + rowBuild;
 			}
 		}
+
+		if(whiteTurn.getValue())
+			boardFEN = boardFEN + " w";
+		else if(blackTurn.getValue())
+			boardFEN = boardFEN + " b";
+
+
+		boardFEN = boardFEN + " KQkq - 0 " + turnCount.getValue();
 
 		return boardFEN;
 	}
