@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -14,11 +15,13 @@ import java.io.FileNotFoundException;
 
 public class FXTabChessBoardOptions extends Tab {
 
-	private FXChessBoard chessBoard;
+	private FXComradesGUI comradesGUI;
 
-	public FXTabChessBoardOptions(FXChessBoard chessBoard) {
+	public FXTabChessBoardOptions(FXComradesGUI comradesGUI) {
 
-		this.chessBoard = chessBoard;
+		this.comradesGUI = comradesGUI;
+
+		FXChessBoard chessBoard = comradesGUI.getChessBoard();
 
 		BorderPane boardPane = new BorderPane();
 		this.setContent(boardPane);
@@ -44,9 +47,8 @@ public class FXTabChessBoardOptions extends Tab {
 			chessBoard.setEvenTileColor(newValue);
 		}));
 
-		TextField fontNameField = new TextField();
+		Label fontNameField = new Label();
 		fontNameField.setText(chessBoard.getBoardFont().getName());
-		fontNameField.setDisable(true);
 
 		Button fontChooseButton = new Button("Browse...");
 
@@ -77,15 +79,26 @@ public class FXTabChessBoardOptions extends Tab {
 		framePiecesCheckBox.setSelected(chessBoard.getFramePieces());
 		framePiecesCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> chessBoard.setFramePieces(newValue)));
 
-		centerGridPane.add(new Label("Odd Tile Color:"), 0, 0);
-		centerGridPane.add(oddTileColorPicker, 1, 0);
+		Label oddTileLabel = new Label("Odd Tile Color:");
+		oddTileLabel.setGraphic(oddTileColorPicker);
+		oddTileLabel.setContentDisplay(ContentDisplay.RIGHT);
 
-		centerGridPane.add(new Label("Even Tile Color:"), 0, 1);
-		centerGridPane.add(evenTileColorPicker, 1, 1);
+		centerGridPane.add(oddTileLabel, 0, 0);
 
-		centerGridPane.add(new Label("Board Font:"), 0, 2);
-		centerGridPane.add(fontNameField, 1, 2);
-		centerGridPane.add(fontChooseButton, 2, 2);
+		Label evenTileLabel = new Label("Even Tile Color:");
+		evenTileLabel.setGraphic(evenTileColorPicker);
+		evenTileLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		centerGridPane.add(evenTileLabel, 0, 1);
+
+		fontNameField.setGraphic(fontChooseButton);
+		fontNameField.setContentDisplay(ContentDisplay.RIGHT);
+		fontNameField.setFont(Font.font("Arial", FontPosture.ITALIC, 12));
+		Label fontLabel = new Label("Board Font:");
+		fontLabel.setGraphic(fontNameField);
+		fontLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		centerGridPane.add(fontLabel, 0, 2);
 
 		centerGridPane.add(fillPiecesCheckBox, 0, 3);
 		centerGridPane.add(framePiecesCheckBox, 0, 4);
