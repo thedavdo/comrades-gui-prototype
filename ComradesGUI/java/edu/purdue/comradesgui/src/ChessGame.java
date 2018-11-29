@@ -13,8 +13,12 @@ public class ChessGame {
 	private ObservableList<ChessPiece> deadWhite, deadBlack;
 
 	private IntegerProperty turnCount;
+	private IntegerProperty halfTurnCount;
 
 	private ChessPlayer whitePlayer, blackPlayer;
+
+	private BooleanProperty whiteKingCastle, whiteQueenCastle;
+	private BooleanProperty blackKingCastle, blackQueenCastle;
 
 	private ChessPlayerTimer whiteTimer, blackTimer;
 
@@ -32,10 +36,10 @@ public class ChessGame {
 	private BooleanProperty whiteTurn, blackTurn;
 
 	private ChessMoveListener chessMoveListener;
-	private ChessEngineResponseListener engineInitListener;
 
 	public ChessGame() {
-		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+		chessCells = new ChessCell[8][8];
 
 		whiteTimer = new ChessPlayerTimer();
 		blackTimer = new ChessPlayerTimer();
@@ -43,6 +47,12 @@ public class ChessGame {
 		gameStarted = new SimpleBooleanProperty();
 
 		turnCount = new SimpleIntegerProperty();
+		halfTurnCount = new SimpleIntegerProperty();
+
+		whiteKingCastle = new SimpleBooleanProperty();
+		whiteQueenCastle = new SimpleBooleanProperty();
+		blackKingCastle = new SimpleBooleanProperty();
+		blackQueenCastle = new SimpleBooleanProperty();
 
 		whiteReadyToStart = new SimpleBooleanProperty();
 		blackReadyToStart = new SimpleBooleanProperty();
@@ -58,6 +68,11 @@ public class ChessGame {
 		deadBlack = FXCollections.observableArrayList();
 		deadWhite = FXCollections.observableArrayList();
 
+		whiteKingCastle.setValue(true);
+		whiteQueenCastle.setValue(true);
+		blackKingCastle.setValue(true);
+		blackQueenCastle.setValue(true);
+
 		gameStarted.setValue(false);
 
 		turnCount.set(0);
@@ -72,20 +87,17 @@ public class ChessGame {
 		whiteReadyToStart.setValue(false);
 		blackReadyToStart.setValue(false);
 
-		whiteTurn.setValue(false);
+		whiteTurn.setValue(true);
 		blackTurn.setValue(false);
 
 		chessMoveListener = (player, move) -> {
-
 			if(player == getCurrentTurnsPlayer()) {
 				makeMove(move);
-				cycleTurns();
+				endTurnCycle();
 			}
 		};
 
-		engineInitListener = ((cmdTokens, cmd, engine) -> {
-			//Useful for something?
-		});
+		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPP1P/RNBQKBNR");
 	}
 
 	public ChessCell[][] getCells() {
@@ -124,10 +136,6 @@ public class ChessGame {
 	private void initPlayer(ChessPlayer ply) {
 
 		if(ply != null) {
-			if(ply instanceof ChessEngine) {
-				ChessEngine plyEngine = (ChessEngine) ply;
-				plyEngine.addResponseListener(engineInitListener);
-			}
 			ply.addMoveListener(this.chessMoveListener);
 			ply.setGame(this);
 		}
@@ -271,10 +279,8 @@ public class ChessGame {
 			blackReadyToStart.setValue(isReady);
 
 		if(isGameStarted()) {
-			if(this.isReadyToStart()) {
-				//gamePaused.setValue(false);
-				cycleTurns();
-			}
+			if(this.isReadyToStart())
+				startTurnCycle();
 		}
 	}
 
@@ -315,13 +321,32 @@ public class ChessGame {
 		this.whitePlayer.prepareForGame();
 		this.blackPlayer.prepareForGame();
 		gameStarted.setValue(true);
+	}
 
+	private void startTurnCycle() {
+
+
+		if(!(whiteTurn.getValue() || blackTurn.getValue())) {
+			whiteTurn.setValue(true);
+			blackTurn.setValue(false);
+		}
+
+		ChessPlayer activePlayer = getCurrentTurnsPlayer();
+
+		if(useTimers.getValue()) {
+			whiteTimer.initialize();
+			blackTimer.initialize();
+			activePlayer.getMoveTimer().resume();
+			activePlayer.getOpponentMoveTimer().pause();
+		}
+
+		activePlayer.requestToMakeMove();
 	}
 
 	/**
 	 * Called mainly when a player ends their move. Will process all the timer logic and turnCount information.
 	 */
-	public void cycleTurns() {
+	public void endTurnCycle() {
 
 		if(isGameStarted()) {
 			if(whiteTurn.getValue()) {
@@ -332,37 +357,39 @@ public class ChessGame {
 				whiteTurn.setValue(true);
 				blackTurn.setValue(false);
 			}
-			else {
-				whiteTurn.setValue(true);
-				blackTurn.setValue(false);
 
-				if(useTimers.getValue()) {
-					whiteTimer.initialize();
-					blackTimer.initialize();
-				}
-			}
+			ChessPlayer currentPlayer = getCurrentTurnsPlayer();
 
-			if(whiteTurn.getValue()) {
+			if(currentPlayer == whitePlayer)
 				turnCount.set(turnCount.get() + 1);
-				whitePlayer.requestToMakeMove();
-			}
-			else if(blackTurn.getValue())
-				blackPlayer.requestToMakeMove();
 
 			if(useTimers.getValue()) {
-				if(whiteTurn.getValue()) {
-					if(useTimerIncrement.getValue())
-						whiteTimer.incrementTime(timerDelay);
-					whiteTimer.resume();
-					blackTimer.pause();
-				}
-				else {
-					if(useTimerIncrement.getValue())
-						blackTimer.incrementTime(timerDelay);
-					whiteTimer.pause();
-					blackTimer.resume();
-				}
+
+				currentPlayer.getOpponentMoveTimer().pause();
+
+				if(useTimerIncrement.getValue())
+					currentPlayer.getMoveTimer().incrementTime(timerDelay);
+
+				currentPlayer.getMoveTimer().resume();
 			}
+
+
+			currentPlayer.requestToMakeMove();
+
+//			if(useTimers.getValue()) {
+//				if(whiteTurn.getValue()) {
+//					if(useTimerIncrement.getValue())
+//						whiteTimer.incrementTime(timerDelay);
+//					whiteTimer.resume();
+//					blackTimer.pause();
+//				}
+//				else {
+//					if(useTimerIncrement.getValue())
+//						blackTimer.incrementTime(timerDelay);
+//					whiteTimer.pause();
+//					blackTimer.resume();
+//				}
+//			}
 		}
 	}
 
@@ -469,21 +496,7 @@ public class ChessGame {
 		return true;
 	}
 
-	/**
-	 * Verify provided raw FEN string is valid.
-	 * @param testFEN string to test
-	 * @return true if valid
-	 */
-	public boolean isValidFEN(String testFEN) {
-
-		if(testFEN == null)
-			return false;
-
-		if(testFEN.isEmpty())
-			return false;
-
-		return true;
-	}
+	//rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
 	/**
 	 * Set the gamestate from a provided FEN string.
@@ -491,11 +504,13 @@ public class ChessGame {
 	 */
 	public void setBoardFromFEN(String strFEN) {
 
-		if(isValidFEN(strFEN)) {
+		if(this.isValidFEN(strFEN)) {
 
 			ChessCell[][] parsed = new ChessCell[8][8];
 
-			String[] splitFEN = strFEN.split("/");
+			String[] splitSpace = strFEN.split(" ");
+
+			String[] splitFEN = splitSpace[0].split("/");
 
 			for(int row = 0; row < 8; row++) {
 				for(int col = 0; col < 8; col++) {
@@ -519,6 +534,51 @@ public class ChessGame {
 						colIndex--;
 					}
 				}
+			}
+
+			if(splitSpace.length > 1) {
+				if(splitSpace[1].charAt(0) == 'b') {
+					blackTurn.setValue(true);
+					whiteTurn.setValue(false);
+				}
+				else if(splitSpace[1].charAt(0) == 'w') {
+					whiteTurn.setValue(true);
+					blackTurn.setValue(false);
+				}
+			}
+
+			if(splitSpace.length > 2) {
+
+				if(splitSpace[2].contains("q"))
+					this.blackQueenCastle.setValue(true);
+				else
+					this.blackQueenCastle.setValue(false);
+
+				if(splitSpace[2].contains("k"))
+					this.blackKingCastle.setValue(true);
+				else
+					this.blackKingCastle.setValue(false);
+
+				if(splitSpace[2].contains("Q"))
+					this.whiteQueenCastle.setValue(true);
+				else
+					this.whiteQueenCastle.setValue(false);
+
+				if(splitSpace[2].contains("K"))
+					this.whiteKingCastle.setValue(true);
+				else
+					this.whiteKingCastle.setValue(false);
+
+			}
+
+			if(splitSpace.length > 3) {
+				if(isNumber(splitSpace[4]))
+					halfTurnCount.setValue(Integer.parseInt(splitSpace[4]));
+			}
+
+			if(splitSpace.length > 4) {
+				if(isNumber(splitSpace[5]))
+					turnCount.setValue(Integer.parseInt(splitSpace[5]));
 			}
 
 			chessCells = parsed;
@@ -572,14 +632,72 @@ public class ChessGame {
 			}
 		}
 
+		boardFEN = boardFEN + " ";
+
 		if(whiteTurn.getValue())
-			boardFEN = boardFEN + " w";
+			boardFEN = boardFEN + "w";
 		else if(blackTurn.getValue())
-			boardFEN = boardFEN + " b";
+			boardFEN = boardFEN + "b";
 
+		boardFEN = boardFEN + " ";
 
-		boardFEN = boardFEN + " KQkq - 0 " + turnCount.getValue();
+		String castling = "";
+
+		if(whiteKingCastle.getValue())
+			castling = castling + "K";
+		if(whiteQueenCastle.getValue())
+			castling = castling + "Q";
+		if(blackKingCastle.getValue())
+			castling = castling + "k";
+		if(blackQueenCastle.getValue())
+			castling = castling + "q";
+
+		if(!castling.isEmpty()) {
+			boardFEN = boardFEN + castling + " ";
+		}
+		else
+			boardFEN = boardFEN + "- ";
+
+		boardFEN = boardFEN + "-"; //en passant
+
+		boardFEN = boardFEN + " ";
+
+		boardFEN = boardFEN + halfTurnCount.getValue();
+
+		boardFEN = boardFEN + " ";
+
+		boardFEN = boardFEN + turnCount.getValue();
 
 		return boardFEN;
+	}
+
+	private boolean isNumber(String in) {
+
+		try {
+			int num = Integer.parseInt(in);
+			return true;
+		}
+		catch(Exception e) { }
+
+		return false;
+	}
+
+	/**
+	 * Verify provided raw FEN string is valid.
+	 * @param testFEN string to test
+	 * @return true if valid
+	 */
+	public boolean isValidFEN(String testFEN) {
+
+		if(testFEN == null)
+			return false;
+		else if(testFEN.isEmpty())
+			return false;
+		else {
+			String[] splitSpace = testFEN.split(" ");
+			if(splitSpace.length == 0)
+				return false;
+		}
+		return true;
 	}
 }
