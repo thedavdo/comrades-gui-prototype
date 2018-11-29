@@ -15,6 +15,11 @@ public class FXChessOptions extends Application {
 		this.comradesGUI = comradesGUI;
 	}
 
+	public FXComradesGUI getComradesGUI() {
+
+		return comradesGUI;
+	}
+
 	@Override
 	public void start(Stage primaryStage) {
 
@@ -24,11 +29,11 @@ public class FXChessOptions extends Application {
 		TabPane tabPane = new TabPane();
 		Scene scene = new Scene(tabPane, 450, 550);
 
-		Tab boardOptionsTab = new FXTabChessBoardOptions(comradesGUI.getChessBoard());
+		Tab boardOptionsTab = new FXTabChessBoardOptions(comradesGUI);
 		boardOptionsTab.setText("Board");
 		tabPane.getTabs().add(boardOptionsTab);
 
-		Tab engineOptionTab = new FXTabChessEngineOptions(comradesGUI.getComradesMain());
+		Tab engineOptionTab = new FXTabChessEngineOptions(comradesGUI);
 		engineOptionTab.setText("Engines");
 		tabPane.getTabs().add(engineOptionTab);
 
