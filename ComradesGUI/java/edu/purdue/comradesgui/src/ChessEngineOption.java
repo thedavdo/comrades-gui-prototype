@@ -45,6 +45,11 @@ public abstract class ChessEngineOption {
 		}
 	}
 
+	/**
+	 * Tests to see if the given input string matches any of the keywords used in option strings
+	 * @param inStr String to test
+	 * @return true if inStr is a keyword
+	 */
 	private boolean isKeyword(String inStr) {
 
 		String[] keywords = {"name", "type", "default", "min", "max"};
@@ -74,5 +79,10 @@ public abstract class ChessEngineOption {
 		return out;
 	}
 
+	/**
+	 * Method to process information given in the option string recieved from the Engine
+	 * @param name Name of the option information
+	 * @param value Value of the option information
+	 */
 	protected abstract void parseInputString(String name, String value);
 }

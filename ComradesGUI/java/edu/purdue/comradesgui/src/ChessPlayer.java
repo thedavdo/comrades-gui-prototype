@@ -103,12 +103,10 @@ public abstract class ChessPlayer {
 	public void makeMove(ChessMove move) {
 
 		if(move != null) {
-			for(ChessMoveListener ml : chessMoveListeners) {
+			for(ChessMoveListener ml : chessMoveListeners)
 				ml.moveEvent(this, move);
-			}
 		}
 	}
-
 
 	public String toString() {
 		return getPlayerName();

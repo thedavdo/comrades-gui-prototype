@@ -12,7 +12,6 @@ public class ChessGame {
 	private ChessCell[][] chessCells;
 	private ObservableList<ChessPiece> deadWhite, deadBlack;
 
-
 	private IntegerProperty turnCount;
 
 	private ChessPlayer whitePlayer, blackPlayer;
@@ -21,7 +20,6 @@ public class ChessGame {
 
 	private BooleanProperty whiteReadyToStart, blackReadyToStart;
 	private BooleanProperty gameStarted;
-	//private BooleanProperty gamePaused;
 
 	private BooleanProperty useTimers;
 
@@ -37,12 +35,7 @@ public class ChessGame {
 	private ChessEngineResponseListener engineInitListener;
 
 	public ChessGame() {
-		//setBoardFromFEN("8/8/2K5/2N1B3/2k5/8/5Q2/8");
 		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-		//setBoardFromFEN("8/1p6/8/8/8/8/8/8");
-		//setBoardFromFEN("N7/P3pk1p/3p2p1/r4p2/8/4b2B/4P1KP/R7");
-
-		//System.out.println(generateStringFEN());
 
 		whiteTimer = new ChessPlayerTimer();
 		blackTimer = new ChessPlayerTimer();
@@ -95,6 +88,51 @@ public class ChessGame {
 		});
 	}
 
+	public ChessCell[][] getCells() {
+		return chessCells;
+	}
+
+	public ChessPlayer getWhitePlayer() {
+		return whitePlayer;
+	}
+
+	public ChessPlayer getBlackPlayer() {
+		return blackPlayer;
+	}
+
+	/**
+	 * Set the given player to be the White Player, and initialize the player.
+	 * @param ply
+	 */
+	public void setWhitePlayer(ChessPlayer ply) {
+		this.whitePlayer = ply;
+		initPlayer(ply);
+	}
+
+	/**
+	 * Set the given player to be the Black Player, and initialize the player.
+	 * @param ply
+	 */
+	public void setBlackPlayer(ChessPlayer ply) {
+		this.blackPlayer = ply;
+		initPlayer(ply);
+	}
+
+	/**
+	 * Adds engineResponse(if ChessEngine) and ChessMove Listener to the provided player instance
+	 */
+	private void initPlayer(ChessPlayer ply) {
+
+		if(ply != null) {
+			if(ply instanceof ChessEngine) {
+				ChessEngine plyEngine = (ChessEngine) ply;
+				plyEngine.addResponseListener(engineInitListener);
+			}
+			ply.addMoveListener(this.chessMoveListener);
+			ply.setGame(this);
+		}
+	}
+
 	public IntegerProperty getTurnCountProperty() {
 		return turnCount;
 	}
@@ -112,7 +150,6 @@ public class ChessGame {
 	}
 
 	public boolean isUsingTimers() {
-
 		return this.useTimers.getValue();
 	}
 
@@ -163,18 +200,32 @@ public class ChessGame {
 		}
 	}
 
+	/**
+	 * If the delay is a separate count down before the timer begins every turn
+	 */
 	public boolean isDelayAsBuffer() {
 		return useTimerBuffer.getValue();
 	}
 
+	/**
+	 * If the delay is being added to the timer's value every turn
+	 */
 	public boolean isDelayAsIncrement() {
 		return useTimerIncrement.getValue();
 	}
 
+	/**
+	 * Is the game using a delay(Incremental or Buffered) for the timers
+	 * @return
+	 */
 	public boolean isUsingTimerDelay() {
 		return isDelayAsBuffer() || isDelayAsIncrement();
 	}
 
+	/**
+	 * Enable or disable the timer delay. If set to true, default will be incremental
+	 * @param useDelay should use delay
+	 */
 	public void setUseTimerDelay(boolean useDelay) {
 
 		if(useDelay) {
@@ -187,6 +238,10 @@ public class ChessGame {
 		}
 	}
 
+	/**
+	 * Set the duration of the timer delay
+	 * @param delay
+	 */
 	public void setTimerDelay(long delay) {
 		this.timerDelay = delay;
 
@@ -194,32 +249,20 @@ public class ChessGame {
 			setUseDelayAsIncrement(true);
 	}
 
+	/**
+	 * Duration of the timer delay
+	 * @return duration
+	 */
 	public long getTimerDelay() {
 		return timerDelay;
 	}
 
-	public void setWhitePlayer(ChessPlayer ply) {
-		this.whitePlayer = ply;
-		initPlayer(ply);
-	}
-
-	public void setBlackPlayer(ChessPlayer ply) {
-		this.blackPlayer = ply;
-		initPlayer(ply);
-	}
-
-	private void initPlayer(ChessPlayer ply) {
-
-		if(ply != null) {
-			if(ply instanceof ChessEngine) {
-				ChessEngine plyEngine = (ChessEngine) ply;
-				plyEngine.addResponseListener(engineInitListener);
-			}
-			ply.addMoveListener(this.chessMoveListener);
-			ply.setGame(this);
-		}
-	}
-
+	/**
+	 * Set the provided player to be ready for the game to begin. Most useful for engines, as they can take a while to
+	 * finish initializing after being told a new game has begun.
+	 * @param ply Player to be readied / unreadier
+	 * @param isReady
+	 */
 	public void setPlayerReady(ChessPlayer ply, boolean isReady) {
 
 		if(whitePlayer == ply)
@@ -235,18 +278,17 @@ public class ChessGame {
 		}
 	}
 
+	/**
+	 * If both players are ready to start playing the game
+	 */
 	public boolean isReadyToStart() {
 		return whitePlayer.isReadyForGame() && blackPlayer.isReadyForGame();
 	}
 
-	public ChessPlayer getWhitePlayer() {
-		return whitePlayer;
-	}
-
-	public ChessPlayer getBlackPlayer() {
-		return blackPlayer;
-	}
-
+	/**
+	 * Get the current turn's player
+	 * @return
+	 */
 	public ChessPlayer getCurrentTurnsPlayer() {
 
 		if(whiteTurn.getValue())
@@ -257,14 +299,6 @@ public class ChessGame {
 			return null;
 	}
 
-	public void startGame() {
-		System.out.println("Starting Game...");
-		this.whitePlayer.prepareForGame();
-		this.blackPlayer.prepareForGame();
-		gameStarted.setValue(true);
-
-	}
-
 	public boolean isGameStarted() {
 		return gameStarted.getValue();
 	}
@@ -273,7 +307,20 @@ public class ChessGame {
 		return gameStarted;
 	}
 
+	/**
+	 * Starts the game, notifies the players the game is starting, and then waits if the players are not ready.
+	 */
+	public void startGame() {
+		System.out.println("Starting Game...");
+		this.whitePlayer.prepareForGame();
+		this.blackPlayer.prepareForGame();
+		gameStarted.setValue(true);
 
+	}
+
+	/**
+	 * Called mainly when a player ends their move. Will process all the timer logic and turnCount information.
+	 */
 	public void cycleTurns() {
 
 		if(isGameStarted()) {
@@ -319,17 +366,31 @@ public class ChessGame {
 		}
 	}
 
-	public boolean addPiece(Character piece, int col, int row) {
+	/**
+	 * Tries to add the provided piece to the provided location.
+	 *
+	 * @param piece ChessPiece
+	 * @param col col location
+	 * @param row row location
+	 * @return true if successfully added piece
+	 */
+	public boolean addPiece(ChessPiece piece, int col, int row) {
 
 		if(chessCells != null) {
-			if(Character.isAlphabetic(piece)) {
-				chessCells[col][row].setChessPiece(new ChessPiece(piece));
+			if(piece != null) {
+				chessCells[col][row].setChessPiece(piece);
+				return true;
 			}
 		}
 
 		return false;
 	}
 
+	/**
+	 * Method to process provided ChessMove, usually called from a ChessPlayer's ChessMoveListener.
+	 * @param move Move to process
+	 * @return true if successfully processed move
+	 */
 	public boolean makeMove(ChessMove move) {
 
 		ChessCell fromCell = move.getFromCell();
@@ -377,25 +438,42 @@ public class ChessGame {
 		return false;
 	}
 
+	/**
+	 * Method to process provided move from string
+	 * @param move Move to interpret
+	 * @return true if successfully processed move
+	 */
 	public boolean makeMove(String move) {
 
 		return makeMove(new ChessMove(move, this));
 	}
 
+	/**
+	 * Method to verify provided move from string is a legal move.
+	 * @param move raw move
+	 * @return true if legal
+	 */
 	public boolean isMoveLegal(String move) {
 
 		return isMoveLegal(new ChessMove(move, this));
 	}
 
+	/**
+	 * Method to verify provided move is a legal move.
+	 * @param move move
+	 * @return true if legal
+	 */
 	public boolean isMoveLegal(ChessMove move) {
 
+		//TODO: Needed for when human's play.
 		return true;
 	}
 
-	public ChessCell[][] getCells() {
-		return chessCells;
-	}
-
+	/**
+	 * Verify provided raw FEN string is valid.
+	 * @param testFEN string to test
+	 * @return true if valid
+	 */
 	public boolean isValidFEN(String testFEN) {
 
 		if(testFEN == null)
@@ -407,8 +485,11 @@ public class ChessGame {
 		return true;
 	}
 
+	/**
+	 * Set the gamestate from a provided FEN string.
+	 * @param strFEN FEN to parse
+	 */
 	public void setBoardFromFEN(String strFEN) {
-
 
 		if(isValidFEN(strFEN)) {
 
@@ -444,6 +525,10 @@ public class ChessGame {
 		}
 	}
 
+	/**
+	 * Generate a FEN string to capture the game state.
+	 * @return FEN string
+	 */
 	public String generateStringFEN() {
 
 		String boardFEN = null;

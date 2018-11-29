@@ -11,6 +11,11 @@ public class ChessMove {
 
 	private String leftover;
 
+	/**
+	 * Parses a move String to be easier to get the game data
+	 * @param rawMove move string
+	 * @param chessGame game that the move is being played on
+	 */
 	public ChessMove(String rawMove, ChessGame chessGame) {
 
 		this.chessGame = chessGame;
@@ -35,6 +40,11 @@ public class ChessMove {
 		}
 	}
 
+	/**
+	 * Convert the letter coordinate to a number so we can reference the col in the game code.
+	 * @param c Letter between [a, h]
+	 * @return Matching column number
+	 */
 	private int getNumFromLetter(Character c) {
 
 		int num = (int) Character.toLowerCase(c) - 97;
@@ -42,6 +52,9 @@ public class ChessMove {
 		return num;
 	}
 
+	/**
+	 * Checks to make sure there is a valid(not legal) move stored.
+	 */
 	public boolean isMoveFound() {
 
 		boolean hasMove = true;

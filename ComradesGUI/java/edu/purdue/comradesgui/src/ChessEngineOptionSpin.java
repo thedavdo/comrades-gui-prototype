@@ -9,6 +9,7 @@ public class ChessEngineOptionSpin extends ChessEngineOption {
 		super(toParse, chessEngine);
 	}
 
+	@Override
 	protected void parseInputString(String name, String value) {
 
 		if(name.equalsIgnoreCase("min"))
@@ -19,6 +20,10 @@ public class ChessEngineOptionSpin extends ChessEngineOption {
 			this.spinValue = Integer.valueOf(value);
 	}
 
+	/**
+	 * Set the current value of the Spin option. Must be between SpinMin and SpinMax bounds.
+	 * @param value newSpin
+	 */
 	public void setSpinValue(int value) {
 
 		if(value <= spinMax && value >= spinMin) {
@@ -34,10 +39,18 @@ public class ChessEngineOptionSpin extends ChessEngineOption {
 		return spinValue;
 	}
 
+	/**
+	 * Lower bound of the spin value
+	 * @return spinMin
+	 */
 	public int getMinValue() {
 		return spinMin;
 	}
 
+	/**
+	 * Upper bound of the spin value
+	 * @return spinMax
+	 */
 	public int getMaxValue() {
 		return spinMax;
 	}

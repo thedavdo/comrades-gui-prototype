@@ -94,6 +94,9 @@ public class ChessPiece {
 		return moveCount;
 	}
 
+	/**
+	 * Mainly called by the ChessGame when a move is being made
+	 */
 	public void incrementMoveCount() {
 		moveCount++;
 	}

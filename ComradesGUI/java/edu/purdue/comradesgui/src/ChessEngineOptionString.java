@@ -8,6 +8,7 @@ public class ChessEngineOptionString extends ChessEngineOption {
 		super(toParse, chessEngine);
 	}
 
+	@Override
 	protected void parseInputString(String name, String value) { }
 
 	public void setStringValue(String str) {

@@ -33,15 +33,27 @@ public class ChessPlayerTimer extends AnimationTimer {
 		bufferCountDown = new SimpleBooleanProperty();
 	}
 
+	/**
+	 * Set the duration of the timer.
+	 * @param duration duration in milliseconds
+	 */
 	public void setDurationLength(long duration) {
 		this.durationLength = duration;
 		remainingTime = duration;
 	}
 
+	/**
+	 * Get the total length of the timer.
+	 * @return durationLength in milliseconds
+	 */
 	public long getDurationLength() {
 		return durationLength;
 	}
 
+	/**
+	 * Set the buffer for the timer to be used if the buffer is enabled.
+	 * @param buffer buffer duration in milliseconds
+	 */
 	public void setBufferTime(long buffer) {
 		bufferTime = buffer;
 	}
@@ -174,11 +186,5 @@ public class ChessPlayerTimer extends AnimationTimer {
 			str = String.format("%02d",hours) + ":" + str;
 
 		return str;
-	}
-
-	public static long getTimeFromFormat() {
-
-
-		return -1l;
 	}
 }
