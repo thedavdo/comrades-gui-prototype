@@ -8,19 +8,20 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 
 public class FXTabChessEngineOptions extends Tab {
 
-	private ComradesMain comradesMain;
+	private FXComradesGUI comradesGUI;
 
 	private GridPane gridOptionList;
 
-	public FXTabChessEngineOptions(ComradesMain comradesMain) {
+	public FXTabChessEngineOptions(FXComradesGUI comradesGUI) {
 
-		this.comradesMain = comradesMain;
+		this.comradesGUI = comradesGUI;
 
 		BorderPane playerPane = new BorderPane();
 		this.setContent(playerPane);
@@ -37,12 +38,12 @@ public class FXTabChessEngineOptions extends Tab {
 		gridOptionList.setVgap(8);
 		gridOptionList.setPadding(new Insets(8, 8, 8, 8));
 
+		TextField chessEngineName = new TextField();
+		Button saveEngineName = new Button("Save Name");
+
 		ComboBox<ChessPlayer> chessEngineComboBox = new ComboBox<>();
-
-		chessEngineComboBox.setItems(comradesMain.getPlayerList().filtered((player) -> (player instanceof ChessEngine)));
-
+		chessEngineComboBox.setItems(comradesGUI.getComradesMain().getPlayerList().filtered((player) -> (player instanceof ChessEngine)));
 		chessEngineComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-
 			gridOptionList.getChildren().clear();
 			if(newVal != null) {
 				if(newVal instanceof ChessEngine) {
@@ -58,20 +59,51 @@ public class FXTabChessEngineOptions extends Tab {
 							}
 						}
 					}
+					chessEngineName.setText(chessEngine.getPlayerName());
+					saveEngineName.setOnAction((action) -> {
+						chessEngine.setPlayerName(chessEngineName.getText());
+						chessEngineComboBox.setItems(comradesGUI.getComradesMain().getPlayerList().filtered((player) -> (player instanceof ChessEngine)));
+						comradesGUI.refreshPlayerCombos();
+					});
+
+					saveEngineName.setDisable(false);
+					chessEngineName.setDisable(false);
 				}
+			}
+			else {
+				saveEngineName.setOnAction(null);
+				saveEngineName.setDisable(true);
+				chessEngineName.setDisable(true);
+				chessEngineName.clear();
 			}
 		});
 
-		HBox topPlayerHBox = new HBox();
-		topPlayerHBox.setAlignment(Pos.CENTER_LEFT);
-		topPlayerHBox.setPadding(new Insets(8, 8, 8, 8));
+		saveEngineName.setDisable(true);
+		chessEngineName.setDisable(true);
 
-		topPlayerHBox.getChildren().add(new Text("Select Engine: "));
-		topPlayerHBox.getChildren().add(chessEngineComboBox);
+		Label selectLabel = new Label("Select Engine:");
+		selectLabel.setGraphic(chessEngineComboBox);
+		selectLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		VBox topPlayerVBox = new VBox();
+		topPlayerVBox.setPadding(new Insets(8, 8, 8, 8));
+		topPlayerVBox.setSpacing(8);
+
+		HBox selectEngineBox = new HBox();
+		selectEngineBox.setAlignment(Pos.CENTER_LEFT);
+		selectEngineBox.setSpacing(4);
+		selectEngineBox.getChildren().add(selectLabel);
+		topPlayerVBox.getChildren().add(selectEngineBox);
+
+		HBox engineNameBox = new HBox();
+		engineNameBox.setSpacing(4);
+		engineNameBox.getChildren().add(chessEngineName);
+		engineNameBox.getChildren().add(saveEngineName);
+		topPlayerVBox.getChildren().add(engineNameBox);
 
 		centerScrollPane.setContent(gridOptionList);
 
-		playerPane.setTop(topPlayerHBox);
+		playerPane.setTop(topPlayerVBox);
 		playerPane.setCenter(centerScrollPane);
 	}
 
