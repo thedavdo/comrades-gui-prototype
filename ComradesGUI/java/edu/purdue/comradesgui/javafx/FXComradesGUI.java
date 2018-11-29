@@ -8,9 +8,11 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -41,6 +43,8 @@ public class FXComradesGUI extends Application {
 	private Text blackTimerFeed = new Text("");
 	private Text whiteTimerFeed = new Text("");
 
+	private TitledPane gameInfoPane;
+
 	private Stage optionsStage;
 
 	public FXComradesGUI() {
@@ -62,19 +66,21 @@ public class FXComradesGUI extends Application {
 
 			if(useTimerCheckBox.isSelected()) {
 				timerDurationTextField.setDisable(false);
-				useTimerDelay.setDisable(false);
-				blackTimerFeed.setVisible(true);
-				whiteTimerFeed.setVisible(true);
-				blackTimerLabel.setVisible(true);
-				whiteTimerlabel.setVisible(true);
+//				useTimerDelay.setDisable(false);
+//				blackTimerFeed.setVisible(true);
+//				whiteTimerFeed.setVisible(true);
+//				blackTimerLabel.setVisible(true);
+//				whiteTimerlabel.setVisible(true);
+				gameInfoPane.setVisible(true);
 			}
 			else {
 				timerDurationTextField.setDisable(true);
 				useTimerDelay.setDisable(true);
-				blackTimerFeed.setVisible(false);
-				whiteTimerFeed.setVisible(false);
-				blackTimerLabel.setVisible(false);
-				whiteTimerlabel.setVisible(false);
+//				blackTimerFeed.setVisible(false);
+//				whiteTimerFeed.setVisible(false);
+//				blackTimerLabel.setVisible(false);
+//				whiteTimerlabel.setVisible(false);
+				gameInfoPane.setVisible(false);
 			}
 
 			if(useTimerDelay.isSelected() && !useTimerDelay.isDisabled()) {
@@ -95,6 +101,8 @@ public class FXComradesGUI extends Application {
 			useDelayAsBuffer.setDisable(true);
 			timerDelayTextField.setDisable(true);
 			startGameButton.setDisable(true);
+			whitePlayerCombo.setDisable(true);
+			blackPlayerCombo.setDisable(true);
 		}
 	}
 
@@ -149,7 +157,7 @@ public class FXComradesGUI extends Application {
 		primaryStage.setTitle("ComradesGUI - FX!");
 		primaryStage.setResizable(false);
 
-		chessBoard = new FXChessBoard(400, comradesMain.getCurrentGame());
+		chessBoard = new FXChessBoard(600, comradesMain.getCurrentGame());
 
 		MenuBar menuBar = new MenuBar();
 
@@ -175,6 +183,10 @@ public class FXComradesGUI extends Application {
 
 		VBox topBox = new VBox(menuBar);
 		Scene scene = new Scene(topBox, 1200, 700);
+
+		HBox listBox = new HBox();
+		listBox.setSpacing(4);
+		listBox.setPadding(new Insets(4, 4, 4, 4));
 
 		GridPane mainGrid = new GridPane();
 		mainGrid.setHgap(8);
@@ -458,25 +470,29 @@ public class FXComradesGUI extends Application {
 		whitePlayerCombo.setPromptText("<none selected>");
 		blackPlayerCombo.setPromptText("<none selected>");
 
-		TitledPane gameStatusPane = new TitledPane();
-		gameStatusPane.setText("Game Info");
-		gameStatusPane.setCollapsible(false);
-		gameStatusPane.setAlignment(Pos.TOP_LEFT);
-		gameStatusPane.setMinWidth(800);
+		TitledPane boardPane = new TitledPane();
+		boardPane.setText("Game Board");
+		boardPane.setCollapsible(false);
+		boardPane.setAlignment(Pos.TOP_LEFT);
+		boardPane.setContent(chessBoard);
 
-		GridPane gameStatusGrid = new GridPane();
-		gameStatusGrid.setHgap(8);
-		gameStatusGrid.setVgap(8);
-		gameStatusGrid.setPadding(new Insets(16, 16, 16, 16));
-		gameStatusGrid.setAlignment(Pos.TOP_LEFT);
+		GridPane gameInfoGrid = new GridPane();
+		gameInfoGrid.setHgap(8);
+		gameInfoGrid.setVgap(8);
+		gameInfoGrid.setPadding(new Insets(16, 16, 16, 16));
+		gameInfoGrid.setAlignment(Pos.TOP_LEFT);
 
-		gameStatusGrid.add(blackTimerLabel, 1, 0);
-		gameStatusGrid.add(blackTimerFeed, 2, 0);
-		gameStatusGrid.add(chessBoard, 0, 1);
-		gameStatusGrid.add(whiteTimerlabel, 1, 2);
-		gameStatusGrid.add(whiteTimerFeed, 2, 2);
+		gameInfoGrid.add(blackTimerLabel, 1, 0);
+		gameInfoGrid.add(blackTimerFeed, 2, 0);
+		gameInfoGrid.add(whiteTimerlabel, 1, 2);
+		gameInfoGrid.add(whiteTimerFeed, 2, 2);
 
-		gameStatusPane.setContent(gameStatusGrid);
+		gameInfoPane = new TitledPane();
+		gameInfoPane.setText("Game Info");
+		gameInfoPane.setContent(gameInfoGrid);
+		gameInfoPane.setCollapsible(false);
+		gameInfoPane.setAlignment(Pos.TOP_LEFT);
+
 
 		startGameButton.setOnAction((actionEvent) -> {
 
@@ -492,8 +508,9 @@ public class FXComradesGUI extends Application {
 			updateButtons();
 		});
 
-		mainGrid.add(gameStatusPane,0,0, 1, 2);
-		mainGrid.add(gameSetupPane,1,0);
+		listBox.getChildren().addAll(boardPane, gameInfoPane, gameSetupPane);
+
+		mainGrid.add(listBox,0,0);
 
 		topBox.getChildren().add(mainGrid);
 
