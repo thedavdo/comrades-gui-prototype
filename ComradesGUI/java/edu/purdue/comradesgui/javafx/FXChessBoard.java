@@ -77,32 +77,33 @@ public class FXChessBoard extends Canvas {
 
 				ChessCell cell = cells[col][row];
 
-				if(cell.getChessPiece() != null) {
-					Character ch = cell.getChessPiece().getPieceChar();
+				if(cell != null)
+					if(cell.getChessPiece() != null) {
+						Character ch = cell.getChessPiece().getPieceChar();
 
-					graphics.setFont(boardFont);
-					String str = "" + getSkinnedPiece(ch);
+						graphics.setFont(boardFont);
+						String str = "" + getSkinnedPiece(ch);
 
-					Text text = new Text(str);
-					text.setFont(boardFont);
+						Text text = new Text(str);
+						text.setFont(boardFont);
 
-					double pieceX = xLoc + (((getCheckerSize()) - text.getLayoutBounds().getWidth()) / 2d);
-					double pieceY = yLoc - (((getCheckerSize()) - text.getLayoutBounds().getHeight()) / 2d);
+						double pieceX = xLoc + (((getCheckerSize()) - text.getLayoutBounds().getWidth()) / 2d);
+						double pieceY = yLoc - (((getCheckerSize()) - text.getLayoutBounds().getHeight()) / 2d);
 
-					if (Character.isUpperCase(ch)) {
-						graphics.setFill(Color.GRAY);
+						if (Character.isUpperCase(ch)) {
+							graphics.setFill(Color.GRAY);
 
-						graphics.fillText(str, pieceX + 1, pieceY + 1);
-						graphics.setFill(Color.BEIGE);
-						graphics.fillText(str, pieceX, pieceY);
+							graphics.fillText(str, pieceX + 1, pieceY + 1);
+							graphics.setFill(Color.BEIGE);
+							graphics.fillText(str, pieceX, pieceY);
+						}
+						else {
+							graphics.setFill(Color.BEIGE);
+							graphics.fillText(str, pieceX - 1, pieceY - 1);
+							graphics.setFill(Color.BLACK);
+							graphics.fillText(str, pieceX, pieceY);
+						}
 					}
-					else {
-						graphics.setFill(Color.BEIGE);
-						graphics.fillText(str, pieceX - 1, pieceY - 1);
-						graphics.setFill(Color.BLACK);
-						graphics.fillText(str, pieceX, pieceY);
-					}
-				}
 			}
 
 			Font gridFont = Font.font("Consolas", 18);
