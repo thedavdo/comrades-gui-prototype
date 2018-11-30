@@ -29,6 +29,8 @@ public class FXComradesGUI extends Application {
 
 	private FXChessBoard chessBoard;
 
+	private TitledPane playerSetupPane;
+
 	private GridPane gameInfoGrid;
 
 	private ComboBox<ChessPlayer> whitePlayerCombo;
@@ -88,14 +90,7 @@ public class FXComradesGUI extends Application {
 			startGameButton.setDisable(!enableStart);
 		}
 		else {
-			useTimerCheckBox.setDisable(true);
-			timerDurationTextField.setDisable(true);
-			useTimerDelay.setDisable(true);
-			useDelayAsBuffer.setDisable(true);
-			timerDelayTextField.setDisable(true);
-			startGameButton.setDisable(true);
-			whitePlayerCombo.setDisable(true);
-			blackPlayerCombo.setDisable(true);
+			playerSetupPane.setDisable(true);
 		}
 	}
 
@@ -194,7 +189,6 @@ public class FXComradesGUI extends Application {
 		VBox verticalBox = new VBox();
 
 		TitledPane boardPane = new TitledPane();
-		TitledPane playerSetupPane = new TitledPane();
 		TitledPane gameInfoPane = new TitledPane();
 
 		GridPane mainDisplayGrid = new GridPane();
@@ -211,6 +205,8 @@ public class FXComradesGUI extends Application {
 		Text currentTurnText = new Text();
 		Text blackTimerFeed = new Text("");
 		Text whiteTimerFeed = new Text("");
+
+		playerSetupPane = new TitledPane();
 
 		gameInfoGrid = new GridPane();
 
@@ -230,11 +226,16 @@ public class FXComradesGUI extends Application {
 		boardPane.setAlignment(Pos.TOP_LEFT);
 		boardPane.setContent(chessBoard);
 
-		horizontalBox.setSpacing(4);
-		horizontalBox.setPadding(new Insets(4, 4, 4, 4));
+		playerSetupPane.setMinWidth(300);
+		playerSetupPane.setContent(playerSetupGrid);
+		playerSetupPane.setText("Player Setup");
+		playerSetupPane.setCollapsible(false);
+		playerSetupPane.setAlignment(Pos.TOP_LEFT);
 
-		verticalBox.setSpacing(4);
-		verticalBox.setPadding(new Insets(4, 4, 4, 4));
+		gameInfoPane.setText("Game Info");
+		gameInfoPane.setContent(gameInfoGrid);
+		gameInfoPane.setCollapsible(false);
+		gameInfoPane.setAlignment(Pos.TOP_LEFT);
 
 		mainDisplayGrid.setHgap(8);
 		mainDisplayGrid.setVgap(8);
@@ -246,22 +247,36 @@ public class FXComradesGUI extends Application {
 		playerSetupGrid.setPadding(new Insets(16, 16, 16, 16));
 		playerSetupGrid.setAlignment(Pos.TOP_LEFT);
 
-		playerSetupPane.setMinWidth(300);
-		playerSetupPane.setContent(playerSetupGrid);
-		playerSetupPane.setText("Player Setup");
-		playerSetupPane.setCollapsible(false);
-		playerSetupPane.setAlignment(Pos.TOP_LEFT);
-
 		gameInfoGrid.setHgap(8);
 		gameInfoGrid.setVgap(8);
 		gameInfoGrid.setMinWidth(250);
 		gameInfoGrid.setPadding(new Insets(16, 16, 16, 16));
 		gameInfoGrid.setAlignment(Pos.TOP_LEFT);
 
-		gameInfoPane.setText("Game Info");
-		gameInfoPane.setContent(gameInfoGrid);
-		gameInfoPane.setCollapsible(false);
-		gameInfoPane.setAlignment(Pos.TOP_LEFT);
+		horizontalBox.setSpacing(4);
+		horizontalBox.setPadding(new Insets(4, 4, 4, 4));
+
+		verticalBox.setSpacing(4);
+		verticalBox.setPadding(new Insets(4, 4, 4, 4));
+
+		whitePlayerCombo.setMaxWidth(200);
+		whitePlayerCombo.setPromptText("<none selected>");
+		whitePlayerCombo.setItems(comradesMain.getPlayerList());
+
+		blackPlayerCombo.setMaxWidth(200);
+		blackPlayerCombo.setItems(comradesMain.getPlayerList());
+		blackPlayerCombo.setPromptText("<none selected>");
+
+		whiteComboLabel.setGraphic(whitePlayerCombo);
+		whiteComboLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		blackComboLabel.setGraphic(blackPlayerCombo);
+		blackComboLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		timerDurationLabel.setGraphic(timerDurationTextField);
+		timerDurationLabel.setContentDisplay(ContentDisplay.RIGHT);
+		timerIncrementLabel.setGraphic(timerDelayTextField);
+		timerIncrementLabel.setContentDisplay(ContentDisplay.RIGHT);
 
 		ObservableStringValue blackProp = Bindings.when(comradesMain.getCurrentGame().getBlackTurnProperty()).then("BLACK").otherwise("NONE");
 		ObservableStringValue whiteProp = Bindings.when(comradesMain.getCurrentGame().getWhiteTurnProperty()).then("WHITE").otherwise(blackProp);
@@ -278,23 +293,6 @@ public class FXComradesGUI extends Application {
 		blackTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
 		whiteTimerLabel.setGraphic(whiteTimerFeed);
 		whiteTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
-
-		whitePlayerCombo.setMaxWidth(200);
-		whitePlayerCombo.setPromptText("<none selected>");
-		whitePlayerCombo.setItems(comradesMain.getPlayerList());
-
-		blackPlayerCombo.setMaxWidth(200);
-		blackPlayerCombo.setItems(comradesMain.getPlayerList());
-		blackPlayerCombo.setPromptText("<none selected>");
-
-		blackComboLabel.setGraphic(blackPlayerCombo);
-		blackComboLabel.setContentDisplay(ContentDisplay.RIGHT);
-		whiteComboLabel.setGraphic(whitePlayerCombo);
-		whiteComboLabel.setContentDisplay(ContentDisplay.RIGHT);
-		timerDurationLabel.setGraphic(timerDurationTextField);
-		timerDurationLabel.setContentDisplay(ContentDisplay.RIGHT);
-		timerIncrementLabel.setGraphic(timerDelayTextField);
-		timerIncrementLabel.setContentDisplay(ContentDisplay.RIGHT);
 
 		importEngineButton.setOnAction((actionEvent) -> {
 			FileChooser fileChooser = new FileChooser();
@@ -339,6 +337,24 @@ public class FXComradesGUI extends Application {
 			Optional<String> result = dialog.showAndWait();
 
 			result.ifPresent((inFEN) -> comradesMain.getCurrentGame().setBoardFromFEN(inFEN));
+		});
+
+		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+
+			boolean success = updatePlayerSelection(whitePlayerCombo, blackPlayerCombo);
+			if(!success)
+				whitePlayerCombo.setValue(oldValue);
+			else
+				updateButtons();
+		});
+
+		blackPlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+
+			boolean success = updatePlayerSelection(blackPlayerCombo, whitePlayerCombo);
+			if(!success)
+				blackPlayerCombo.setValue(oldValue);
+			else
+				updateButtons();
 		});
 
 		useTimerCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
@@ -500,24 +516,6 @@ public class FXComradesGUI extends Application {
 			updateButtons();
 		}));
 
-		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-
-			boolean success = updatePlayerSelection(whitePlayerCombo, blackPlayerCombo);
-			if(!success)
-				whitePlayerCombo.setValue(oldValue);
-			else
-				updateButtons();
-		});
-
-		blackPlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-
-			boolean success = updatePlayerSelection(blackPlayerCombo, whitePlayerCombo);
-			if(!success)
-				blackPlayerCombo.setValue(oldValue);
-			else
-				updateButtons();
-		});
-
 		startGameButton.setOnAction((actionEvent) -> {
 
 			ChessGame chessGame = comradesMain.getCurrentGame();
@@ -547,6 +545,7 @@ public class FXComradesGUI extends Application {
 
 		verticalBox.getChildren().addAll(playerSetupPane, gameInfoPane);
 		horizontalBox.getChildren().addAll(boardPane, verticalBox);
+
 		mainDisplayGrid.add(horizontalBox,0,0);
 
 		menuBarVBox.getChildren().add(mainDisplayGrid);
