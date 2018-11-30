@@ -6,6 +6,7 @@ import edu.purdue.comradesgui.src.ChessPlayer;
 import edu.purdue.comradesgui.src.ComradesMain;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableStringValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,27 +29,24 @@ public class FXComradesGUI extends Application {
 
 	private FXChessBoard chessBoard;
 
+	private GridPane gameInfoGrid;
+
 	private ComboBox<ChessPlayer> whitePlayerCombo;
 	private ComboBox<ChessPlayer> blackPlayerCombo;
 	private CheckBox useTimerCheckBox;
 	private CheckBox useTimerDelay;
-	private TextField timerDurationTextField;
 	private CheckBox useDelayAsBuffer;
-	private TextField timerDelayTextField;
 	private Button startGameButton;
+	private TextField timerDurationTextField;
+	private TextField timerDelayTextField;
 
-	private Text blackTimerLabel = new Text("Black ChessPlayer Clock:");
-	private Text whiteTimerlabel = new Text("White ChessPlayer Clock:");
-	private Text blackTimerFeed = new Text("");
-	private Text whiteTimerFeed = new Text("");
-
-	private TitledPane gameInfoPane;
+	private Label blackTimerLabel;
+	private Label whiteTimerLabel;
 
 	private Stage optionsStage;
 
 	public FXComradesGUI() {
 		comradesMain = new ComradesMain();
-
 	}
 
 	private void updateButtons() {
@@ -66,12 +64,16 @@ public class FXComradesGUI extends Application {
 			if(useTimerCheckBox.isSelected()) {
 				timerDurationTextField.setDisable(false);
 				useTimerDelay.setDisable(false);
-				gameInfoPane.setVisible(true);
+				if(!gameInfoGrid.getChildren().contains(blackTimerLabel))
+					gameInfoGrid.add(blackTimerLabel, 0, 2);
+				if(!gameInfoGrid.getChildren().contains(whiteTimerLabel))
+					gameInfoGrid.add(whiteTimerLabel, 0, 3);
 			}
 			else {
 				timerDurationTextField.setDisable(true);
 				useTimerDelay.setDisable(true);
-				gameInfoPane.setVisible(false);
+				gameInfoGrid.getChildren().remove(blackTimerLabel);
+				gameInfoGrid.getChildren().remove(whiteTimerLabel);
 			}
 
 			if(useTimerDelay.isSelected() && !useTimerDelay.isDisabled()) {
@@ -169,56 +171,175 @@ public class FXComradesGUI extends Application {
 		MenuBar menuBar = new MenuBar();
 
 		Menu fileMenu = new Menu("File");
+		Menu editMenu = new Menu("Edit");
 
 		MenuItem importEngineButton = new MenuItem("Import Engine");
 		MenuItem saveAsButton = new MenuItem("Save as");
 		MenuItem optionsButton = new MenuItem("Options");
+		MenuItem setFENButton = new MenuItem("Set FEN");
 
 		fileMenu.getItems().add(importEngineButton);
 		fileMenu.getItems().add(saveAsButton);
 		fileMenu.getItems().add(optionsButton);
 
-		menuBar.getMenus().add(fileMenu);
-
-		Menu editMenu = new Menu("Edit");
-
-		MenuItem setFENButton = new MenuItem("Set FEN");
-
 		editMenu.getItems().add(setFENButton);
 
+		menuBar.getMenus().add(fileMenu);
 		menuBar.getMenus().add(editMenu);
 
-		VBox topBox = new VBox(menuBar);
-		Scene scene = new Scene(topBox, 1200, 700);
+		VBox menuBarVBox = new VBox(menuBar);
+		Scene scene = new Scene(menuBarVBox, 1000, 700);
 
-		HBox listBox = new HBox();
-		listBox.setSpacing(4);
-		listBox.setPadding(new Insets(4, 4, 4, 4));
+		HBox horizontalBox = new HBox();
+		VBox verticalBox = new VBox();
 
-		GridPane mainGrid = new GridPane();
-		mainGrid.setHgap(8);
-		mainGrid.setVgap(8);
-		mainGrid.setPadding(new Insets(16, 16, 16, 16));
-		mainGrid.setAlignment(Pos.TOP_LEFT);
+		TitledPane boardPane = new TitledPane();
+		TitledPane playerSetupPane = new TitledPane();
+		TitledPane gameInfoPane = new TitledPane();
 
-		Text blackComboText = new Text("Black Player: ");
-		Text whiteComboText = new Text("White Player: ");
-		Text versusText = new Text("vs.");
-		Text timerDurationText = new Text("Timer Duration: ");
-		Text timerIncrementText = new Text("Timer Delay: ");
+		GridPane mainDisplayGrid = new GridPane();
+		GridPane playerSetupGrid = new GridPane();
+
+		Label blackComboLabel = new Label("Black Player:");
+		Label whiteComboLabel = new Label("White Player:");
+		Label versusText = new Label("vs.");
+		Label timerDurationLabel = new Label("Timer Duration:");
+		Label timerIncrementLabel = new Label("Timer Delay:");
+		Label currentPlayerLabel = new Label("Current Player:");
+		Label currentTurnLabel = new Label("Turn Number:");
+		Text currentPlayerText = new Text();
+		Text currentTurnText = new Text();
+		Text blackTimerFeed = new Text("");
+		Text whiteTimerFeed = new Text("");
+
+		gameInfoGrid = new GridPane();
+
 		whitePlayerCombo = new ComboBox<>();
 		blackPlayerCombo = new ComboBox<>();
 		useTimerCheckBox = new CheckBox("Use Timers");
-		timerDurationTextField = new TextField();
 		useTimerDelay = new CheckBox("Enable Delay");
 		useDelayAsBuffer = new CheckBox("Use as Buffer?");
-		timerDelayTextField = new TextField();
-		blackTimerFeed = new Text("");
-		whiteTimerFeed = new Text("");
-		blackTimerLabel = new Text("Black Clock:");
-		whiteTimerlabel = new Text("White Clock:");
-
 		startGameButton = new Button("Start Game!");
+		timerDurationTextField = new TextField();
+		timerDelayTextField = new TextField();
+		blackTimerLabel = new Label("Black Clock:");
+		whiteTimerLabel = new Label("White Clock:");
+
+		boardPane.setText("Game Board");
+		boardPane.setCollapsible(false);
+		boardPane.setAlignment(Pos.TOP_LEFT);
+		boardPane.setContent(chessBoard);
+
+		horizontalBox.setSpacing(4);
+		horizontalBox.setPadding(new Insets(4, 4, 4, 4));
+
+		verticalBox.setSpacing(4);
+		verticalBox.setPadding(new Insets(4, 4, 4, 4));
+
+		mainDisplayGrid.setHgap(8);
+		mainDisplayGrid.setVgap(8);
+		mainDisplayGrid.setPadding(new Insets(16, 16, 16, 16));
+		mainDisplayGrid.setAlignment(Pos.TOP_LEFT);
+
+		playerSetupGrid.setHgap(8);
+		playerSetupGrid.setVgap(8);
+		playerSetupGrid.setPadding(new Insets(16, 16, 16, 16));
+		playerSetupGrid.setAlignment(Pos.TOP_LEFT);
+
+		playerSetupPane.setMinWidth(300);
+		playerSetupPane.setContent(playerSetupGrid);
+		playerSetupPane.setText("Player Setup");
+		playerSetupPane.setCollapsible(false);
+		playerSetupPane.setAlignment(Pos.TOP_LEFT);
+
+		gameInfoGrid.setHgap(8);
+		gameInfoGrid.setVgap(8);
+		gameInfoGrid.setMinWidth(250);
+		gameInfoGrid.setPadding(new Insets(16, 16, 16, 16));
+		gameInfoGrid.setAlignment(Pos.TOP_LEFT);
+
+		gameInfoPane.setText("Game Info");
+		gameInfoPane.setContent(gameInfoGrid);
+		gameInfoPane.setCollapsible(false);
+		gameInfoPane.setAlignment(Pos.TOP_LEFT);
+
+		ObservableStringValue blackProp = Bindings.when(comradesMain.getCurrentGame().getBlackTurnProperty()).then("BLACK").otherwise("NONE");
+		ObservableStringValue whiteProp = Bindings.when(comradesMain.getCurrentGame().getWhiteTurnProperty()).then("WHITE").otherwise(blackProp);
+
+		currentPlayerText.textProperty().bind(whiteProp);
+		currentPlayerLabel.setGraphic(currentPlayerText);
+		currentPlayerLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		currentTurnText.textProperty().bind(comradesMain.getCurrentGame().getTurnCountProperty().asString());
+		currentTurnLabel.setGraphic(currentTurnText);
+		currentTurnLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		blackTimerLabel.setGraphic(blackTimerFeed);
+		blackTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
+		whiteTimerLabel.setGraphic(whiteTimerFeed);
+		whiteTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		whitePlayerCombo.setMaxWidth(200);
+		whitePlayerCombo.setPromptText("<none selected>");
+		whitePlayerCombo.setItems(comradesMain.getPlayerList());
+
+		blackPlayerCombo.setMaxWidth(200);
+		blackPlayerCombo.setItems(comradesMain.getPlayerList());
+		blackPlayerCombo.setPromptText("<none selected>");
+
+		blackComboLabel.setGraphic(blackPlayerCombo);
+		blackComboLabel.setContentDisplay(ContentDisplay.RIGHT);
+		whiteComboLabel.setGraphic(whitePlayerCombo);
+		whiteComboLabel.setContentDisplay(ContentDisplay.RIGHT);
+		timerDurationLabel.setGraphic(timerDurationTextField);
+		timerDurationLabel.setContentDisplay(ContentDisplay.RIGHT);
+		timerIncrementLabel.setGraphic(timerDelayTextField);
+		timerIncrementLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		importEngineButton.setOnAction((actionEvent) -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select engine executable...");
+			File file = fileChooser.showOpenDialog(primaryStage);
+
+			if(file != null) {
+				ChessEngine engine = new ChessEngine();
+				engine.loadFromPath(file.getAbsolutePath());
+
+				if(engine.hasLoadedFromFile())
+					comradesMain.addPlayer(engine);
+			}
+		});
+
+		optionsButton.setOnAction((actionEvent) -> {
+
+			if(optionsStage != null) {
+				try {
+					optionsStage.show();
+					optionsStage.requestFocus();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+			else {
+				optionsStage = new Stage();
+				FXChessOptions optionsPanel = new FXChessOptions(this);
+				optionsPanel.start(optionsStage);
+			}
+		});
+
+		setFENButton.setOnAction((actionEvent) -> {
+
+			TextInputDialog dialog = new TextInputDialog(comradesMain.getCurrentGame().generateStringFEN());
+			dialog.setTitle("Set Board FEN");
+			dialog.setHeaderText("Set Board FEN");
+			dialog.setContentText("FEN:");
+			dialog.getDialogPane().setPrefWidth(450);
+
+			Optional<String> result = dialog.showAndWait();
+
+			result.ifPresent((inFEN) -> comradesMain.getCurrentGame().setBoardFromFEN(inFEN));
+		});
 
 		useTimerCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
 
@@ -379,83 +500,6 @@ public class FXComradesGUI extends Application {
 			updateButtons();
 		}));
 
-		whitePlayerCombo.setMaxWidth(200);
-		blackPlayerCombo.setMaxWidth(200);
-		whitePlayerCombo.setItems(comradesMain.getPlayerList());
-		blackPlayerCombo.setItems(comradesMain.getPlayerList());
-
-		TitledPane gameSetupPane = new TitledPane();
-		GridPane gameSetupGrid = new GridPane();
-		gameSetupGrid.setHgap(8);
-		gameSetupGrid.setVgap(8);
-		gameSetupGrid.setPadding(new Insets(16, 16, 16, 16));
-		gameSetupGrid.setAlignment(Pos.TOP_LEFT);
-
-		gameSetupPane.setMinWidth(300);
-		gameSetupPane.setContent(gameSetupGrid);
-		gameSetupPane.setText("ChessPlayer Setup");
-		gameSetupPane.setCollapsible(false);
-		gameSetupPane.setAlignment(Pos.TOP_LEFT);
-
-		gameSetupGrid.add(blackComboText, 0, 0);
-		gameSetupGrid.add(blackPlayerCombo, 1, 0);
-		gameSetupGrid.add(versusText, 0, 1);
-		gameSetupGrid.add(whiteComboText, 0, 2);
-		gameSetupGrid.add(whitePlayerCombo, 1, 2);
-		gameSetupGrid.add(useTimerCheckBox, 0, 3);
-		gameSetupGrid.add(timerDurationText, 0, 4);
-		gameSetupGrid.add(timerDurationTextField, 1, 4);
-		gameSetupGrid.add(useTimerDelay, 0, 5);
-		gameSetupGrid.add(useDelayAsBuffer, 1, 5);
-		gameSetupGrid.add(timerIncrementText, 0, 6);
-		gameSetupGrid.add(timerDelayTextField, 1, 6);
-		gameSetupGrid.add(startGameButton, 0, 8);
-
-		importEngineButton.setOnAction((actionEvent) -> {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Select engine executable...");
-			File file = fileChooser.showOpenDialog(primaryStage);
-
-			if(file != null) {
-				ChessEngine engine = new ChessEngine();
-				engine.loadFromPath(file.getAbsolutePath());
-
-				if(engine.hasLoadedFromFile())
-					comradesMain.addPlayer(engine);
-			}
-		});
-
-		optionsButton.setOnAction((actionEvent) -> {
-
-			if(optionsStage != null) {
-				try {
-					optionsStage.show();
-					optionsStage.requestFocus();
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-			else {
-				optionsStage = new Stage();
-				FXChessOptions optionsPanel = new FXChessOptions(this);
-				optionsPanel.start(optionsStage);
-			}
-		});
-
-		setFENButton.setOnAction((actionEvent) -> {
-
-			TextInputDialog dialog = new TextInputDialog(comradesMain.getCurrentGame().generateStringFEN());
-			dialog.setTitle("Set Board FEN");
-			dialog.setHeaderText("Set Board FEN");
-			dialog.setContentText("FEN:");
-			dialog.getDialogPane().setPrefWidth(450);
-
-			Optional<String> result = dialog.showAndWait();
-
-			result.ifPresent((inFEN) -> comradesMain.getCurrentGame().setBoardFromFEN(inFEN));
-		});
-
 		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
 			boolean success = updatePlayerSelection(whitePlayerCombo, blackPlayerCombo);
@@ -474,34 +518,6 @@ public class FXComradesGUI extends Application {
 				updateButtons();
 		});
 
-		whitePlayerCombo.setPromptText("<none selected>");
-		blackPlayerCombo.setPromptText("<none selected>");
-
-		TitledPane boardPane = new TitledPane();
-		boardPane.setText("Game Board");
-		boardPane.setCollapsible(false);
-		boardPane.setAlignment(Pos.TOP_LEFT);
-		boardPane.setContent(chessBoard);
-
-		GridPane gameInfoGrid = new GridPane();
-		gameInfoGrid.setHgap(8);
-		gameInfoGrid.setVgap(8);
-		gameInfoGrid.setMinWidth(250);
-		gameInfoGrid.setPadding(new Insets(16, 16, 16, 16));
-		gameInfoGrid.setAlignment(Pos.TOP_LEFT);
-
-		gameInfoGrid.add(blackTimerLabel, 1, 0);
-		gameInfoGrid.add(blackTimerFeed, 2, 0);
-		gameInfoGrid.add(whiteTimerlabel, 1, 2);
-		gameInfoGrid.add(whiteTimerFeed, 2, 2);
-
-		gameInfoPane = new TitledPane();
-		gameInfoPane.setText("Game Info");
-		gameInfoPane.setContent(gameInfoGrid);
-		gameInfoPane.setCollapsible(false);
-		gameInfoPane.setAlignment(Pos.TOP_LEFT);
-
-
 		startGameButton.setOnAction((actionEvent) -> {
 
 			ChessGame chessGame = comradesMain.getCurrentGame();
@@ -516,11 +532,24 @@ public class FXComradesGUI extends Application {
 			updateButtons();
 		});
 
-		listBox.getChildren().addAll(boardPane, gameInfoPane, gameSetupPane);
+		playerSetupGrid.add(blackComboLabel, 0, 0);
+		playerSetupGrid.add(versusText, 0, 1);
+		playerSetupGrid.add(whiteComboLabel, 0, 2);
+		playerSetupGrid.add(useTimerCheckBox, 0, 3);
+		playerSetupGrid.add(timerDurationLabel, 0, 4);
+		playerSetupGrid.add(useTimerDelay, 0, 5);
+		playerSetupGrid.add(useDelayAsBuffer, 0, 6);
+		playerSetupGrid.add(timerIncrementLabel, 0, 7);
+		playerSetupGrid.add(startGameButton, 0, 8);
 
-		mainGrid.add(listBox,0,0);
+		gameInfoGrid.add(currentTurnLabel, 0, 0);
+		gameInfoGrid.add(currentPlayerLabel, 0, 1);
 
-		topBox.getChildren().add(mainGrid);
+		verticalBox.getChildren().addAll(playerSetupPane, gameInfoPane);
+		horizontalBox.getChildren().addAll(boardPane, verticalBox);
+		mainDisplayGrid.add(horizontalBox,0,0);
+
+		menuBarVBox.getChildren().add(mainDisplayGrid);
 
 		chessBoard.getAnimationTimer().start();
 		updateButtons();
