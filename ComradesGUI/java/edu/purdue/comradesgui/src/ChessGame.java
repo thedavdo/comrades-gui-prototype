@@ -75,7 +75,7 @@ public class ChessGame {
 
 		gameStarted.setValue(false);
 
-		turnCount.set(0);
+		turnCount.set(1);
 
 		useTimers.setValue(false);
 		useTimerIncrement.setValue(false);
@@ -93,11 +93,11 @@ public class ChessGame {
 		chessMoveListener = (player, move) -> {
 			if(player == getCurrentTurnsPlayer()) {
 				makeMove(move);
-				endTurnCycle();
+				endTurn();
 			}
 		};
 
-		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPP1P/RNBQKBNR");
+		setBoardFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	}
 
 	public ChessCell[][] getCells() {
@@ -291,6 +291,14 @@ public class ChessGame {
 		return whitePlayer.isReadyForGame() && blackPlayer.isReadyForGame();
 	}
 
+	public BooleanProperty getWhiteTurnProperty() {
+		return whiteTurn;
+	}
+
+	public BooleanProperty getBlackTurnProperty() {
+		return blackTurn;
+	}
+
 	/**
 	 * Get the current turn's player
 	 * @return
@@ -325,7 +333,6 @@ public class ChessGame {
 
 	private void startTurnCycle() {
 
-
 		if(!(whiteTurn.getValue() || blackTurn.getValue())) {
 			whiteTurn.setValue(true);
 			blackTurn.setValue(false);
@@ -346,7 +353,7 @@ public class ChessGame {
 	/**
 	 * Called mainly when a player ends their move. Will process all the timer logic and turnCount information.
 	 */
-	public void endTurnCycle() {
+	public void endTurn() {
 
 		if(isGameStarted()) {
 			if(whiteTurn.getValue()) {
@@ -373,23 +380,7 @@ public class ChessGame {
 				currentPlayer.getMoveTimer().resume();
 			}
 
-
 			currentPlayer.requestToMakeMove();
-
-//			if(useTimers.getValue()) {
-//				if(whiteTurn.getValue()) {
-//					if(useTimerIncrement.getValue())
-//						whiteTimer.incrementTime(timerDelay);
-//					whiteTimer.resume();
-//					blackTimer.pause();
-//				}
-//				else {
-//					if(useTimerIncrement.getValue())
-//						blackTimer.incrementTime(timerDelay);
-//					whiteTimer.pause();
-//					blackTimer.resume();
-//				}
-//			}
 		}
 	}
 
@@ -548,40 +539,24 @@ public class ChessGame {
 			}
 
 			if(splitSpace.length > 2) {
-
-				if(splitSpace[2].contains("q"))
-					this.blackQueenCastle.setValue(true);
-				else
-					this.blackQueenCastle.setValue(false);
-
-				if(splitSpace[2].contains("k"))
-					this.blackKingCastle.setValue(true);
-				else
-					this.blackKingCastle.setValue(false);
-
-				if(splitSpace[2].contains("Q"))
-					this.whiteQueenCastle.setValue(true);
-				else
-					this.whiteQueenCastle.setValue(false);
-
-				if(splitSpace[2].contains("K"))
-					this.whiteKingCastle.setValue(true);
-				else
-					this.whiteKingCastle.setValue(false);
-
+				this.blackQueenCastle.setValue(splitSpace[2].contains("q"));
+				this.blackKingCastle.setValue(splitSpace[2].contains("k"));
+				this.whiteQueenCastle.setValue(splitSpace[2].contains("Q"));
+				this.whiteKingCastle.setValue(splitSpace[2].contains("K"));
 			}
 
-			if(splitSpace.length > 3) {
+			if(splitSpace.length > 4) {
 				if(isNumber(splitSpace[4]))
 					halfTurnCount.setValue(Integer.parseInt(splitSpace[4]));
 			}
 
-			if(splitSpace.length > 4) {
+			if(splitSpace.length > 5) {
 				if(isNumber(splitSpace[5]))
 					turnCount.setValue(Integer.parseInt(splitSpace[5]));
 			}
 
 			chessCells = parsed;
+			System.out.println(generateStringFEN());
 		}
 	}
 
@@ -696,6 +671,11 @@ public class ChessGame {
 		else {
 			String[] splitSpace = testFEN.split(" ");
 			if(splitSpace.length == 0)
+				return false;
+
+			String[] splitFEN = splitSpace[0].split("/");
+
+			if(splitFEN.length != 8)
 				return false;
 		}
 		return true;
