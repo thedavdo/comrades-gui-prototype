@@ -92,7 +92,7 @@ public class ChessGame {
 
 		chessMoveListener = (player, move) -> {
 			if(player == getCurrentTurnsPlayer()) {
-				makeMove(move);
+				move.performMove();
 				endTurn();
 			}
 		};
@@ -392,63 +392,14 @@ public class ChessGame {
 	 * @param row row location
 	 * @return true if successfully added piece
 	 */
-	public boolean addPiece(ChessPiece piece, int col, int row) {
+	public boolean addPieceToCell(ChessPiece piece, int col, int row) {
+
 
 		if(chessCells != null) {
-			if(piece != null) {
-				chessCells[col][row].setChessPiece(piece);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Method to process provided ChessMove, usually called from a ChessPlayer's ChessMoveListener.
-	 * @param move Move to process
-	 * @return true if successfully processed move
-	 */
-	public boolean makeMove(ChessMove move) {
-
-		ChessCell fromCell = move.getFromCell();
-
-		if(move.isMoveFound()) {
-
-			if(fromCell != null) {
-
-				ChessPiece fromPiece = fromCell.getChessPiece();
-				ChessCell toCell = move.getToCell();
-
-				if(fromPiece != null) {
-					if(toCell != null) {
-
-						ChessPiece toPiece = toCell.getChessPiece();
-
-						if(toPiece != null) {
-							if(toPiece.isWhiteTeam() != fromPiece.isWhiteTeam()) {
-								if(toPiece.isWhiteTeam())
-									deadWhite.add(toPiece);
-								else if(toPiece.isBlackTeam())
-									deadBlack.add(toPiece);
-							}
-							else {
-								System.out.println("same team...");
-								return false;
-							}
-						}
-
-						if(!move.getLeftover().isEmpty()) {
-							if(move.getLeftover().equals("q"))
-								fromPiece.setPieceType('q', true);
-						}
-
-						fromCell.setChessPiece(null);
-						toCell.setChessPiece(fromPiece);
-						fromPiece.incrementMoveCount();
-
-						return true;
-					}
+			if(col < chessCells.length && row < chessCells[0].length) {
+				if (piece != null) {
+					chessCells[col][row].setChessPiece(piece);
+					return true;
 				}
 			}
 		}
@@ -457,37 +408,30 @@ public class ChessGame {
 	}
 
 	/**
-	 * Method to process provided move from string
-	 * @param move Move to interpret
-	 * @return true if successfully processed move
+	 * Removes the piece from the cell it resides in.
+	 * @param piece
 	 */
-	public boolean makeMove(String move) {
+	public void removePieceFromCell(ChessPiece piece) {
 
-		return makeMove(new ChessMove(move, this));
+		if(piece != null) {
+			ChessCell cell = piece.getCell();
+			cell.setChessPiece(null);
+		}
 	}
 
 	/**
-	 * Method to verify provided move from string is a legal move.
-	 * @param move raw move
-	 * @return true if legal
+	 * Removes the piece from play and adds it to it's respective team dead array.
+	 * @param piece
 	 */
-	public boolean isMoveLegal(String move) {
+	public void setPieceAsDead(ChessPiece piece) {
 
-		return isMoveLegal(new ChessMove(move, this));
+		this.removePieceFromCell(piece);
+
+		if(piece.isWhiteTeam())
+			deadWhite.add(piece);
+		else if(piece.isBlackTeam())
+			deadBlack.add(piece);
 	}
-
-	/**
-	 * Method to verify provided move is a legal move.
-	 * @param move move
-	 * @return true if legal
-	 */
-	public boolean isMoveLegal(ChessMove move) {
-
-		//TODO: Needed for when human's play.
-		return true;
-	}
-
-	//rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
 	/**
 	 * Set the gamestate from a provided FEN string.
@@ -497,15 +441,13 @@ public class ChessGame {
 
 		if(this.isValidFEN(strFEN)) {
 
-			ChessCell[][] parsed = new ChessCell[8][8];
-
 			String[] splitSpace = strFEN.split(" ");
 
 			String[] splitFEN = splitSpace[0].split("/");
 
 			for(int row = 0; row < 8; row++) {
 				for(int col = 0; col < 8; col++) {
-					parsed[col][row] = new ChessCell(col, row);
+					chessCells[col][row] = new ChessCell(col, row);
 				}
 			}
 
@@ -521,7 +463,7 @@ public class ChessGame {
 					if(Character.isDigit(pieceChar))
 						colIndex -= Character.digit(pieceChar, 10);
 					else {
-						parsed[7 - colIndex][row].setChessPiece(new ChessPiece(pieceChar));
+						addPieceToCell(new ChessPiece(pieceChar), 7 - colIndex, row);
 						colIndex--;
 					}
 				}
@@ -555,7 +497,6 @@ public class ChessGame {
 					turnCount.setValue(Integer.parseInt(splitSpace[5]));
 			}
 
-			chessCells = parsed;
 			System.out.println(generateStringFEN());
 		}
 	}
