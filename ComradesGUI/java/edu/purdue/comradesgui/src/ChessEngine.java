@@ -160,7 +160,7 @@ public class ChessEngine extends ChessPlayer {
 
 			if(cmdTokens[0].equals("bestmove")) {
 				logInfo("eng < Best Move: " + cmdTokens[1]);
-				this.makeMove(new ChessMove(cmdTokens[1], chessGame));
+				this.makeMove(new ChessMove(cmdTokens[1], this, chessGame));
 			}
 		});
 	}
