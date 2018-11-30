@@ -2,6 +2,30 @@ package edu.purdue.comradesgui.src;
 
 public class ChessMove {
 
+	/**
+	 * Method to verify provided move from string is a legal move.
+	 * @param move  ChessMove object
+	 * @return true if legal
+	 */
+	public static boolean isLegalMove(ChessMove move) {
+
+		boolean legal = true;
+
+		if(!move.isMoveFound())
+			legal = false;
+
+		return legal;
+	}
+
+	/**
+	 * Method to verify provided move from string is a legal move.
+	 * @param rawMove
+	 * @return true if legal
+	 */
+	public static boolean isLegalMove(String rawMove) {
+		return isLegalMove(new ChessMove(rawMove, (ChessGame) null));
+	}
+
 	private String rawMove;
 
 	private ChessGame chessGame;
@@ -18,14 +42,12 @@ public class ChessMove {
 	 * @param rawMove move string
 	 * @param chessGame game that the move is being played on
 	 */
-	public ChessMove(String rawMove, ChessPlayer player, ChessGame chessGame) {
+	public ChessMove(String rawMove, ChessGame chessGame) {
 
 		this.chessGame = chessGame;
-		this.player = player;
 		this.rawMove = rawMove;
 
 		if(isMoveFound()) {
-
 			String pos1 = rawMove.substring(0, 2);
 			String pos2 = rawMove.substring(2, 4);
 
@@ -34,13 +56,24 @@ public class ChessMove {
 			int fromCol = getNumFromLetter(pos1.charAt(0));
 			int fromRow = Integer.parseInt("" + pos1.charAt(1)) - 1;
 
-			fromCell = chessGame.getCells()[fromCol][fromRow];
-
 			int toCol = getNumFromLetter(pos2.charAt(0));
 			int toRow = Integer.parseInt("" + pos2.charAt(1)) - 1;
 
-			toCell = chessGame.getCells()[toCol][toRow];
+			if(chessGame != null) {
+				fromCell = chessGame.getCells()[fromCol][fromRow];
+				toCell = chessGame.getCells()[toCol][toRow];
+			}
 		}
+	}
+
+	/**
+	 * Parses a move String to be easier to get the game data
+	 * @param rawMove move string
+	 * @param player the player making the move
+	 */
+	public ChessMove(String rawMove, ChessPlayer player) {
+		this(rawMove, player.getGame());
+		this.player = player;
 	}
 
 	/**
@@ -70,6 +103,59 @@ public class ChessMove {
 			hasMove = false;
 
 		return hasMove;
+	}
+
+	/**
+	 * Method to process the ChessMove, usually called from a ChessPlayer's ChessMoveListener.
+	 * @return true if successfully processed move
+	 */
+	public boolean performMove() {
+
+		if(isLegalMove(this)) {
+
+			ChessCell fromCell = getFromCell();
+			if(fromCell != null) {
+
+				ChessPiece fromPiece = fromCell.getChessPiece();
+				if(fromPiece != null) {
+
+					ChessCell toCell = getToCell();
+					if(toCell != null) {
+
+						ChessPiece toPiece = toCell.getChessPiece();
+
+						if(toPiece != null)
+							if(toPiece.isWhiteTeam() != fromPiece.isWhiteTeam())
+								chessGame.setPieceAsDead(toPiece);
+
+						if(!getLeftover().isEmpty()) {
+							if(getLeftover().equals("q"))
+								fromPiece.setPieceType('q', true);
+						}
+
+						toCell.setChessPiece(fromPiece);
+						fromPiece.incrementMoveCount();
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * If the move was made by a player, this will be them
+	 */
+	public ChessPlayer getPlayer() {
+		return player;
+	}
+
+	/**
+	 * Sets the player that is making the move
+	 * @param player
+	 */
+	public void setPlayer(ChessPlayer player) {
+		this.player = player;
 	}
 
 	public String getRawMove() {
