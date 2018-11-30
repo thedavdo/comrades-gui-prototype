@@ -4,7 +4,9 @@ public class ChessEngineCommand {
 
 	private String cmdStr;
 
-	private boolean shouldFlush;
+	protected boolean shouldFlush;
+
+	protected ChessEngineCommand() {}
 
 	public ChessEngineCommand(String cmd) {
 		this(cmd, true);
