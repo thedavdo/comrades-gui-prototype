@@ -6,6 +6,8 @@ public class ChessMove {
 
 	private ChessGame chessGame;
 
+	private ChessPlayer player;
+
 	private ChessCell fromCell;
 	private ChessCell toCell;
 
@@ -16,9 +18,10 @@ public class ChessMove {
 	 * @param rawMove move string
 	 * @param chessGame game that the move is being played on
 	 */
-	public ChessMove(String rawMove, ChessGame chessGame) {
+	public ChessMove(String rawMove, ChessPlayer player, ChessGame chessGame) {
 
 		this.chessGame = chessGame;
+		this.player = player;
 		this.rawMove = rawMove;
 
 		if(isMoveFound()) {
@@ -47,13 +50,11 @@ public class ChessMove {
 	 */
 	private int getNumFromLetter(Character c) {
 
-		int num = (int) Character.toLowerCase(c) - 97;
-
-		return num;
+		return Character.toLowerCase(c) - 97;
 	}
 
 	/**
-	 * Checks to make sure there is a valid(not legal) move stored.
+	 * Checks to make sure there is a not null (but not verified legal) move stored.
 	 */
 	public boolean isMoveFound() {
 
@@ -61,11 +62,11 @@ public class ChessMove {
 
 		if(rawMove == null)
 			hasMove = false;
-
-		if(rawMove.isEmpty())
+		else if(rawMove.isEmpty())
 			hasMove = false;
-
-		if(rawMove.equalsIgnoreCase("(none)"))
+		else if(rawMove.equalsIgnoreCase("(none)"))
+			hasMove = false;
+		else if(rawMove.equalsIgnoreCase("0000"))
 			hasMove = false;
 
 		return hasMove;
