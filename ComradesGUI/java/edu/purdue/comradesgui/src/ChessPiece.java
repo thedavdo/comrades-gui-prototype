@@ -76,10 +76,13 @@ public class ChessPiece {
 	 */
 	public void setCell(ChessCell cell) {
 
-		if(cell == null)
-			this.currentCell = null;
-		else if(cell.getChessPiece() == this)
+		if(cell == null || cell.getChessPiece() == this)
 			this.currentCell = cell;
+
+//		if(cell == null)
+//			this.currentCell = null;
+//		else if(cell.getChessPiece() == this)
+//			this.currentCell = cell;
 	}
 
 	public ChessCell getCell() {
