@@ -57,7 +57,7 @@ public class ChessEngine extends ChessPlayer {
 		pushCmdList = FXCollections.observableArrayList();
 		optionList = FXCollections.observableArrayList();
 
-		goCommand = new ChessEngineGoBuilder();
+		goCommand = new ChessEngineGoBuilder(this);
 
 		initListener();
 	}
@@ -275,7 +275,7 @@ public class ChessEngine extends ChessPlayer {
 		requestCommand(buildFEN, true);
 
 		//This is the GO command, which is configured by the GoBuilder
-		requestCommand(goCommand.getCommand(chessGame), true);
+		requestCommand(goCommand);
 	}
 
 	/**
@@ -300,7 +300,10 @@ public class ChessEngine extends ChessPlayer {
 	 */
 	public void requestCommand(String cmd, boolean flush) {
 
-		ChessEngineCommand engCmd = new ChessEngineCommand(cmd, flush);
+		this.requestCommand(new ChessEngineCommand(cmd, flush));
+	}
+
+	public void requestCommand(ChessEngineCommand engCmd) {
 
 		//If the engine is not done processing the initializing commands, or if this command is not part of the init, save it to the reserve list until the init is finished.
 		boolean choose = initialized || pushCmdThroughInit;
