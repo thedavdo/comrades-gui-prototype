@@ -27,8 +27,15 @@ public class ChessCell {
 	public void setChessPiece(ChessPiece piece) {
 
 		this.myPiece = piece;
-		if(this.myPiece != null)
+		if(this.myPiece != null) {
+
+			if(myPiece.getCell() != null) {
+				if (myPiece.getCell() != this)
+					myPiece.getCell().setChessPiece(null);
+			}
+
 			this.myPiece.setCell(this);
+		}
 	}
 
 	public String toString() {
