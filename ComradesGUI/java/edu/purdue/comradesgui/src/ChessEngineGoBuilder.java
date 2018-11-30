@@ -3,7 +3,9 @@ package edu.purdue.comradesgui.src;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChessEngineGoBuilder {
+public class ChessEngineGoBuilder extends ChessEngineCommand {
+
+	private ChessEngine chessEngine;
 
 	private List<ChessMove> searchMoves;
 
@@ -17,7 +19,10 @@ public class ChessEngineGoBuilder {
 
 	private boolean infinite;
 
-	public ChessEngineGoBuilder() {
+	public ChessEngineGoBuilder(ChessEngine chessEngine) {
+
+		this.chessEngine = chessEngine;
+		this.shouldFlush = true;
 
 		ponder = false;
 
@@ -91,7 +96,10 @@ public class ChessEngineGoBuilder {
 		return infinite;
 	}
 
-	public String getCommand(ChessGame chessGame) {
+	@Override
+	public String getCommand() {
+
+		ChessGame chessGame = chessEngine.getGame();
 
 		String cmd = "go";
 
