@@ -415,7 +415,8 @@ public class ChessGame {
 
 		if(piece != null) {
 			ChessCell cell = piece.getCell();
-			cell.setChessPiece(null);
+			if(cell != null)
+				cell.setChessPiece(null);
 		}
 	}
 
