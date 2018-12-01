@@ -2,30 +2,6 @@ package edu.purdue.comradesgui.src;
 
 public class ChessMove {
 
-	/**
-	 * Method to verify provided move from string is a legal move.
-	 * @param move  ChessMove object
-	 * @return true if legal
-	 */
-	public static boolean isLegalMove(ChessMove move) {
-
-		boolean legal = true;
-
-		if(!move.isMoveFound())
-			legal = false;
-
-		return legal;
-	}
-
-	/**
-	 * Method to verify provided move from string is a legal move.
-	 * @param rawMove
-	 * @return true if legal
-	 */
-	public static boolean isLegalMove(String rawMove) {
-		return isLegalMove(new ChessMove(rawMove, (ChessGame) null));
-	}
-
 	private String rawMove;
 
 	private ChessGame chessGame;
@@ -111,8 +87,7 @@ public class ChessMove {
 	 */
 	public boolean performMove() {
 
-		if(isLegalMove(this)) {
-
+		if(isLegalMove()) {
 			ChessCell fromCell = getFromCell();
 			if(fromCell != null) {
 
@@ -172,5 +147,19 @@ public class ChessMove {
 
 	public ChessCell getToCell() {
 		return toCell;
+	}
+
+	/**
+	 * Method to verify provided move from string is a legal move.
+	 * @return true if legal
+	 */
+	public boolean isLegalMove() {
+
+		boolean legal = true;
+
+		if(!isMoveFound())
+			legal = false;
+
+		return legal;
 	}
 }
