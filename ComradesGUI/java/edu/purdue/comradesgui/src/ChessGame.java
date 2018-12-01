@@ -321,6 +321,14 @@ public class ChessGame {
 		return gameStarted;
 	}
 
+	public ObservableList<ChessPiece> getDeadWhitePieces() {
+		return deadWhite;
+	}
+
+	public ObservableList<ChessPiece> getDeadBlackPieces() {
+		return deadBlack;
+	}
+
 	/**
 	 * Starts the game, notifies the players the game is starting, and then waits if the players are not ready.
 	 */
@@ -331,6 +339,9 @@ public class ChessGame {
 		gameStarted.setValue(true);
 	}
 
+	/**
+	 * Called to set off the turn cycle for the first time.
+	 */
 	private void startTurnCycle() {
 
 		if(!(whiteTurn.getValue() || blackTurn.getValue())) {
