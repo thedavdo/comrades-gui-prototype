@@ -2,6 +2,7 @@ package edu.purdue.comradesgui.javafx;
 
 import edu.purdue.comradesgui.src.ChessCell;
 import edu.purdue.comradesgui.src.ChessGame;
+import edu.purdue.comradesgui.src.ChessPiece;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -29,7 +30,7 @@ public class FXChessBoard extends Canvas {
 		super(containerSize, containerSize);
 		this.chessGame = chessGame;
 
-		boardSize = containerSize * 0.94;
+		boardSize = containerSize - 30;
 
 		try {
 			FileInputStream fileInputStream = new FileInputStream(new File("MERIFONT.TTF"));
@@ -66,7 +67,6 @@ public class FXChessBoard extends Canvas {
 			for(int col = 0; col < 8; col++) {
 
 				double xLoc = getBoardPosX() + (col * getCheckerSize());
-
 
 				if((col + row) % 2 == 0)
 					graphics.setFill(evenTileColor);
@@ -116,7 +116,7 @@ public class FXChessBoard extends Canvas {
 			String rowNum = "" + (row + 1);
 
 			text.setText(rowNum);
-			double rowX = getBoardPosX() - getCheckerSize()/3;
+			double rowX = getBoardSize() + getBoardPosX() + text.getLayoutBounds().getWidth() + 2;
 			double rowY = yLoc - (((getCheckerSize()) - text.getLayoutBounds().getHeight()) / 2d);
 
 			graphics.fillText(rowNum, rowX, rowY);
@@ -124,8 +124,10 @@ public class FXChessBoard extends Canvas {
 			String colNum = "" + String.valueOf((char) (row + 97));
 
 			text.setText(colNum);
-			double colX = (getContainerSize() - yLoc) + (((getCheckerSize()) - text.getLayoutBounds().getWidth()) / 2d);
-			double colY = getBoardPosY() + getBoardSize() + getCheckerSize()/3;
+
+			double xLoc = getBoardPosX() + ((row + 1) * getCheckerSize());
+			double colX = xLoc - ((getCheckerSize() + text.getLayoutBounds().getWidth()) / 2d);
+			double colY = getBoardPosY() + getBoardSize() + text.getLayoutBounds().getHeight() + 2;
 
 			graphics.fillText(colNum, colX, colY);
 		}
@@ -156,7 +158,7 @@ public class FXChessBoard extends Canvas {
 			this.oddTileColor = colorIn;
 	}
 
-	private Character getSkinnedPiece(Character inChar) {
+	public Character getSkinnedPiece(Character inChar) {
 
 		Character outChar = Character.toLowerCase(inChar);
 
@@ -213,7 +215,7 @@ public class FXChessBoard extends Canvas {
 
 	public double getBoardPosX() {
 
-		return getContainerSize() - getBoardSize();//(getContainerSize() - boardSize) / 2;
+		return 0;//(getContainerSize() - boardSize) / 2;
 	}
 
 	public double getBoardPosY() {
