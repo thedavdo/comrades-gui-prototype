@@ -1,12 +1,10 @@
 package edu.purdue.comradesgui.javafx;
 
-import edu.purdue.comradesgui.src.ChessEngine;
-import edu.purdue.comradesgui.src.ChessGame;
-import edu.purdue.comradesgui.src.ChessPlayer;
-import edu.purdue.comradesgui.src.ComradesMain;
+import edu.purdue.comradesgui.src.*;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableStringValue;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,6 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -67,9 +66,9 @@ public class FXComradesGUI extends Application {
 				timerDurationTextField.setDisable(false);
 				useTimerDelay.setDisable(false);
 				if(!gameInfoGrid.getChildren().contains(blackTimerLabel))
-					gameInfoGrid.add(blackTimerLabel, 0, 2);
+					gameInfoGrid.add(blackTimerLabel, 0, 4);
 				if(!gameInfoGrid.getChildren().contains(whiteTimerLabel))
-					gameInfoGrid.add(whiteTimerLabel, 0, 3);
+					gameInfoGrid.add(whiteTimerLabel, 0, 5);
 			}
 			else {
 				timerDurationTextField.setDisable(true);
@@ -161,7 +160,7 @@ public class FXComradesGUI extends Application {
 		primaryStage.setTitle("ComradesGUI - FX!");
 		primaryStage.setResizable(false);
 
-		chessBoard = new FXChessBoard(600, comradesMain.getCurrentGame());
+		chessBoard = new FXChessBoard(480, comradesMain.getCurrentGame());
 
 		MenuBar menuBar = new MenuBar();
 
@@ -183,7 +182,7 @@ public class FXComradesGUI extends Application {
 		menuBar.getMenus().add(editMenu);
 
 		VBox menuBarVBox = new VBox(menuBar);
-		Scene scene = new Scene(menuBarVBox, 1000, 700);
+		Scene scene = new Scene(menuBarVBox, 1100, 600);
 
 		HBox horizontalBox = new HBox();
 		VBox verticalBox = new VBox();
@@ -201,10 +200,14 @@ public class FXComradesGUI extends Application {
 		Label timerIncrementLabel = new Label("Timer Delay:");
 		Label currentPlayerLabel = new Label("Current Player:");
 		Label currentTurnLabel = new Label("Turn Number:");
+		Label deadPiecesWhiteLabel = new Label("Dead White:");
+		Label deadPiecesBlackLabel = new Label("Dead Black:");
+		Text deadPiecesWhiteText = new Text();
+		Text deadPiecesBlackText = new Text();
 		Text currentPlayerText = new Text();
 		Text currentTurnText = new Text();
-		Text blackTimerFeed = new Text("");
-		Text whiteTimerFeed = new Text("");
+		Text blackTimerFeed = new Text();
+		Text whiteTimerFeed = new Text();
 
 		playerSetupPane = new TitledPane();
 
@@ -293,6 +296,35 @@ public class FXComradesGUI extends Application {
 		blackTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
 		whiteTimerLabel.setGraphic(whiteTimerFeed);
 		whiteTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+//		deadPiecesWhiteText
+
+		deadPiecesBlackText.setFont(Font.font(chessBoard.getBoardFont().getFamily(), 14));
+		deadPiecesWhiteText.setFont(Font.font(chessBoard.getBoardFont().getFamily(), 14));
+
+		deadPiecesBlackText.setWrappingWidth(200);
+		deadPiecesWhiteText.setWrappingWidth(200);
+
+		deadPiecesBlackLabel.setGraphic(deadPiecesBlackText);
+		deadPiecesBlackLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		deadPiecesWhiteLabel.setGraphic(deadPiecesWhiteText);
+		deadPiecesWhiteLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+		comradesMain.getCurrentGame().getDeadWhitePieces().addListener((ListChangeListener<ChessPiece>) pieceChange -> {
+			String str = "";
+			for(ChessPiece piece : comradesMain.getCurrentGame().getDeadWhitePieces())
+				str += chessBoard.getSkinnedPiece(piece.getPieceChar());
+			deadPiecesWhiteText.setText(str);
+		});
+		
+
+		comradesMain.getCurrentGame().getDeadBlackPieces().addListener((ListChangeListener<ChessPiece>) pieceChange -> {
+			String str = "";
+			for(ChessPiece piece : comradesMain.getCurrentGame().getDeadBlackPieces())
+				str += chessBoard.getSkinnedPiece(piece.getPieceChar());
+			deadPiecesBlackText.setText(str);
+		});
 
 		importEngineButton.setOnAction((actionEvent) -> {
 			FileChooser fileChooser = new FileChooser();
@@ -542,6 +574,8 @@ public class FXComradesGUI extends Application {
 
 		gameInfoGrid.add(currentTurnLabel, 0, 0);
 		gameInfoGrid.add(currentPlayerLabel, 0, 1);
+		gameInfoGrid.add(deadPiecesBlackLabel, 0, 2);
+		gameInfoGrid.add(deadPiecesWhiteLabel, 0, 3);
 
 		verticalBox.getChildren().addAll(playerSetupPane, gameInfoPane);
 		horizontalBox.getChildren().addAll(boardPane, verticalBox);
