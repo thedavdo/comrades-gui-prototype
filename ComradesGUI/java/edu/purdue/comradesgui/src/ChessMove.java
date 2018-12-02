@@ -88,24 +88,39 @@ public class ChessMove {
 	public boolean performMove() {
 
 		if(isLegalMove()) {
-			ChessCell fromCell = getFromCell();
 			if(fromCell != null) {
-
 				ChessPiece fromPiece = fromCell.getChessPiece();
 				if(fromPiece != null) {
-
-					ChessCell toCell = getToCell();
 					if(toCell != null) {
 
 						ChessPiece toPiece = toCell.getChessPiece();
 
-						if(toPiece != null)
-							if(toPiece.isWhiteTeam() != fromPiece.isWhiteTeam())
-								chessGame.setPieceAsDead(toPiece);
+						if(isPromotionMove())
+							fromPiece.setPieceType('q', true);
 
-						if(!getLeftover().isEmpty()) {
-							if(getLeftover().equals("q"))
-								fromPiece.setPieceType('q', true);
+						if(isCaptureMove())
+							chessGame.setPieceAsDead(toPiece);
+						else if(isCastlingMove()) {
+
+							int selFromColSide = -1;
+							int selToColSide = -1;
+
+							if(toCell.getColPos() < fromCell.getColPos()) {
+								selFromColSide = toCell.getColPos() - 1;
+								selToColSide =  toCell.getColPos() + 1;
+							}
+							else if(toCell.getColPos() > fromCell.getColPos()) {
+								selFromColSide = toCell.getColPos() + 1;
+								selToColSide =  toCell.getColPos() - 1;
+							}
+
+							ChessCell castleFromCell = chessGame.getCells()[selFromColSide][toCell.getRowPos()];
+							ChessCell castleToCell = chessGame.getCells()[selToColSide][toCell.getRowPos()];
+
+							ChessPiece castlePiece = castleFromCell.getChessPiece();
+
+							castleToCell.setChessPiece(castlePiece);
+							castlePiece.incrementMoveCount();
 						}
 
 						toCell.setChessPiece(fromPiece);
@@ -149,6 +164,53 @@ public class ChessMove {
 		return toCell;
 	}
 
+	public boolean isCaptureMove() {
+
+		if(toCell != null && fromCell != null) {
+			ChessPiece toPiece = toCell.getChessPiece();
+			ChessPiece fromPiece = fromCell.getChessPiece();
+			if(toPiece != null && fromPiece != null)
+				return (toPiece.isWhiteTeam() != fromPiece.isWhiteTeam());
+		}
+
+		return false;
+	}
+
+	public boolean isCastlingMove() {
+
+		if(isCaptureMove())
+			return false;
+
+		if(toCell != null && fromCell != null) {
+
+			ChessPiece fromPiece = fromCell.getChessPiece();
+			if(fromPiece != null) {
+
+				int selRow = -1;
+
+				if(fromPiece.isWhiteTeam())
+					selRow = 0;
+				else if(fromPiece.isBlackTeam())
+					selRow = 7;
+
+				boolean fromCellVerify = (fromCell.getColPos() == 4 && fromCell.getRowPos() == selRow);
+				boolean toCellVerify = (toCell.getColPos() == 2 || toCell.getColPos() == 6) && (toCell.getRowPos() == selRow);
+
+				return fromCellVerify && toCellVerify;
+			}
+		}
+
+		return false;
+	}
+
+	public boolean isPromotionMove() {
+
+		if(!getLeftover().isEmpty())
+			return getLeftover().equals("q");
+
+		return false;
+	}
+
 	/**
 	 * Method to verify provided move from string is a legal move.
 	 * @return true if legal
@@ -159,6 +221,32 @@ public class ChessMove {
 
 		if(!isMoveFound())
 			legal = false;
+		else if(isCastlingMove()) {
+
+			ChessPiece fromPiece = fromCell.getChessPiece();
+			if(fromPiece.isWhiteTeam()) {
+
+				if(toCell.getColPos() == 6) {
+					if(!chessGame.canCastleWhiteKingSide())
+						legal = false;
+				}
+				else if(toCell.getColPos() == 2) {
+					if(!chessGame.canCastleWhiteQueenSide())
+						legal = false;
+				}
+			}
+			else if(fromPiece.isBlackTeam()) {
+
+				if(toCell.getColPos() == 6) {
+					if(!chessGame.canCastleBlackKingSide())
+						legal = false;
+				}
+				else if(toCell.getColPos() == 2) {
+					if(!chessGame.canCastleBlackQueenSide())
+						legal = false;
+				}
+			}
+		}
 
 		return legal;
 	}
