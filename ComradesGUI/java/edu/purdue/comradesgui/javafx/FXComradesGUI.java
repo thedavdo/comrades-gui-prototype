@@ -160,7 +160,7 @@ public class FXComradesGUI extends Application {
 		primaryStage.setTitle("ComradesGUI - FX!");
 		primaryStage.setResizable(false);
 
-		chessBoard = new FXChessBoard(480, comradesMain.getCurrentGame());
+		chessBoard = new FXChessBoard(500, comradesMain.getCurrentGame());
 
 		MenuBar menuBar = new MenuBar();
 
@@ -182,7 +182,7 @@ public class FXComradesGUI extends Application {
 		menuBar.getMenus().add(editMenu);
 
 		VBox menuBarVBox = new VBox(menuBar);
-		Scene scene = new Scene(menuBarVBox, 1100, 600);
+		Scene scene = new Scene(menuBarVBox, 900, 600);
 
 		HBox horizontalBox = new HBox();
 		VBox verticalBox = new VBox();
@@ -317,7 +317,7 @@ public class FXComradesGUI extends Application {
 				str += chessBoard.getSkinnedPiece(piece.getPieceChar());
 			deadPiecesWhiteText.setText(str);
 		});
-		
+
 
 		comradesMain.getCurrentGame().getDeadBlackPieces().addListener((ListChangeListener<ChessPiece>) pieceChange -> {
 			String str = "";
