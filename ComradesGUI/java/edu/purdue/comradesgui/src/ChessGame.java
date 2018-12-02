@@ -184,11 +184,8 @@ public class ChessGame {
 		if(timerDelay > -1) {
 			useTimerIncrement.setValue(useIncrement);
 
-			if(useIncrement) {
+			if(useIncrement)
 				useTimerBuffer.setValue(false);
-				whiteTimer.setBufferTime(-1);
-				blackTimer.setBufferTime(-1);
-			}
 		}
 	}
 
@@ -196,15 +193,9 @@ public class ChessGame {
 
 		if(timerDelay > -1) {
 			useTimerBuffer.setValue(useBuffer);
-			if(useBuffer) {
+
+			if(useBuffer)
 				useTimerIncrement.setValue(false);
-				whiteTimer.setBufferTime(timerDelay);
-				blackTimer.setBufferTime(timerDelay);
-			}
-			else {
-				whiteTimer.setBufferTime(-1);
-				blackTimer.setBufferTime(-1);
-			}
 		}
 	}
 
@@ -329,6 +320,22 @@ public class ChessGame {
 		return deadBlack;
 	}
 
+	public boolean canCastleWhiteKingSide() {
+		return whiteKingCastle.getValue();
+	}
+
+	public boolean canCastleWhiteQueenSide() {
+		return whiteQueenCastle.getValue();
+	}
+
+	public boolean canCastleBlackKingSide() {
+		return blackKingCastle.getValue();
+	}
+
+	public boolean canCastleBlackQueenSide() {
+		return blackQueenCastle.getValue();
+	}
+
 	/**
 	 * Starts the game, notifies the players the game is starting, and then waits if the players are not ready.
 	 */
@@ -352,8 +359,17 @@ public class ChessGame {
 		ChessPlayer activePlayer = getCurrentTurnsPlayer();
 
 		if(useTimers.getValue()) {
+
+			if(useTimerBuffer.getValue()) {
+				whiteTimer.setBufferTime(timerDelay);
+				blackTimer.setBufferTime(timerDelay);
+			}
+			else if (useTimerIncrement.getValue())
+				activePlayer.getMoveTimer().incrementTime(timerDelay);
+
 			whiteTimer.initialize();
 			blackTimer.initialize();
+
 			activePlayer.getMoveTimer().resume();
 			activePlayer.getOpponentMoveTimer().pause();
 		}
