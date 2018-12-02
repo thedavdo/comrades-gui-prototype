@@ -116,7 +116,7 @@ public class FXChessBoard extends Canvas {
 			String rowNum = "" + (row + 1);
 
 			text.setText(rowNum);
-			double rowX = getBoardSize() + getBoardPosX() + text.getLayoutBounds().getWidth() + 2;
+			double rowX = getBoardPosX() - text.getLayoutBounds().getWidth() - 10;
 			double rowY = yLoc - (((getCheckerSize()) - text.getLayoutBounds().getHeight()) / 2d);
 
 			graphics.fillText(rowNum, rowX, rowY);
@@ -215,7 +215,7 @@ public class FXChessBoard extends Canvas {
 
 	public double getBoardPosX() {
 
-		return 0;//(getContainerSize() - boardSize) / 2;
+		return getContainerSize() - boardSize;//(getContainerSize() - boardSize) / 2;
 	}
 
 	public double getBoardPosY() {
