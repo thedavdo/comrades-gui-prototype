@@ -2,7 +2,7 @@ package edu.purdue.comradesgui.src;
 
 public class ChessMove {
 
-	private String rawMove;
+	private String inputMoveString;
 
 	private ChessGame chessGame;
 
@@ -11,7 +11,7 @@ public class ChessMove {
 	private ChessCell fromCell;
 	private ChessCell toCell;
 
-	private String leftover;
+	private Character promotion;
 
 	/**
 	 * Parses a move String to be easier to get the game data
@@ -21,13 +21,13 @@ public class ChessMove {
 	public ChessMove(String rawMove, ChessGame chessGame) {
 
 		this.chessGame = chessGame;
-		this.rawMove = rawMove;
+		this.inputMoveString = rawMove;
 
 		if(isMoveFound()) {
 			String pos1 = rawMove.substring(0, 2);
 			String pos2 = rawMove.substring(2, 4);
 
-			leftover = rawMove.substring(4);
+			promotion = rawMove.charAt(4);
 
 			int fromCol = getNumFromLetter(pos1.charAt(0));
 			int fromRow = Integer.parseInt("" + pos1.charAt(1)) - 1;
@@ -69,13 +69,13 @@ public class ChessMove {
 
 		boolean hasMove = true;
 
-		if(rawMove == null)
+		if(inputMoveString == null)
 			hasMove = false;
-		else if(rawMove.isEmpty())
+		else if(inputMoveString.isEmpty())
 			hasMove = false;
-		else if(rawMove.equalsIgnoreCase("(none)"))
+		else if(inputMoveString.equalsIgnoreCase("(none)"))
 			hasMove = false;
-		else if(rawMove.equalsIgnoreCase("0000"))
+		else if(inputMoveString.equalsIgnoreCase("0000"))
 			hasMove = false;
 
 		return hasMove;
@@ -96,20 +96,43 @@ public class ChessMove {
 		this.player = player;
 	}
 
-	public String getRawMove() {
-		return rawMove;
+	public String getMoveString() {
+
+		String move = "";
+
+		if(fromCell != null)
+			move = move + fromCell.getCoordString();
+
+		if(toCell != null)
+			move = move + toCell.getCoordString();
+
+		if(promotion != null)
+			move = move + promotion;
+
+		if(move.isEmpty())
+			return "(none)";
+		else
+			return move;
 	}
 
-	public String getLeftover() {
-		return leftover;
+	public Character getPromotion() {
+		return promotion;
 	}
 
 	public ChessCell getFromCell() {
 		return fromCell;
 	}
 
+	public void setFromCell(ChessCell fromCell) {
+		this.fromCell = fromCell;
+	}
+
 	public ChessCell getToCell() {
 		return toCell;
+	}
+
+	public void setToCell(ChessCell toCell) {
+		this.toCell = toCell;
 	}
 
 	public boolean isCaptureMove() {
@@ -153,10 +176,11 @@ public class ChessMove {
 
 	public boolean isPromotionMove() {
 
-		if(!getLeftover().isEmpty())
-			return getLeftover().equals("q");
+		return (promotion != null);
+	}
 
-		return false;
+	public void setPromotion(Character promoChar) {
+		promotion = promoChar;
 	}
 
 	/**
