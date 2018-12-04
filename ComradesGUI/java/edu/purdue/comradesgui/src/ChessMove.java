@@ -123,6 +123,32 @@ public class ChessMove {
 							castlePiece.incrementMoveCount();
 						}
 
+						if(Character.toLowerCase(fromPiece.getPieceChar()) == 'k') {
+							if(fromPiece.isWhiteTeam()) {
+								chessGame.getCastleWhiteKingSide().setValue(false);
+								chessGame.getCastleWhiteQueenSide().set(false);
+							}
+							else {
+								chessGame.getCastleBlackQueenSide().setValue(false);
+								chessGame.getCastleBlackKingSide().setValue(false);
+							}
+						}
+
+						if(Character.toLowerCase(fromPiece.getPieceChar()) == 'r') {
+							if(fromPiece.isWhiteTeam()) {
+								if(fromPiece.getCell().getColPos() == 0)
+									chessGame.getCastleWhiteQueenSide().setValue(false);
+								else
+									chessGame.getCastleWhiteKingSide().setValue(false);
+							}
+							else {
+								if(fromPiece.getCell().getColPos() == 0)
+									chessGame.getCastleBlackQueenSide().setValue(false);
+								else
+									chessGame.getCastleBlackKingSide().setValue(false);
+							}
+						}
+
 						toCell.setChessPiece(fromPiece);
 						fromPiece.incrementMoveCount();
 						return true;
