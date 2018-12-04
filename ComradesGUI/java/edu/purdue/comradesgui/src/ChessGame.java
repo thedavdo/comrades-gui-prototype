@@ -92,7 +92,7 @@ public class ChessGame {
 
 		chessMoveListener = (player, move) -> {
 			if(player == getCurrentTurnsPlayer()) {
-				move.performMove();
+				performMove(move);
 				endTurn();
 			}
 		};
@@ -352,6 +352,35 @@ public class ChessGame {
 		return blackQueenCastle;
 	}
 
+	public void updateCastlingRights(ChessPiece fromPiece) {
+
+		if(Character.toLowerCase(fromPiece.getPieceChar()) == 'k') {
+			if(fromPiece.isWhiteTeam()) {
+				whiteKingCastle.setValue(false);
+				whiteQueenCastle.set(false);
+			}
+			else {
+				blackQueenCastle.setValue(false);
+				blackKingCastle.setValue(false);
+			}
+		}
+
+		if(Character.toLowerCase(fromPiece.getPieceChar()) == 'r') {
+			if(fromPiece.isWhiteTeam()) {
+				if(fromPiece.getCell().getColPos() == 0)
+					whiteQueenCastle.setValue(false);
+				else
+					whiteKingCastle.setValue(false);
+			}
+			else {
+				if(fromPiece.getCell().getColPos() == 0)
+					blackQueenCastle.setValue(false);
+				else
+					blackKingCastle.setValue(false);
+			}
+		}
+	}
+
 	/**
 	 * Starts the game, notifies the players the game is starting, and then waits if the players are not ready.
 	 */
@@ -424,6 +453,62 @@ public class ChessGame {
 			}
 
 			currentPlayer.requestToMakeMove();
+		}
+	}
+
+	/**
+	 * Method to process the ChessMove, usually called from a ChessPlayer's ChessMoveListener.
+	 */
+	public void performMove(ChessMove chessMove) {
+
+		if(chessMove.isLegalMove()) {
+
+			ChessCell fromCell = chessMove.getFromCell();
+
+			if(fromCell != null) {
+				ChessPiece fromPiece = fromCell.getChessPiece();
+				if(fromPiece != null) {
+
+					ChessCell toCell = chessMove.getToCell();
+					if(toCell != null) {
+
+						ChessPiece toPiece = toCell.getChessPiece();
+
+						if(chessMove.isPromotionMove())
+							fromPiece.setPieceType('q', true);
+
+						if(chessMove.isCaptureMove())
+							setPieceAsDead(toPiece);
+						else if(chessMove.isCastlingMove()) {
+
+							int selFromColSide = -1;
+							int selToColSide = -1;
+
+							if(toCell.getColPos() < fromCell.getColPos()) {
+								selFromColSide = toCell.getColPos() - 1;
+								selToColSide =  toCell.getColPos() + 1;
+							}
+							else if(toCell.getColPos() > fromCell.getColPos()) {
+								selFromColSide = toCell.getColPos() + 1;
+								selToColSide =  toCell.getColPos() - 1;
+							}
+
+							ChessCell castleFromCell = chessCells[selFromColSide][toCell.getRowPos()];
+							ChessCell castleToCell = chessCells[selToColSide][toCell.getRowPos()];
+
+							ChessPiece castlePiece = castleFromCell.getChessPiece();
+
+							castleToCell.setChessPiece(castlePiece);
+							castlePiece.incrementMoveCount();
+						}
+
+						updateCastlingRights(fromPiece);
+
+						toCell.setChessPiece(fromPiece);
+						fromPiece.incrementMoveCount();
+					}
+				}
+			}
 		}
 	}
 
