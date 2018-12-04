@@ -336,6 +336,22 @@ public class ChessGame {
 		return blackQueenCastle.getValue();
 	}
 
+	public BooleanProperty getCastleWhiteKingSide() {
+		return whiteKingCastle;
+	}
+
+	public BooleanProperty getCastleWhiteQueenSide() {
+		return whiteQueenCastle;
+	}
+
+	public BooleanProperty getCastleBlackKingSide() {
+		return blackKingCastle;
+	}
+
+	public BooleanProperty getCastleBlackQueenSide() {
+		return blackQueenCastle;
+	}
+
 	/**
 	 * Starts the game, notifies the players the game is starting, and then waits if the players are not ready.
 	 */
