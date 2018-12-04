@@ -38,6 +38,17 @@ public class ChessCell {
 		}
 	}
 
+	public String getCoordString() {
+
+		String coord = "";
+
+		char colChar = (char) (colPos + 97);
+
+		coord = colChar + "" + (rowPos + 1);
+
+		return coord;
+	}
+
 	public String toString() {
 
 		return "Cell["+ colPos + "," + rowPos+ "] " + myPiece;
