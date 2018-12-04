@@ -352,35 +352,6 @@ public class ChessGame {
 		return blackQueenCastle;
 	}
 
-	public void updateCastlingRights(ChessPiece fromPiece) {
-
-		if(Character.toLowerCase(fromPiece.getPieceChar()) == 'k') {
-			if(fromPiece.isWhiteTeam()) {
-				whiteKingCastle.setValue(false);
-				whiteQueenCastle.set(false);
-			}
-			else {
-				blackQueenCastle.setValue(false);
-				blackKingCastle.setValue(false);
-			}
-		}
-
-		if(Character.toLowerCase(fromPiece.getPieceChar()) == 'r') {
-			if(fromPiece.isWhiteTeam()) {
-				if(fromPiece.getCell().getColPos() == 0)
-					whiteQueenCastle.setValue(false);
-				else
-					whiteKingCastle.setValue(false);
-			}
-			else {
-				if(fromPiece.getCell().getColPos() == 0)
-					blackQueenCastle.setValue(false);
-				else
-					blackKingCastle.setValue(false);
-			}
-		}
-	}
-
 	/**
 	 * Starts the game, notifies the players the game is starting, and then waits if the players are not ready.
 	 */
@@ -423,7 +394,7 @@ public class ChessGame {
 	}
 
 	/**
-	 * Called mainly when a player ends their move. Will process all the timer logic and turnCount information.
+	 * Called mainly when a player ends their turn. Will process all the timer logic and turnCount information.
 	 */
 	public void endTurn() {
 
@@ -502,7 +473,31 @@ public class ChessGame {
 							castlePiece.incrementMoveCount();
 						}
 
-						updateCastlingRights(fromPiece);
+						if(Character.toLowerCase(fromPiece.getPieceChar()) == 'k') {
+							if(fromPiece.isWhiteTeam()) {
+								whiteKingCastle.setValue(false);
+								whiteQueenCastle.set(false);
+							}
+							else {
+								blackQueenCastle.setValue(false);
+								blackKingCastle.setValue(false);
+							}
+						}
+
+						if(Character.toLowerCase(fromPiece.getPieceChar()) == 'r') {
+							if(fromPiece.isWhiteTeam()) {
+								if(fromPiece.getCell().getColPos() == 0)
+									whiteQueenCastle.setValue(false);
+								else
+									whiteKingCastle.setValue(false);
+							}
+							else {
+								if(fromPiece.getCell().getColPos() == 0)
+									blackQueenCastle.setValue(false);
+								else
+									blackKingCastle.setValue(false);
+							}
+						}
 
 						toCell.setChessPiece(fromPiece);
 						fromPiece.incrementMoveCount();
