@@ -15,6 +15,8 @@ public class ChessGame {
 	private IntegerProperty turnCount;
 	private IntegerProperty halfTurnCount;
 
+	private ChessCell enPassantCell;
+
 	private ChessPlayer whitePlayer, blackPlayer;
 
 	private BooleanProperty whiteKingCastle, whiteQueenCastle;
@@ -473,7 +475,9 @@ public class ChessGame {
 							castlePiece.incrementMoveCount();
 						}
 
-						if(Character.toLowerCase(fromPiece.getPieceChar()) == 'k') {
+						Character pieceChar = Character.toLowerCase(fromPiece.getPieceChar());
+
+						if(pieceChar == 'k') {
 							if(fromPiece.isWhiteTeam()) {
 								whiteKingCastle.setValue(false);
 								whiteQueenCastle.set(false);
@@ -483,8 +487,7 @@ public class ChessGame {
 								blackKingCastle.setValue(false);
 							}
 						}
-
-						if(Character.toLowerCase(fromPiece.getPieceChar()) == 'r') {
+						else if(pieceChar == 'r') {
 							if(fromPiece.isWhiteTeam()) {
 								if(fromPiece.getCell().getColPos() == 0)
 									whiteQueenCastle.setValue(false);
@@ -498,6 +501,22 @@ public class ChessGame {
 									blackKingCastle.setValue(false);
 							}
 						}
+						else if(pieceChar == 'p') {
+							if(Math.abs(fromCell.getRowPos() - toCell.getRowPos()) == 2) {
+								if(fromPiece.isWhiteTeam())
+									enPassantCell = chessCells[toCell.getColPos()][toCell.getRowPos() - 1];
+								else
+									enPassantCell = chessCells[toCell.getColPos()][toCell.getRowPos() + 1];
+							}
+						}
+						else
+							enPassantCell = null;
+
+						if(chessMove.isCaptureMove() || (pieceChar == 'p'))
+							halfTurnCount.setValue(0);
+						else
+							halfTurnCount.setValue(halfTurnCount.getValue() + 1);
+
 
 						toCell.setChessPiece(fromPiece);
 						fromPiece.incrementMoveCount();
@@ -611,6 +630,27 @@ public class ChessGame {
 				this.whiteKingCastle.setValue(splitSpace[2].contains("K"));
 			}
 
+			if(splitSpace.length > 3) {
+
+				String pos = splitSpace[3];
+
+				if(pos.length() == 2) {
+
+					int cellCol = Character.toLowerCase(pos.charAt(0)) - 97;
+					int cellRow = -1;
+
+					if(isNumber("" + pos.charAt(1)))
+						cellRow = Integer.parseInt("" + pos.charAt(1)) - 1;
+
+					if(cellCol < 8 && cellCol >= 0 && cellRow < 8 && cellRow >= 0)
+						enPassantCell = chessCells[cellCol][cellRow];
+					else
+						enPassantCell = null;
+				}
+				else
+					enPassantCell = null;
+			}
+
 			if(splitSpace.length > 4) {
 				if(isNumber(splitSpace[4]))
 					halfTurnCount.setValue(Integer.parseInt(splitSpace[4]));
@@ -698,7 +738,11 @@ public class ChessGame {
 		else
 			boardFEN = boardFEN + "- ";
 
-		boardFEN = boardFEN + "-"; //en passant
+
+		if(enPassantCell != null)
+			boardFEN = boardFEN + enPassantCell.getCoordString();
+		else
+			boardFEN = boardFEN + "-";
 
 		boardFEN = boardFEN + " ";
 
