@@ -22,7 +22,7 @@ public class ChessMove {
 
 	/**
 	 * Parses a move String to be easier to get the game data
-	 * @param rawMove move string
+	 * @param rawMove move string in long algebraic notation
 	 * @param chessGame game that the move is being played on
 	 */
 	public ChessMove(String rawMove, ChessGame chessGame) {
@@ -84,7 +84,7 @@ public class ChessMove {
 
 	/**
 	 * Parses a move String to be easier to get the game data
-	 * @param rawMove move string
+	 * @param rawMove move string in long algebraic notation
 	 * @param player the player making the move
 	 */
 	public ChessMove(String rawMove, ChessPlayer player) {
@@ -136,6 +136,11 @@ public class ChessMove {
 		this.player = player;
 	}
 
+	/**
+	 * Generates a text representation of the ChessMove in long algebraic notation.
+	 * e.g. b7b8k
+	 * @return generated string
+	 */
 	public String getMoveString() {
 
 		String move = "";
