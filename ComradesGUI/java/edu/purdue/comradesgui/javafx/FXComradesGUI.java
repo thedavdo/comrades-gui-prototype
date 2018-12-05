@@ -67,9 +67,9 @@ public class FXComradesGUI extends Application {
 				timerDurationTextField.setDisable(false);
 				useTimerDelay.setDisable(false);
 				if(!gameInfoGrid.getChildren().contains(blackTimerLabel))
-					gameInfoGrid.add(blackTimerLabel, 0, 4);
+					gameInfoGrid.add(blackTimerLabel, 0, 5);
 				if(!gameInfoGrid.getChildren().contains(whiteTimerLabel))
-					gameInfoGrid.add(whiteTimerLabel, 0, 5);
+					gameInfoGrid.add(whiteTimerLabel, 0, 6);
 			}
 			else {
 				timerDurationTextField.setDisable(true);
@@ -161,7 +161,7 @@ public class FXComradesGUI extends Application {
 		primaryStage.setTitle("ComradesGUI - FX!");
 		primaryStage.setResizable(false);
 
-		chessBoard = new FXChessBoard(500, comradesMain.getCurrentGame());
+
 
 		MenuBar menuBar = new MenuBar();
 
@@ -183,7 +183,7 @@ public class FXComradesGUI extends Application {
 		menuBar.getMenus().add(editMenu);
 
 		VBox menuBarVBox = new VBox(menuBar);
-		Scene scene = new Scene(menuBarVBox, 900, 600);
+		Scene scene = new Scene(menuBarVBox, 900, 625);
 
 		HBox horizontalBox = new HBox();
 		VBox verticalBox = new VBox();
@@ -213,6 +213,8 @@ public class FXComradesGUI extends Application {
 		playerSetupPane = new TitledPane();
 
 		gameInfoGrid = new GridPane();
+
+		chessBoard = new FXChessBoard(500, comradesMain.getCurrentGame());
 
 		whitePlayerCombo = new ComboBox<>();
 		blackPlayerCombo = new ComboBox<>();
@@ -262,7 +264,6 @@ public class FXComradesGUI extends Application {
 		horizontalBox.setPadding(new Insets(4, 4, 4, 4));
 
 		verticalBox.setSpacing(4);
-		verticalBox.setPadding(new Insets(4, 4, 4, 4));
 
 		whitePlayerCombo.setMaxWidth(200);
 		whitePlayerCombo.setPromptText("<none selected>");
@@ -298,9 +299,7 @@ public class FXComradesGUI extends Application {
 		blackTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
 		whiteTimerLabel.setGraphic(whiteTimerFeed);
 		whiteTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
-
-//		deadPiecesWhiteText
-
+		
 		deadPiecesBlackText.setFont(Font.font(chessBoard.getBoardFont().getFamily(), 14));
 		deadPiecesWhiteText.setFont(Font.font(chessBoard.getBoardFont().getFamily(), 14));
 
@@ -584,10 +583,10 @@ public class FXComradesGUI extends Application {
 		playerSetupGrid.add(startGameButton, 0, 8);
 
 		gameInfoGrid.add(currentTurnLabel, 0, 0);
-		gameInfoGrid.add(stopTurnButton, 1, 0);
 		gameInfoGrid.add(currentPlayerLabel, 0, 1);
-		gameInfoGrid.add(deadPiecesBlackLabel, 0, 2);
-		gameInfoGrid.add(deadPiecesWhiteLabel, 0, 3);
+		gameInfoGrid.add(stopTurnButton, 0, 2);
+		gameInfoGrid.add(deadPiecesBlackLabel, 0, 3);
+		gameInfoGrid.add(deadPiecesWhiteLabel, 0, 4);
 
 		verticalBox.getChildren().addAll(playerSetupPane, gameInfoPane);
 		horizontalBox.getChildren().addAll(boardPane, verticalBox);
