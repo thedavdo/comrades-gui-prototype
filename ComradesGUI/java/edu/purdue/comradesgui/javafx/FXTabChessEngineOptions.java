@@ -9,7 +9,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 
@@ -48,7 +47,20 @@ public class FXTabChessEngineOptions extends Tab {
 			if(newVal != null) {
 				if(newVal instanceof ChessEngine) {
 					ChessEngine chessEngine = (ChessEngine) newVal;
-					int rowIndex = 0;
+
+					Label useInfiniteLabel = new Label("Do Infinite");
+					CheckBox useInfiniteCheckBox = new CheckBox();
+
+					useInfiniteLabel.setGraphic(useInfiniteCheckBox);
+					useInfiniteLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+					useInfiniteCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+						chessEngine.getGoCommandBuilder().setInfinite(newValue);
+					}));
+
+					gridOptionList.add(useInfiniteLabel, 0, 0);
+
+					int rowIndex = 1;
 					for(ChessEngineOption option : chessEngine.getOptionList()) {
 						ArrayList<Node> optionNodes = generateOptionNode(option);
 						if(option != null) {
