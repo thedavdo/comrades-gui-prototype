@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui.javafx;
+package edu.purdue.comradesgui.src.javafx;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

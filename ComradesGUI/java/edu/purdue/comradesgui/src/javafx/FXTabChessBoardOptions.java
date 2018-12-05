@@ -1,4 +1,4 @@
-package edu.purdue.comradesgui.javafx;
+package edu.purdue.comradesgui.src.javafx;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
