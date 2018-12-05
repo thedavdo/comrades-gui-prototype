@@ -27,7 +27,8 @@ public class ChessMove {
 			String pos1 = rawMove.substring(0, 2);
 			String pos2 = rawMove.substring(2, 4);
 
-			promotion = rawMove.charAt(4);
+			if(rawMove.length() > 4)
+				promotion = rawMove.charAt(4);
 
 			int fromCol = getNumFromLetter(pos1.charAt(0));
 			int fromRow = Integer.parseInt("" + pos1.charAt(1)) - 1;
