@@ -107,7 +107,7 @@ public class ChessEngineGoBuilder extends ChessEngineCommand {
 			cmd += " searchmoves";
 
 			for(ChessMove move : searchMoves)
-				cmd += " " + move.getRawMove();
+				cmd += " " + move.getMoveString();
 		}
 		else if(ponder) {
 			cmd += " ponder";
@@ -124,19 +124,18 @@ public class ChessEngineGoBuilder extends ChessEngineCommand {
 					cmd += " winc " + chessGame.getTimerDelay();
 					cmd += " binc " + chessGame.getTimerDelay();
 				}
-
-				if(depth > 0)
-					cmd += " depth " + depth;
-
-				if(nodes > 0)
-					cmd += " nodes " + nodes;
-
-				if(mate > 0)
-					cmd += " mate " + mate;
-
-				if(moveTime > 0)
-					cmd += " movetime " + moveTime;
 			}
+			if(depth > 0)
+				cmd += " depth " + depth;
+
+			if(nodes > 0)
+				cmd += " nodes " + nodes;
+
+			if(mate > 0)
+				cmd += " mate " + mate;
+
+			if(moveTime > 0)
+				cmd += " movetime " + moveTime;
 		}
 
 		return cmd;
