@@ -19,6 +19,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -299,7 +301,7 @@ public class FXComradesGUI extends Application {
 		blackTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
 		whiteTimerLabel.setGraphic(whiteTimerFeed);
 		whiteTimerLabel.setContentDisplay(ContentDisplay.RIGHT);
-		
+
 		deadPiecesBlackText.setFont(Font.font(chessBoard.getBoardFont().getFamily(), 14));
 		deadPiecesWhiteText.setFont(Font.font(chessBoard.getBoardFont().getFamily(), 14));
 
@@ -338,6 +340,30 @@ public class FXComradesGUI extends Application {
 
 				if(engine.hasLoadedFromFile())
 					comradesMain.addPlayer(engine);
+			}
+		});
+
+		saveAsButton.setOnAction((actionEvent) -> {
+
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Save PGN...");
+			File file = fileChooser.showSaveDialog(primaryStage);
+
+			if(file != null) {
+
+				PrintWriter out = null;
+				try {
+					out = new PrintWriter(file);
+					System.out.println("File '" + file.getName() + "' created.");
+				}
+				catch (FileNotFoundException e) {
+					System.out.println("!! Error: Could not created run file '" + e.getMessage() + "' !!");
+				}
+
+				if(out != null) {
+					out.println(comradesMain.getCurrentGame().generateStringPGN());
+					out.close();
+				}
 			}
 		});
 
@@ -421,6 +447,8 @@ public class FXComradesGUI extends Application {
 
 		timerDurationTextField.textProperty().addListener(((observable, oldValue, newValue)  -> {
 
+			boolean useOld = true;
+
 			if(newValue != null) {
 				if(!newValue.isEmpty()) {
 
@@ -434,6 +462,7 @@ public class FXComradesGUI extends Application {
 						long seconds = TimeUnit.MILLISECONDS.toSeconds(lVal) % 60;
 
 						timerDurationTextField.setText(hours + ":" + minutes + ":" + seconds);
+						useOld = false;
 					}
 					else if(split.length == 3) {
 
@@ -469,23 +498,23 @@ public class FXComradesGUI extends Application {
 								comradesMain.getCurrentGame().setTimerDuration(totalValue);
 							else
 								timerDurationTextField.setText(totalValue + "");
+							useOld = false;
 						}
-						else
-							timerDurationTextField.setText(oldValue);
 					}
-					else
-						timerDurationTextField.setText(oldValue);
 				}
-				else
+			}
+
+			if(useOld) {
+				if(oldValue != null)
 					timerDurationTextField.setText(oldValue);
 			}
-			else
-				timerDurationTextField.setText(oldValue);
 
 			updateButtons();
 		}));
 
 		timerDelayTextField.textProperty().addListener(((observable, oldValue, newValue) -> {
+
+			boolean useOld = true;
 
 			if(newValue != null) {
 				if(!newValue.isEmpty()) {
@@ -500,6 +529,7 @@ public class FXComradesGUI extends Application {
 						long seconds = TimeUnit.MILLISECONDS.toSeconds(lVal) % 60;
 
 						timerDelayTextField.setText(hours + ":" + minutes + ":" + seconds);
+						useOld = false;
 					}
 					else if(split.length == 3) {
 
@@ -534,18 +564,16 @@ public class FXComradesGUI extends Application {
 								comradesMain.getCurrentGame().setTimerDelay(totalValue);
 							else
 								timerDelayTextField.setText(totalValue + "");
+							useOld = false;
 						}
-						else
-							timerDelayTextField.setText(oldValue);
 					}
-					else
-						timerDelayTextField.setText(oldValue);
 				}
-				else
+			}
+
+			if(useOld) {
+				if (oldValue != null)
 					timerDelayTextField.setText(oldValue);
 			}
-			else
-				timerDelayTextField.setText(oldValue);
 
 			updateButtons();
 		}));
