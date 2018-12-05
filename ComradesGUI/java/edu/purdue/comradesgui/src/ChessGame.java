@@ -670,8 +670,6 @@ public class ChessGame {
 				if(isNumber(splitSpace[5]))
 					turnCount.setValue(Integer.parseInt(splitSpace[5]));
 			}
-
-			System.out.println(generateStringFEN());
 		}
 	}
 
