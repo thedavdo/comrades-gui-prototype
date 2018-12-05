@@ -38,6 +38,7 @@ public class FXComradesGUI extends Application {
 	private CheckBox useTimerDelay;
 	private CheckBox useDelayAsBuffer;
 	private Button startGameButton;
+	private Button stopTurnButton;
 	private TextField timerDurationTextField;
 	private TextField timerDelayTextField;
 
@@ -219,6 +220,7 @@ public class FXComradesGUI extends Application {
 		useTimerDelay = new CheckBox("Enable Delay");
 		useDelayAsBuffer = new CheckBox("Use as Buffer?");
 		startGameButton = new Button("Start Game!");
+		stopTurnButton = new Button("Stop Turn");
 		timerDurationTextField = new TextField();
 		timerDelayTextField = new TextField();
 		blackTimerLabel = new Label("Black Clock:");
@@ -370,6 +372,7 @@ public class FXComradesGUI extends Application {
 
 			result.ifPresent((inFEN) -> comradesMain.getCurrentGame().setBoardFromFEN(inFEN));
 		});
+
 
 		whitePlayerCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
@@ -562,6 +565,14 @@ public class FXComradesGUI extends Application {
 			updateButtons();
 		});
 
+		stopTurnButton.setOnAction((actionEvent) -> {
+
+			ChessPlayer ply = comradesMain.getCurrentGame().getCurrentTurnsPlayer();
+			if(ply instanceof ChessEngine) {
+				((ChessEngine) ply).requestCommand("stop", true);
+			}
+		});
+
 		playerSetupGrid.add(blackComboLabel, 0, 0);
 		playerSetupGrid.add(versusText, 0, 1);
 		playerSetupGrid.add(whiteComboLabel, 0, 2);
@@ -573,6 +584,7 @@ public class FXComradesGUI extends Application {
 		playerSetupGrid.add(startGameButton, 0, 8);
 
 		gameInfoGrid.add(currentTurnLabel, 0, 0);
+		gameInfoGrid.add(stopTurnButton, 1, 0);
 		gameInfoGrid.add(currentPlayerLabel, 0, 1);
 		gameInfoGrid.add(deadPiecesBlackLabel, 0, 2);
 		gameInfoGrid.add(deadPiecesWhiteLabel, 0, 3);
