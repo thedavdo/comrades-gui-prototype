@@ -7,10 +7,17 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChessGame {
 
 	private ChessCell[][] chessCells;
 	private ObservableList<ChessPiece> deadWhite, deadBlack;
+
+	private List<ChessMove> chessMoveList;
 
 	private IntegerProperty turnCount;
 	private IntegerProperty halfTurnCount;
@@ -48,6 +55,8 @@ public class ChessGame {
 
 		gameStarted = new SimpleBooleanProperty();
 
+		chessMoveList = new ArrayList<>();
+
 		turnCount = new SimpleIntegerProperty();
 		halfTurnCount = new SimpleIntegerProperty();
 
@@ -77,7 +86,7 @@ public class ChessGame {
 
 		gameStarted.setValue(false);
 
-		turnCount.set(1);
+		turnCount.setValue(1);
 
 		useTimers.setValue(false);
 		useTimerIncrement.setValue(false);
@@ -95,6 +104,7 @@ public class ChessGame {
 		chessMoveListener = (player, move) -> {
 			if(player == getCurrentTurnsPlayer()) {
 				performMove(move);
+				chessMoveList.add(move);
 				endTurn();
 			}
 		};
@@ -753,6 +763,67 @@ public class ChessGame {
 		boardFEN = boardFEN + turnCount.getValue();
 
 		return boardFEN;
+	}
+
+	public String generateStringPGN() {
+
+		String out = "";
+
+		out += "[Event " + '"' + "ComradesGUI Match" + '"' + "]" + System.lineSeparator();
+		out += "[Site " + '"' + "Simulation" + '"' + "]" + System.lineSeparator();
+
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+		LocalDateTime now = LocalDateTime.now();
+
+		out += "[Date " + '"' + dtf.format(now) + '"' + "]" + System.lineSeparator();
+		out += "[Round " + '"' + turnCount.getValue() + '"' + "]" + System.lineSeparator();
+
+
+		if(whitePlayer != null)
+			out += "[White " + '"' + whitePlayer.getPlayerName() + '"' + "]" + System.lineSeparator();
+
+		if(blackPlayer != null)
+			out += "[Black " + '"' + blackPlayer.getPlayerName() + '"' + "]" + System.lineSeparator();
+		out += "[Result " + '"' + "TBD" + '"' + "]" + System.lineSeparator();
+
+		out += System.lineSeparator();
+
+		String buildMoves = "";
+
+		int curMove = -1;
+		for(int i = 0; i < chessMoveList.size(); i++) {
+
+			ChessMove move = chessMoveList.get(i);
+
+			if(curMove != move.getTurnNumber()) {
+				curMove = move.getTurnNumber();
+				buildMoves += curMove + ". ";
+			}
+
+			if(move.isCastlingMove()) {
+				buildMoves += "O-O";
+			}
+			else {
+
+				if(move.isMoveFound()) {
+					if(Character.toLowerCase(move.getMovingPiece().getPieceChar()) != 'p')
+						buildMoves += move.getMovingPiece().getPieceChar();
+
+					if(move.isCaptureMove())
+						buildMoves += "x";
+
+					buildMoves += move.getToCell().getCoordString();
+				}
+				else
+					buildMoves += "0000";
+			}
+
+			buildMoves += " ";
+		}
+
+		out += buildMoves;
+
+		return out;
 	}
 
 	private boolean isNumber(String in) {
