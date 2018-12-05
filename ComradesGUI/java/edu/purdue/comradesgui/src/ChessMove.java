@@ -11,7 +11,14 @@ public class ChessMove {
 	private ChessCell fromCell;
 	private ChessCell toCell;
 
+	private ChessPiece movingPiece;
+
 	private Character promotion;
+
+	private int turnNumber;
+
+	private boolean isCapture;
+	private boolean isCastling;
 
 	/**
 	 * Parses a move String to be easier to get the game data
@@ -24,6 +31,9 @@ public class ChessMove {
 		this.inputMoveString = rawMove;
 
 		if(isMoveFound()) {
+
+			turnNumber = chessGame.getTurnCount();
+
 			String pos1 = rawMove.substring(0, 2);
 			String pos2 = rawMove.substring(2, 4);
 
@@ -36,9 +46,38 @@ public class ChessMove {
 			int toCol = getNumFromLetter(pos2.charAt(0));
 			int toRow = Integer.parseInt("" + pos2.charAt(1)) - 1;
 
-			if(chessGame != null) {
-				fromCell = chessGame.getCells()[fromCol][fromRow];
-				toCell = chessGame.getCells()[toCol][toRow];
+			fromCell = chessGame.getCells()[fromCol][fromRow];
+			toCell = chessGame.getCells()[toCol][toRow];
+
+			movingPiece = fromCell.getChessPiece();
+
+			if(toCell != null && fromCell != null) {
+				ChessPiece toPiece = toCell.getChessPiece();
+				ChessPiece fromPiece = fromCell.getChessPiece();
+				if(toPiece != null && fromPiece != null)
+					isCapture = (toPiece.isWhiteTeam() != fromPiece.isWhiteTeam());
+			}
+
+			if(!isCaptureMove()) {
+
+				if (toCell != null && fromCell != null) {
+
+					ChessPiece fromPiece = fromCell.getChessPiece();
+					if (fromPiece != null) {
+
+						int selRow = -1;
+
+						if (fromPiece.isWhiteTeam())
+							selRow = 0;
+						else if (fromPiece.isBlackTeam())
+							selRow = 7;
+
+						boolean fromCellVerify = (fromCell.getColPos() == 4 && fromCell.getRowPos() == selRow);
+						boolean toCellVerify = (toCell.getColPos() == 2 || toCell.getColPos() == 6) && (toCell.getRowPos() == selRow);
+
+						isCastling = fromCellVerify && toCellVerify;
+					}
+				}
 			}
 		}
 	}
@@ -126,6 +165,7 @@ public class ChessMove {
 
 	public void setFromCell(ChessCell fromCell) {
 		this.fromCell = fromCell;
+		this.movingPiece = fromCell.getChessPiece();
 	}
 
 	public ChessCell getToCell() {
@@ -138,41 +178,12 @@ public class ChessMove {
 
 	public boolean isCaptureMove() {
 
-		if(toCell != null && fromCell != null) {
-			ChessPiece toPiece = toCell.getChessPiece();
-			ChessPiece fromPiece = fromCell.getChessPiece();
-			if(toPiece != null && fromPiece != null)
-				return (toPiece.isWhiteTeam() != fromPiece.isWhiteTeam());
-		}
-
-		return false;
+		return isCapture;
 	}
 
 	public boolean isCastlingMove() {
 
-		if(isCaptureMove())
-			return false;
-
-		if(toCell != null && fromCell != null) {
-
-			ChessPiece fromPiece = fromCell.getChessPiece();
-			if(fromPiece != null) {
-
-				int selRow = -1;
-
-				if(fromPiece.isWhiteTeam())
-					selRow = 0;
-				else if(fromPiece.isBlackTeam())
-					selRow = 7;
-
-				boolean fromCellVerify = (fromCell.getColPos() == 4 && fromCell.getRowPos() == selRow);
-				boolean toCellVerify = (toCell.getColPos() == 2 || toCell.getColPos() == 6) && (toCell.getRowPos() == selRow);
-
-				return fromCellVerify && toCellVerify;
-			}
-		}
-
-		return false;
+		return isCastling;
 	}
 
 	public boolean isPromotionMove() {
@@ -182,6 +193,15 @@ public class ChessMove {
 
 	public void setPromotion(Character promoChar) {
 		promotion = promoChar;
+	}
+
+	public int getTurnNumber() {
+		return turnNumber;
+	}
+
+	public ChessPiece getMovingPiece() {
+
+		return movingPiece;
 	}
 
 	/**
