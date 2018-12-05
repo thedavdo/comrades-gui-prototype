@@ -88,6 +88,10 @@ public class ChessEngine extends ChessPlayer {
 		return null;
 	}
 
+	public ChessEngineGoBuilder getGoCommandBuilder() {
+		return goCommand;
+	}
+
 	public ObservableList<ChessEngineOption> getOptionList() {
 		return optionList;
 	}
