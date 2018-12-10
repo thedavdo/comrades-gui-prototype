@@ -140,7 +140,7 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 	public void actionPerformed(ActionEvent act_evt) // JComboBox
 	{
 		String S = act_evt.getSource().getClass().getName();
-		if (S.equals("javax.old.JButton")) {
+		if (S.equals("javax.swing.JButton")) {
 			JButton B = (JButton) (act_evt.getSource()); // incur ?
 			if (act_evt.getActionCommand() == "CONFIRM")
 				ConfirmChanges();
@@ -153,7 +153,7 @@ public class InstanceOptionsFrame implements KeyListener, ItemListener, ActionLi
 			else
 				ButtonPush(act_evt.getActionCommand());
 		}
-		if (S.equals("javax.old.JComboBox")) {
+		if (S.equals("javax.swing.JComboBox")) {
 			JComboBox B = (JComboBox) (act_evt.getSource());
 			ChangeValue(act_evt.getActionCommand(), (String) (B.getSelectedItem()));
 		}
