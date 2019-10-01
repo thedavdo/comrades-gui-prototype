@@ -468,7 +468,7 @@ public class ChessGame {
 							int selToColSide = -1;
 
 							if(toCell.getColPos() < fromCell.getColPos()) {
-								selFromColSide = toCell.getColPos() - 1;
+								selFromColSide = fromCell.getColPos();
 								selToColSide =  toCell.getColPos() + 1;
 							}
 							else if(toCell.getColPos() > fromCell.getColPos()) {
